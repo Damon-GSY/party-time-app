@@ -283,50 +283,60 @@
 }
 
 .time-axis {
-  display: flex;
-  padding-left: 0;
-  margin-bottom: 16rpx;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  margin-bottom: 12rpx;
+  padding: 0 4rpx;
+}
+
+.time-axis.time-axis-4 {
+  grid-template-columns: repeat(4, 1fr);
 }
 
 .time-label {
-  flex: 1;
   text-align: center;
   font-size: 22rpx;
   color: var(--text-muted);
+  font-weight: 500;
 }
 
 .slots-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12rpx;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 16rpx;
+  padding: 8rpx 0;
 }
 
-/* 24小时粒度 - 24个格子 */
-.slots-grid.slots-24 .slot-cell {
-  width: calc((100% - 23 * 12rpx) / 24);
+/* 12个时段 - 2行6列 */
+.slots-grid.slots-12 {
+  grid-template-columns: repeat(6, 1fr);
 }
 
-/* 12个时段 - 2小时粒度 */
-.slots-grid.slots-12 .slot-cell {
-  width: calc((100% - 11 * 12rpx) / 12);
+/* 24个时段 - 4行6列 */
+.slots-grid.slots-24 {
+  grid-template-columns: repeat(6, 1fr);
 }
 
-/* 4个时段 - 半天粒度 */
-.slots-grid.slots-4 .slot-cell {
-  width: calc((100% - 3 * 12rpx) / 4);
+/* 4个时段 - 1行4列 */
+.slots-grid.slots-4 {
+  grid-template-columns: repeat(4, 1fr);
 }
 
 .slot-cell {
-  width: calc((100% - 11 * 12rpx) / 12);
-  aspect-ratio: 1;
+  height: 88rpx;
+  min-height: 88rpx;
   background: rgba(15, 52, 96, 0.4);
   border: 2rpx solid rgba(255, 255, 255, 0.06);
-  border-radius: 12rpx;
+  border-radius: 16rpx;
   position: relative;
   animation: slotFadeIn 0.4s ease forwards;
   opacity: 0;
   transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 @keyframes slotFadeIn {
@@ -344,20 +354,31 @@
   width: 100%;
   height: 100%;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 4rpx;
+}
+
+.slot-time {
+  font-size: 22rpx;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.slot-cell.selected .slot-time {
+  color: #fff;
 }
 
 .slot-cell-hover {
-  transform: scale(0.9);
+  transform: scale(0.95);
   background: rgba(233, 69, 96, 0.2);
 }
 
 .slot-cell.selected {
   background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
-  border-color: transparent;
-  transform: scale(1.08);
-  box-shadow: 0 6rpx 20rpx rgba(233, 69, 96, 0.4);
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8rpx 24rpx rgba(233, 69, 96, 0.5), inset 0 1rpx 0 rgba(255, 255, 255, 0.2);
 }
 
 .slot-cell.partial {

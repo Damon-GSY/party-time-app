@@ -14,12 +14,13 @@
       --bg-secondary: #16213e;
       --bg-card: #0f3460;
       --text-primary: #ffffff;
-      --text-secondary: #a0a0a0;
-      --text-muted: #6b6b6b;
-      --border-color: #2a2a4a;
+      --text-secondary: #b8b8c8;
+      --text-muted: #8888a0;
+      --text-tertiary: #6b6b8b;
+      --border-color: #3a3a5a;
       --success-color: #4ade80;
       --warning-color: #fbbf24;
-      --danger-color: #ef4444;
+      --danger-color: #f87171;
     }
 
     /* ========== Base Styles ========== */
@@ -1372,6 +1373,12 @@
       margin-bottom: 12px;
     }
 
+    .modal-header-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
     .modal-title {
       font-size: 16px;
       font-weight: 600;
@@ -1384,6 +1391,26 @@
       background: rgba(233, 69, 96, 0.15);
       padding: 4px 8px;
       border-radius: 5px;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 24px;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .modal-close:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
     }
 
     .modal-body {
@@ -1808,12 +1835,15 @@
     </div>
 
     <!-- Slot Detail Modal -->
-    <div class="slot-modal" id="slot-modal">
+    <div class="slot-modal" id="slot-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
       <div class="modal-backdrop" id="modal-backdrop"></div>
       <div class="modal-content">
         <div class="modal-header">
           <span class="modal-title" id="modal-title">周六 14:00-15:00</span>
-          <span class="modal-count" id="modal-count">4 人有空</span>
+          <div class="modal-header-right">
+            <span class="modal-count" id="modal-count">4 人有空</span>
+            <button class="modal-close" id="modal-close" aria-label="关闭">×</button>
+          </div>
         </div>
         <div class="modal-body">
           <div class="participant-list" id="modal-participants">
@@ -1839,16 +1869,16 @@
     </div>
 
     <!-- Tab Bar -->
-    <div class="tab-bar">
-      <div class="tab-item active" data-page="index">
+    <div class="tab-bar" role="tablist">
+      <div class="tab-item active" data-page="index" role="tab" aria-selected="true" aria-controls="page-index" tabindex="0">
         <span class="tab-icon">🏠</span>
         <span class="tab-label">首页</span>
       </div>
-      <div class="tab-item" data-page="vote">
+      <div class="tab-item" data-page="vote" role="tab" aria-selected="false" aria-controls="page-vote" tabindex="0">
         <span class="tab-icon">✏️</span>
         <span class="tab-label">填写</span>
       </div>
-      <div class="tab-item" data-page="result">
+      <div class="tab-item" data-page="result" role="tab" aria-selected="false" aria-controls="page-result" tabindex="0">
         <span class="tab-icon">📊</span>
         <span class="tab-label">统计</span>
       </div>
@@ -1856,48 +1886,80 @@
   </div>
 
   <script>
-    // Tab switching
+    // Tab switching with ARIA support
     const tabItems = document.querySelectorAll('.tab-item');
     const pages = document.querySelectorAll('.page');
 
     tabItems.forEach(tab => {
-      tab.addEventListener('click', () => {
-        const targetPage = tab.dataset.page;
+      tab.setAttribute('role', 'tab');
+      tab.setAttribute('tabindex', '0');
 
-        tabItems.forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-
-        pages.forEach(page => {
-          page.classList.remove('active');
-          if (page.id === `page-${targetPage}`) {
-            page.classList.add('active');
-          }
-        });
+      tab.addEventListener('click', () => switchTab(tab));
+      tab.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          switchTab(tab);
+        }
       });
     });
 
-    // Vote page - slot selection
+    function switchTab(tab) {
+      const targetPage = tab.dataset.page;
+
+      tabItems.forEach(t => {
+        t.classList.remove('active');
+        t.setAttribute('aria-selected', 'false');
+      });
+      tab.classList.add('active');
+      tab.setAttribute('aria-selected', 'true');
+
+      pages.forEach(page => {
+        page.classList.remove('active');
+        if (page.id === `page-${targetPage}`) {
+          page.classList.add('active');
+        }
+      });
+    }
+
+    // Create button click handler
+    document.querySelector('.create-btn')?.addEventListener('click', () => {
+      alert('创建聚会功能开发中...\n\n完整功能请使用微信小程序版本');
+    });
+
+    // Event cards click handler
+    document.querySelectorAll('.event-card').forEach(card => {
+      card.style.cursor = 'pointer';
+      card.addEventListener('click', () => {
+        // Switch to result page for demo
+        document.querySelector('[data-page="result"]').click();
+      });
+    });
+
+    // Vote page - slot selection with persistence per date
     const slotsGrid = document.getElementById('slots-grid');
     const selectedCountEl = document.getElementById('selected-count');
     const submitBtn = document.getElementById('submit-btn');
     const clearBtn = document.getElementById('clear-btn');
     const selectAllBtn = document.getElementById('select-all-btn');
 
-    const slots = [];
     const TOTAL_SLOTS = 12;
+    let currentDate = 0;
+    const selectionsByDate = { 0: [], 1: [] };
 
     // Initialize slots
     function initSlots() {
       slotsGrid.innerHTML = '';
-      slots.length = 0;
+      const currentSelections = selectionsByDate[currentDate] || [];
 
       for (let i = 0; i < TOTAL_SLOTS; i++) {
-        slots.push({ selected: false });
+        const isSelected = currentSelections.includes(i);
         const slotEl = document.createElement('div');
-        slotEl.className = 'slot-cell';
+        slotEl.className = 'slot-cell' + (isSelected ? ' selected' : '');
         slotEl.dataset.index = i;
         slotEl.style.animationDelay = `${0.02 * i}s`;
-        slotEl.innerHTML = '<div class="slot-inner"></div>';
+        slotEl.innerHTML = isSelected
+          ? '<div class="slot-inner"><div class="slot-check"><span class="check-icon">✓</span></div></div>'
+          : '<div class="slot-inner"></div>';
 
         slotEl.addEventListener('click', () => toggleSlot(i));
         slotsGrid.appendChild(slotEl);
@@ -1905,7 +1967,15 @@
     }
 
     function toggleSlot(index) {
-      slots[index].selected = !slots[index].selected;
+      const selections = selectionsByDate[currentDate];
+      const idx = selections.indexOf(index);
+
+      if (idx === -1) {
+        selections.push(index);
+      } else {
+        selections.splice(idx, 1);
+      }
+
       updateSlotUI(index);
       updateSummary();
     }
@@ -1913,8 +1983,9 @@
     function updateSlotUI(index) {
       const slotEl = slotsGrid.children[index];
       const innerEl = slotEl.querySelector('.slot-inner');
+      const isSelected = selectionsByDate[currentDate].includes(index);
 
-      if (slots[index].selected) {
+      if (isSelected) {
         slotEl.classList.add('selected');
         innerEl.innerHTML = '<div class="slot-check"><span class="check-icon">✓</span></div>';
       } else {
@@ -1924,10 +1995,10 @@
     }
 
     function updateSummary() {
-      const count = slots.filter(s => s.selected).length;
+      const count = Object.values(selectionsByDate).flat().length;
       selectedCountEl.textContent = count;
       selectedCountEl.style.animation = 'none';
-      selectedCountEl.offsetHeight; // Trigger reflow
+      selectedCountEl.offsetHeight;
       selectedCountEl.style.animation = 'countPop 0.3s ease';
 
       if (count > 0) {
@@ -1940,28 +2011,24 @@
     }
 
     clearBtn.addEventListener('click', () => {
-      slots.forEach((slot, i) => {
-        slot.selected = false;
-        updateSlotUI(i);
-      });
+      selectionsByDate[currentDate] = [];
+      initSlots();
       updateSummary();
     });
 
     selectAllBtn.addEventListener('click', () => {
-      slots.forEach((slot, i) => {
-        slot.selected = true;
-        updateSlotUI(i);
-      });
+      selectionsByDate[currentDate] = Array.from({ length: TOTAL_SLOTS }, (_, i) => i);
+      initSlots();
       updateSummary();
     });
 
-    // Date tab switching
+    // Date tab switching with selection persistence
     const dateTabs = document.querySelectorAll('.date-tab');
     dateTabs.forEach(tab => {
       tab.addEventListener('click', () => {
         dateTabs.forEach(t => t.classList.remove('active'));
         tab.classList.add('active');
-        // Re-init slots for new date
+        currentDate = parseInt(tab.dataset.date);
         initSlots();
         updateSummary();
       });
@@ -1971,6 +2038,7 @@
     const heatmapCells = document.querySelectorAll('.heatmap-cell');
     const slotModal = document.getElementById('slot-modal');
     const modalBackdrop = document.getElementById('modal-backdrop');
+    const modalClose = document.getElementById('modal-close');
     const modalTitle = document.getElementById('modal-title');
     const modalCount = document.getElementById('modal-count');
     const modalParticipants = document.getElementById('modal-participants');
@@ -1986,6 +2054,10 @@
       '1-13': ['小明', '小李', '小张'],
       '1-14': ['小明', '小红', '小李'],
     };
+
+    function closeModal() {
+      slotModal.classList.remove('show');
+    }
 
     heatmapCells.forEach(cell => {
       cell.addEventListener('click', () => {
@@ -2013,13 +2085,12 @@
       });
     });
 
-    modalBackdrop.addEventListener('click', () => {
-      slotModal.classList.remove('show');
-    });
+    modalBackdrop.addEventListener('click', closeModal);
+    modalClose?.addEventListener('click', closeModal);
 
     // Submit button
     submitBtn.addEventListener('click', () => {
-      const count = slots.filter(s => s.selected).length;
+      const count = Object.values(selectionsByDate).flat().length;
       if (count > 0) {
         alert(`提交成功！已选择 ${count} 个时段`);
       }
@@ -2027,6 +2098,7 @@
 
     // Initialize
     initSlots();
+    updateSummary();
   </script>
 </body>
 </html>

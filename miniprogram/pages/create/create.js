@@ -11,7 +11,8 @@ Page({
     expireType: '7days',
     note: '',
     canSubmit: false,
-    submitting: false
+    submitting: false,
+    createdEventId: '' // 存储创建成功的活动ID，用于分享
   },
 
   onLoad() {
@@ -118,6 +119,9 @@ Page({
       if (res.result && res.result.success) {
         const eventId = res.result.eventId
 
+        // 存储活动ID用于分享
+        this.setData({ createdEventId: eventId })
+
         wx.showToast({
           title: '创建成功',
           icon: 'success'
@@ -161,9 +165,12 @@ Page({
 
   // 分享
   onShareAppMessage() {
+    const { name, createdEventId } = this.data
     return {
-      title: `来帮我选个时间：${this.data.name}`,
-      path: '/pages/index/index'
+      title: `来帮我选个时间：${name}`,
+      path: createdEventId
+        ? `/pages/vote/vote?id=${createdEventId}`
+        : '/pages/index/index'
     }
   }
 })

@@ -190,6 +190,24 @@
   border-radius: 20rpx;
 }
 
+.recommend-card.recommend-empty {
+  background: linear-gradient(135deg, rgba(107, 107, 128, 0.15), rgba(107, 107, 128, 0.05));
+  border-color: rgba(107, 107, 128, 0.3);
+}
+
+.recommend-card.recommend-empty .recommend-title {
+  color: var(--text-secondary);
+}
+
+.recommend-card.recommend-empty .recommend-icon {
+  animation: float-emoji 3s ease-in-out infinite;
+}
+
+@keyframes float-emoji {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10rpx); }
+}
+
 .recommend-icon {
   font-size: 48rpx;
 }
@@ -257,12 +275,24 @@
   border-radius: 6rpx;
 }
 
-.legend-color.low {
-  background: rgba(233, 69, 96, 0.2);
+.legend-color.level-0 {
+  background: rgba(233, 69, 96, 0.1);
 }
 
-.legend-color.high {
+.legend-color.level-2 {
+  background: rgba(233, 69, 96, 0.5);
+}
+
+.legend-color.level-4 {
   background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+}
+
+.legend-hint {
+  font-size: 20rpx;
+  color: var(--text-muted);
+  padding: 6rpx 12rpx;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8rpx;
 }
 
 /* 日期标签 */
@@ -430,12 +460,37 @@
   color: #fff;
 }
 
+.modal-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
 .modal-count {
   font-size: 26rpx;
   color: var(--primary-light);
   background: rgba(233, 69, 96, 0.15);
   padding: 8rpx 16rpx;
   border-radius: 10rpx;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 40rpx;
+  width: 56rpx;
+  height: 56rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.modal-close:active {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
 }
 
 .modal-body {

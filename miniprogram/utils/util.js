@@ -27,38 +27,27 @@ const formatDateShort = (date) => {
 
 /**
  * 格式化时间段
+ * @param {number} hour - 时段索引（halfDay时为0-3，其他粒度为小时数）
+ * @param {string} granularity - 粒度类型
  */
 const formatTimeSlot = (hour, granularity) => {
-  const startHour = hour
-  let endHour
-
   switch (granularity) {
     case 'hour':
-      endHour = hour + 1
-      break
+      return `${String(hour).padStart(2, '0')}:00-${String(hour + 1).padStart(2, '0')}:00`
     case 'twoHours':
-      endHour = hour + 2
-      break
+      return `${String(hour).padStart(2, '0')}:00-${String(hour + 2).padStart(2, '0')}:00`
     case 'halfDay':
-      // 0: 0-12点 = 上午 0-12
-      // 12: 12-18点 = 下午 12-18
-      // 18: 18-24点 = 晚上 18-24
-      if (hour === 0) {
-        return '上午 00:00-12:00'
-      } else if (hour === 1) {
-        return '下午 12:00-18:00'
-      } else if (hour === 2) {
-        return '晚上 18:00-24:00'
-      } else {
-        return '深夜 00:00-06:00'
-      }
+      // hour 是索引 0-3，对应4个半天时段
+      const halfDayLabels = [
+        '上午 00:00-12:00',
+        '下午 12:00-18:00',
+        '晚上 18:00-24:00',
+        '深夜 00:00-06:00'
+      ]
+      return halfDayLabels[hour] || halfDayLabels[0]
     default:
-      endHour = hour + 1
+      return `${String(hour).padStart(2, '0')}:00-${String(hour + 1).padStart(2, '0')}:00`
   }
-
-  const startStr = String(startHour).padStart(2, '0')
-  const endStr = String(endHour).padStart(2, '0')
-  return `${startStr}:00-${endStr}:00`
 }
 
 /**
@@ -79,6 +68,7 @@ const generateDateRange = (startDate, endDate) => {
 
 /**
  * 生成时间槽（从0点开始，覆盖全天24小时）
+ * 注意：halfDay 粒度使用索引 0-3，与 formatTimeSlot 保持一致
  */
 const generateTimeSlots = (granularity) => {
   const slots = []
@@ -97,11 +87,10 @@ const generateTimeSlots = (granularity) => {
       }
       break
     case 'halfDay':
-      // 4个时段：上午、下午、晚上、深夜
-      slots.push({ hour: 0, label: '上午 00:00-06:00' })
-      slots.push({ hour: 6, label: '上午 06:00-12:00' })
-      slots.push({ hour: 12, label: '下午 12:00-18:00' })
-      slots.push({ hour: 18, label: '晚上 18:00-24:00' })
+      // 4个时段，使用索引 0-3（与 formatTimeSlot 一致）
+      for (let i = 0; i < 4; i++) {
+        slots.push({ hour: i, label: formatTimeSlot(i, 'halfDay') })
+      }
       break
     default:
       for (let i = 0; i < 24; i += 2) {

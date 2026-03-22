@@ -35,9 +35,17 @@ Page({
 
   onLoad(options) {
     const { id } = options
-    if (!id) {
+    // 参数验证
+    if (!id || typeof id !== 'string' || id.length < 5) {
       wx.showToast({ title: '参数错误', icon: 'none' })
-      setTimeout(() => wx.navigateBack(), 1500)
+      setTimeout(() => {
+        const pages = getCurrentPages()
+        if (pages.length > 1) {
+          wx.navigateBack()
+        } else {
+          wx.redirectTo({ url: '/pages/index/index' })
+        }
+      }, 1500)
       return
     }
 
@@ -238,12 +246,13 @@ Page({
     const date = dates[index]
     const currentSlots = []
 
-    // 根据粒度生成时段
+    // 根据粒度生成时段，显示时间标签
     for (let i = 0; i < slotsPerDay; i++) {
       const id = `${date.date}_${i}`
       currentSlots.push({
         id,
-        selected: slots[id] || false
+        selected: slots[id] || false,
+        timeLabel: util.formatTimeSlot(i, granularity)
       })
     }
 
@@ -259,29 +268,28 @@ Page({
     this.setCurrentSlots(index)
   },
 
-  // 切换时段选择
+  // 切换时段选择（优化：使用路径更新避免完整对象复制）
   toggleSlot(e) {
     const { index } = e.currentTarget.dataset
-    const { currentSlots, slots } = this.data
+    const { currentSlots, selectedCount } = this.data
     const slot = currentSlots[index]
 
     // 切换状态
     const newSelected = !slot.selected
-    const newSlots = { ...slots, [slot.id]: newSelected }
-    const newCurrentSlots = [...currentSlots]
-    newCurrentSlots[index] = { ...slot, selected: newSelected }
 
-    // 计算新的选中数量
-    const selectedCount = Object.keys(newSlots).filter(k => newSlots[k]).length
-
+    // 使用路径更新，避免完整对象复制
     this.setData({
-      slots: newSlots,
-      currentSlots: newCurrentSlots,
-      selectedCount
+      [`slots.${slot.id}`]: newSelected,
+      [`currentSlots[${index}].selected`]: newSelected,
+      selectedCount: selectedCount + (newSelected ? 1 : -1)
     })
 
     // 触觉反馈
-    wx.vibrateShort({ type: 'light' })
+    try {
+      wx.vibrateShort({ type: 'light' })
+    } catch (e) {
+      // 部分设备不支持振动，忽略错误
+    }
   },
 
   // 清空选择

@@ -3,16 +3,20 @@ const util = require('../../utils/util')
 Page({
   data: {
     events: [],
-    loading: false
+    loading: false,
+    initialized: false
   },
 
   onLoad() {
+    // onLoad 时加载一次
     this.loadEvents()
   },
 
   onShow() {
-    // 每次显示页面时刷新
-    this.loadEvents()
+    // onShow 时只在已初始化的情况下刷新（从其他页面返回时）
+    if (this.data.initialized) {
+      this.loadEvents()
+    }
   },
 
   onPullDownRefresh() {
@@ -91,7 +95,8 @@ Page({
 
       this.setData({
         events: processedEvents,
-        loading: false
+        loading: false,
+        initialized: true
       })
     } catch (err) {
       console.error('加载聚会列表失败', err)
@@ -139,15 +144,17 @@ Page({
     // 否则跳转到填写页
     const event = this.data.events.find(ev => ev._id === id)
 
-    if (event.expired || type === 'created') {
-      wx.navigateTo({
-        url: `/pages/result/result?id=${id}`
-      })
-    } else {
-      wx.navigateTo({
-        url: `/pages/vote/vote?id=${id}`
-      })
-    }
+    const targetUrl = (event.expired || type === 'created')
+      ? `/pages/result/result?id=${id}`
+      : `/pages/vote/vote?id=${id}`
+
+    // 使用 redirectTo 防止页面栈溢出，失败时回退到 navigateTo
+    wx.redirectTo({
+      url: targetUrl,
+      fail: () => {
+        wx.navigateTo({ url: targetUrl })
+      }
+    })
   },
 
   // 分享

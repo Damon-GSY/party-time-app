@@ -44,8 +44,8 @@
     </view>
 
     <!-- 最佳时段推荐 -->
-    <view class="recommend-section fade-in" style="animation-delay: 0.15s;" wx:if="{{bestSlot.timeText}}">
-      <view class="recommend-card">
+    <view class="recommend-section fade-in" style="animation-delay: 0.15s;">
+      <view class="recommend-card" wx:if="{{bestSlot.timeText}}">
         <view class="recommend-icon">🏆</view>
         <view class="recommend-content">
           <text class="recommend-title">最佳时段</text>
@@ -53,21 +53,34 @@
           <text class="recommend-count">{{bestSlot.count}} 人有空</text>
         </view>
       </view>
+      <view class="recommend-card recommend-empty" wx:else>
+        <view class="recommend-icon">🗳️</view>
+        <view class="recommend-content">
+          <text class="recommend-title">暂无数据</text>
+          <text class="recommend-time">等待参与者投票</text>
+          <text class="recommend-count">分享给好友开始投票</text>
+        </view>
+      </view>
     </view>
 
     <!-- 热力图 -->
-    <view class="heatmap-section fade-in" style="animation-delay: 0.2s;">
+    <view class="heatmap-section fade-in" style="animation-delay: 0.2s;" wx:if="{{participantCount > 0}}">
       <view class="section-header">
         <text class="section-title">时段热力图</text>
         <view class="heatmap-legend">
           <view class="legend-item">
-            <view class="legend-color low"></view>
-            <text>少</text>
+            <view class="legend-color level-0"></view>
+            <text>0人</text>
           </view>
           <view class="legend-item">
-            <view class="legend-color high"></view>
-            <text>多</text>
+            <view class="legend-color level-2"></view>
+            <text>部分</text>
           </view>
+          <view class="legend-item">
+            <view class="legend-color level-4"></view>
+            <text>最多</text>
+          </view>
+          <text class="legend-hint">点击查看详情</text>
         </view>
       </view>
 
@@ -110,7 +123,10 @@
       <view class="modal-content">
         <view class="modal-header">
           <text class="modal-title">{{selectedSlotInfo.dateText}} {{selectedSlotInfo.timeText}}</text>
-          <text class="modal-count">{{selectedSlotInfo.count}} 人有空</text>
+          <view class="modal-header-right">
+            <text class="modal-count">{{selectedSlotInfo.count}} 人有空</text>
+            <view class="modal-close" bindtap="closeSlotModal" aria-label="关闭">×</view>
+          </view>
         </view>
         <view class="modal-body">
           <view class="participant-list" wx:if="{{selectedSlotInfo.users.length > 0}}">

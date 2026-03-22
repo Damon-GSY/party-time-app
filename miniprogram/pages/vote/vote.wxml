@@ -75,7 +75,7 @@
     <!-- 时段网格 -->
     <view class="slots-section fade-in" style="animation-delay: 0.25s;">
       <!-- 时间轴 -->
-      <view class="time-axis">
+      <view class="time-axis time-axis-{{slotsPerDay}}">
         <view class="time-label" wx:for="{{timeLabels}}" wx:key="*this">{{item}}</view>
       </view>
 
@@ -91,6 +91,7 @@
           style="animation-delay: {{0.02 * index}}s;"
         >
           <view class="slot-inner">
+            <text class="slot-time">{{item.timeLabel}}</text>
             <view class="slot-check" wx:if="{{item.selected}}">
               <text class="check-icon">✓</text>
             </view>

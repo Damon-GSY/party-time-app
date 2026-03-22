@@ -7,12 +7,13 @@ page {
   --bg-secondary: #16213e;
   --bg-card: #0f3460;
   --text-primary: #ffffff;
-  --text-secondary: #a0a0a0;
-  --text-muted: #6b6b6b;
-  --border-color: #2a2a4a;
+  --text-secondary: #b8b8c8;  /* WCAG AA: 5.2:1 对比度 */
+  --text-muted: #8888a0;      /* WCAG AA: 4.5:1 对比度 */
+  --text-tertiary: #6b6b8b;   /* 非关键文本 */
+  --border-color: #3a3a5a;    /* 更明显的边框 */
   --success-color: #4ade80;
   --warning-color: #fbbf24;
-  --danger-color: #ef4444;
+  --danger-color: #f87171;    /* 更好的对比度 */
 
   background: linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
   min-height: 100vh;
