@@ -1,0 +1,2032 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>聚会时间 - 预览</title>
+  <style>
+    /* ========== CSS Variables ========== */
+    :root {
+      --primary-color: #e94560;
+      --primary-light: #ff6b6b;
+      --primary-dark: #c73e54;
+      --bg-primary: #1a1a2e;
+      --bg-secondary: #16213e;
+      --bg-card: #0f3460;
+      --text-primary: #ffffff;
+      --text-secondary: #a0a0a0;
+      --text-muted: #6b6b6b;
+      --border-color: #2a2a4a;
+      --success-color: #4ade80;
+      --warning-color: #fbbf24;
+      --danger-color: #ef4444;
+    }
+
+    /* ========== Base Styles ========== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: #0a0a14;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px 0;
+    }
+
+    .phone-frame {
+      width: 100%;
+      max-width: 430px;
+      min-height: 100vh;
+      background: linear-gradient(160deg, #1a1a2e 0%, #16213e 40%, #0f3460 100%);
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    @media (min-width: 431px) {
+      .phone-frame {
+        min-height: 932px;
+        border-radius: 40px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      }
+    }
+
+    /* ========== Page Container ========== */
+    .page {
+      display: none;
+      min-height: calc(100vh - 80px);
+      padding-bottom: 100px;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    .page-container {
+      min-height: 100%;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* ========== Animations ========== */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-10px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes float-slow {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(10px, -10px) scale(1.05); }
+      66% { transform: translate(-5px, 5px) scale(0.95); }
+    }
+
+    @keyframes pulse-shadow {
+      0%, 100% { box-shadow: 0 8px 24px rgba(233, 69, 96, 0.35); }
+      50% { box-shadow: 0 10px 30px rgba(233, 69, 96, 0.5); }
+    }
+
+    @keyframes bounce-gentle {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
+
+    @keyframes shimmer {
+      0% { left: -100%; }
+      50%, 100% { left: 100%; }
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes dot-bounce {
+      0%, 80%, 100% { transform: scale(0.6); opacity: 0.5; }
+      40% { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes pulse-empty {
+      0%, 100% { transform: scale(1); opacity: 0.5; }
+      50% { transform: scale(1.1); opacity: 0.3; }
+    }
+
+    @keyframes float-emoji {
+      0%, 100% { transform: translate(-50%, -50%); }
+      50% { transform: translate(-50%, calc(-50% - 5px)); }
+    }
+
+    @keyframes slotFadeIn {
+      from { opacity: 0; transform: scale(0.8); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes checkPop {
+      0% { transform: scale(0) rotate(-45deg); }
+      50% { transform: scale(1.3) rotate(10deg); }
+      100% { transform: scale(1) rotate(0deg); }
+    }
+
+    @keyframes countPop {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes circleIn {
+      from { transform: scale(0); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes checkDraw {
+      to { transform: rotate(45deg) scaleX(1); }
+    }
+
+    @keyframes checkDrawAfter {
+      to { transform: rotate(-45deg) scaleX(1); }
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(-10deg); }
+      75% { transform: rotate(10deg); }
+    }
+
+    .fade-in {
+      animation: fadeIn 0.6s ease forwards;
+      opacity: 0;
+    }
+
+    .slide-up {
+      animation: slideUp 0.5s ease forwards;
+      opacity: 0;
+    }
+
+    .slide-in {
+      animation: slideIn 0.4s ease forwards;
+      opacity: 0;
+    }
+
+    /* ========== Tab Bar ========== */
+    .tab-bar {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 430px;
+      height: 80px;
+      background: rgba(26, 26, 46, 0.98);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding-bottom: env(safe-area-inset-bottom, 10px);
+      z-index: 100;
+    }
+
+    .tab-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 10px 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border-radius: 12px;
+    }
+
+    .tab-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .tab-item.active {
+      background: rgba(233, 69, 96, 0.15);
+    }
+
+    .tab-icon {
+      font-size: 24px;
+    }
+
+    .tab-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .tab-item.active .tab-label {
+      color: var(--primary-light);
+    }
+
+    /* ========== Index Page Styles ========== */
+    .bg-decoration {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 300px;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .bg-circle {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.08;
+    }
+
+    .bg-circle.c1 {
+      width: 200px;
+      height: 200px;
+      background: var(--primary-color);
+      top: -75px;
+      right: -50px;
+      animation: float-slow 12s ease-in-out infinite;
+    }
+
+    .bg-circle.c2 {
+      width: 150px;
+      height: 150px;
+      background: var(--primary-light);
+      top: 50px;
+      left: -40px;
+      animation: float-slow 10s ease-in-out infinite reverse;
+    }
+
+    .bg-circle.c3 {
+      width: 100px;
+      height: 100px;
+      background: #fff;
+      top: 100px;
+      right: 50px;
+      animation: float-slow 8s ease-in-out infinite;
+    }
+
+    .header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .header-icon {
+      width: 70px;
+      height: 70px;
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 14px;
+      box-shadow: 0 8px 24px rgba(233, 69, 96, 0.35);
+      animation: pulse-shadow 3s ease-in-out infinite;
+    }
+
+    .icon-emoji {
+      font-size: 32px;
+      animation: bounce-gentle 2.5s ease-in-out infinite;
+    }
+
+    .header-title {
+      font-size: 26px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 2px;
+      margin-bottom: 6px;
+    }
+
+    .header-subtitle {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .create-section {
+      padding: 0 16px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .create-btn {
+      width: 100%;
+      height: 52px;
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      box-shadow: 0 6px 20px rgba(233, 69, 96, 0.4);
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .create-btn:hover {
+      transform: scale(0.98);
+    }
+
+    .btn-shimmer {
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+      animation: shimmer 2.5s ease-in-out infinite;
+    }
+
+    .create-btn .btn-icon {
+      font-size: 16px;
+      margin-right: 6px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .create-btn .btn-text {
+      font-size: 17px;
+      font-weight: 600;
+      color: #fff;
+      position: relative;
+      z-index: 1;
+    }
+
+    .create-hint {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 8px;
+    }
+
+    .section {
+      padding: 0 16px;
+      margin-bottom: 16px;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .refresh-btn {
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .refresh-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .refresh-icon {
+      font-size: 16px;
+      color: var(--text-secondary);
+    }
+
+    .event-card {
+      background: var(--bg-card);
+      border-radius: 10px;
+      padding: 14px 12px;
+      margin-bottom: 10px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .event-card:hover {
+      transform: scale(0.97);
+      background: rgba(15, 52, 96, 0.9);
+    }
+
+    .event-type-badge {
+      position: absolute;
+      top: 0;
+      right: 0;
+      font-size: 10px;
+      padding: 4px 8px;
+      border-radius: 0 10px 0 8px;
+    }
+
+    .event-type-badge.created {
+      background: rgba(233, 69, 96, 0.25);
+      color: var(--primary-light);
+    }
+
+    .event-type-badge.joined {
+      background: rgba(74, 222, 128, 0.2);
+      color: #4ade80;
+    }
+
+    .event-main {
+      flex: 1;
+      min-width: 0;
+      padding-right: 10px;
+    }
+
+    .event-name {
+      font-size: 16px;
+      font-weight: 600;
+      color: #fff;
+      display: block;
+      margin-bottom: 6px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .event-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+    }
+
+    .meta-icon {
+      font-size: 12px;
+      margin-right: 4px;
+    }
+
+    .meta-text {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .event-status {
+      font-size: 11px;
+      padding: 5px 9px;
+      border-radius: 6px;
+      background: rgba(74, 222, 128, 0.15);
+      color: #4ade80;
+      flex-shrink: 0;
+    }
+
+    .event-status.expired {
+      background: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+    }
+
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+    }
+
+    .empty-illustration {
+      position: relative;
+      margin-bottom: 16px;
+    }
+
+    .empty-circle {
+      width: 80px;
+      height: 80px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 50%;
+      animation: pulse-empty 2.5s ease-in-out infinite;
+    }
+
+    .empty-emoji {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 32px;
+      animation: float-emoji 3s ease-in-out infinite;
+    }
+
+    .empty-title {
+      font-size: 16px;
+      font-weight: 500;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+
+    .empty-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .guide-section {
+      margin: 0 16px 16px;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .guide-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      text-align: center;
+      margin-bottom: 14px;
+    }
+
+    .guide-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .guide-step {
+      display: flex;
+      align-items: center;
+      padding: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 8px;
+    }
+
+    .step-num {
+      width: 24px;
+      height: 24px;
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff;
+      margin-right: 10px;
+      flex-shrink: 0;
+    }
+
+    .step-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .step-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: #fff;
+      margin-bottom: 2px;
+    }
+
+    .step-desc {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .footer {
+      text-align: center;
+      padding: 16px;
+    }
+
+    .footer-text {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* ========== Vote Page Styles ========== */
+    .nickname-section {
+      padding: 0 16px;
+      margin-bottom: 12px;
+    }
+
+    .input-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      background: rgba(15, 52, 96, 0.5);
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      transition: all 0.3s ease;
+    }
+
+    .input-wrapper:focus-within {
+      border-color: var(--primary-color);
+      background: rgba(15, 52, 96, 0.7);
+    }
+
+    .input-label {
+      font-size: 14px;
+      color: var(--text-secondary);
+      flex-shrink: 0;
+    }
+
+    .nickname-input {
+      flex: 1;
+      font-size: 14px;
+      color: #fff;
+      background: transparent;
+      border: none;
+      outline: none;
+    }
+
+    .nickname-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .tip-section {
+      padding: 0 16px;
+      margin-bottom: 12px;
+    }
+
+    .tip-card {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 12px;
+      background: rgba(251, 191, 36, 0.1);
+      border-radius: 8px;
+      border: 1px solid rgba(251, 191, 36, 0.2);
+    }
+
+    .tip-icon {
+      font-size: 16px;
+    }
+
+    .tip-text {
+      font-size: 13px;
+      color: #fbbf24;
+    }
+
+    .date-tabs {
+      padding: 0 16px;
+      margin-bottom: 12px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .date-tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .date-tabs-inner {
+      display: flex;
+      gap: 8px;
+      padding: 4px 0;
+    }
+
+    .date-tab {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 10px 16px;
+      background: rgba(15, 52, 96, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      flex-shrink: 0;
+    }
+
+    .date-tab:hover {
+      transform: scale(0.95);
+    }
+
+    .date-tab.active {
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+      border-color: transparent;
+      transform: scale(1.05);
+    }
+
+    .tab-weekday {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-bottom: 2px;
+    }
+
+    .date-tab.active .tab-weekday {
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .tab-date {
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .slots-section {
+      padding: 0 16px;
+      margin-bottom: 12px;
+    }
+
+    .time-axis {
+      display: flex;
+      padding-left: 0;
+      margin-bottom: 8px;
+    }
+
+    .time-label {
+      flex: 1;
+      text-align: center;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .slots-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .slot-cell {
+      width: calc((100% - 11 * 6px) / 12);
+      aspect-ratio: 1;
+      background: rgba(15, 52, 96, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 6px;
+      position: relative;
+      animation: slotFadeIn 0.4s ease forwards;
+      opacity: 0;
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      overflow: hidden;
+    }
+
+    .slot-cell:hover {
+      transform: scale(0.9);
+      background: rgba(233, 69, 96, 0.2);
+    }
+
+    .slot-inner {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .slot-cell.selected {
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+      border-color: transparent;
+      transform: scale(1.08);
+      box-shadow: 0 3px 10px rgba(233, 69, 96, 0.4);
+    }
+
+    .slot-cell.selected:hover {
+      transform: scale(1);
+    }
+
+    .slot-check {
+      width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: checkPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .check-icon {
+      font-size: 12px;
+      color: #fff;
+      font-weight: bold;
+    }
+
+    .selection-summary {
+      padding: 0 16px;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .summary-left {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+    }
+
+    .summary-label {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .summary-count {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--primary-light);
+      animation: countPop 0.3s ease;
+    }
+
+    .summary-unit {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .summary-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .action-btn {
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
+    }
+
+    .action-btn:hover {
+      transform: scale(0.95);
+    }
+
+    .clear-btn {
+      background: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+    }
+
+    .select-all-btn {
+      background: rgba(74, 222, 128, 0.15);
+      color: #4ade80;
+    }
+
+    .submit-section {
+      position: fixed;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 430px;
+      padding: 12px 16px;
+      background: linear-gradient(to top, rgba(26, 26, 46, 0.98), transparent);
+      z-index: 50;
+    }
+
+    .submit-btn {
+      width: 100%;
+      height: 54px;
+      background: rgba(107, 107, 107, 0.3);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .submit-btn.has-selection {
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+      box-shadow: 0 6px 20px rgba(233, 69, 96, 0.4);
+    }
+
+    .submit-btn:hover {
+      transform: scale(0.96);
+    }
+
+    .btn-content {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .submit-btn .btn-icon {
+      font-size: 16px;
+    }
+
+    .submit-btn .btn-text {
+      font-size: 17px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    /* ========== Result Page Styles ========== */
+    .header-section {
+      padding: 16px;
+    }
+
+    .event-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 6px;
+    }
+
+    .event-header .event-name {
+      font-size: 21px;
+      font-weight: 700;
+      color: #fff;
+      flex: 1;
+    }
+
+    .event-badges {
+      display: flex;
+      gap: 6px;
+    }
+
+    .badge {
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 5px;
+      background: rgba(74, 222, 128, 0.15);
+      color: #4ade80;
+    }
+
+    .badge.expired {
+      background: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+    }
+
+    .event-meta {
+      margin-bottom: 6px;
+    }
+
+    .meta-item {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .event-note {
+      font-size: 12px;
+      color: var(--text-muted);
+      padding: 8px 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 6px;
+      margin-top: 6px;
+    }
+
+    .stats-cards {
+      display: flex;
+      gap: 10px;
+      padding: 0 16px;
+      margin-bottom: 12px;
+    }
+
+    .stat-card {
+      flex: 1;
+      padding: 14px;
+      background: rgba(15, 52, 96, 0.5);
+      border-radius: 10px;
+      text-align: center;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .stat-value {
+      margin-bottom: 4px;
+    }
+
+    .stat-number {
+      font-size: 28px;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .recommend-section {
+      padding: 0 16px;
+      margin-bottom: 12px;
+    }
+
+    .recommend-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px;
+      background: linear-gradient(135deg, rgba(251, 191, 36, 0.15), rgba(251, 191, 36, 0.05));
+      border: 1px solid rgba(251, 191, 36, 0.3);
+      border-radius: 10px;
+    }
+
+    .recommend-icon {
+      font-size: 24px;
+    }
+
+    .recommend-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .recommend-title {
+      font-size: 12px;
+      color: #fbbf24;
+      margin-bottom: 4px;
+    }
+
+    .recommend-time {
+      font-size: 16px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 2px;
+    }
+
+    .recommend-count {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .heatmap-section {
+      padding: 0 16px;
+      margin-bottom: 16px;
+    }
+
+    .result-section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .result-section-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .heatmap-legend {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .legend-color {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+    }
+
+    .legend-color.low {
+      background: rgba(233, 69, 96, 0.2);
+    }
+
+    .legend-color.high {
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+    }
+
+    .date-labels {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 8px;
+      padding-left: 30px;
+    }
+
+    .date-label {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px;
+      background: rgba(15, 52, 96, 0.4);
+      border-radius: 6px;
+    }
+
+    .label-weekday {
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    .label-day {
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .heatmap-wrapper {
+      display: flex;
+      gap: 6px;
+    }
+
+    .time-column {
+      width: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .time-text {
+      height: 24px;
+      font-size: 9px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .heatmap-grid {
+      flex: 1;
+      display: flex;
+      gap: 6px;
+    }
+
+    .heatmap-column {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .heatmap-cell {
+      height: 24px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .heatmap-cell:hover {
+      transform: scale(1.1);
+      z-index: 10;
+    }
+
+    .heatmap-cell.level-0 {
+      background: rgba(15, 52, 96, 0.3);
+    }
+
+    .heatmap-cell.level-1 {
+      background: rgba(233, 69, 96, 0.2);
+    }
+
+    .heatmap-cell.level-2 {
+      background: rgba(233, 69, 96, 0.4);
+    }
+
+    .heatmap-cell.level-3 {
+      background: rgba(233, 69, 96, 0.6);
+    }
+
+    .heatmap-cell.level-4 {
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+      box-shadow: 0 2px 8px rgba(233, 69, 96, 0.4);
+    }
+
+    .cell-count {
+      font-size: 10px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .participants-section {
+      padding: 0 16px;
+      margin-bottom: 16px;
+    }
+
+    .participants-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .participant-card {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      background: rgba(15, 52, 96, 0.4);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .participant-card:hover {
+      background: rgba(15, 52, 96, 0.6);
+      transform: scale(0.98);
+    }
+
+    .participant-avatar {
+      width: 24px;
+      height: 24px;
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .participant-info {
+      flex: 1;
+    }
+
+    .participant-info .participant-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: #fff;
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .participant-slots {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .action-section {
+      position: fixed;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 430px;
+      padding: 12px 16px;
+      background: linear-gradient(to top, rgba(26, 26, 46, 0.98), transparent);
+      display: flex;
+      gap: 10px;
+      z-index: 50;
+    }
+
+    .share-btn,
+    .result-vote-btn {
+      flex: 1;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .share-btn {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+
+    .share-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: scale(0.98);
+    }
+
+    .result-vote-btn {
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+      color: #fff;
+    }
+
+    .result-vote-btn:hover {
+      transform: scale(0.98);
+    }
+
+    .result-btn-icon {
+      font-size: 14px;
+    }
+
+    /* Modal */
+    .slot-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 200;
+      display: flex;
+      align-items: flex-end;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .slot-modal.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal-backdrop {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.6);
+    }
+
+    .modal-content {
+      position: relative;
+      width: 100%;
+      max-width: 430px;
+      max-height: 70vh;
+      background: var(--bg-card);
+      border-radius: 16px 16px 0 0;
+      padding: 16px;
+      margin: 0 auto;
+      transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .slot-modal.show .modal-content {
+      transform: translateY(0);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .modal-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .modal-count {
+      font-size: 13px;
+      color: var(--primary-light);
+      background: rgba(233, 69, 96, 0.15);
+      padding: 4px 8px;
+      border-radius: 5px;
+    }
+
+    .modal-body {
+      max-height: 50vh;
+      overflow-y: auto;
+    }
+
+    .participant-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .participant-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 6px;
+    }
+
+    .participant-item .participant-avatar {
+      width: 24px;
+      height: 24px;
+      font-size: 12px;
+    }
+
+    .participant-item .participant-name {
+      font-size: 13px;
+      color: #fff;
+    }
+
+    .no-data {
+      text-align: center;
+      padding: 24px;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <!-- Index Page -->
+    <div id="page-index" class="page active">
+      <div class="page-container">
+        <div class="bg-decoration">
+          <div class="bg-circle c1"></div>
+          <div class="bg-circle c2"></div>
+          <div class="bg-circle c3"></div>
+        </div>
+
+        <div class="header fade-in">
+          <div class="header-icon">
+            <span class="icon-emoji">🎉</span>
+          </div>
+          <h1 class="header-title">聚会时间</h1>
+          <p class="header-subtitle">轻松找到大家都有空的时间</p>
+        </div>
+
+        <div class="create-section fade-in" style="animation-delay: 0.1s;">
+          <button class="create-btn">
+            <div class="btn-shimmer"></div>
+            <span class="btn-icon">✨</span>
+            <span class="btn-text">创建新聚会</span>
+          </button>
+          <p class="create-hint">发起时间投票，邀请好友参与</p>
+        </div>
+
+        <div class="section fade-in" style="animation-delay: 0.2s;">
+          <div class="section-header">
+            <span class="section-title">我的聚会</span>
+            <div class="refresh-btn">
+              <span class="refresh-icon">↻</span>
+            </div>
+          </div>
+
+          <!-- Event Cards -->
+          <div class="event-card slide-up" style="animation-delay: 0s;">
+            <div class="event-type-badge created">创建</div>
+            <div class="event-main">
+              <span class="event-name">周末聚餐</span>
+              <div class="event-meta">
+                <div class="meta-item">
+                  <span class="meta-icon">📅</span>
+                  <span class="meta-text">3/22 - 3/23</span>
+                </div>
+                <div class="meta-item">
+                  <span class="meta-icon">👥</span>
+                  <span class="meta-text">5人</span>
+                </div>
+              </div>
+            </div>
+            <div class="event-status">进行中</div>
+          </div>
+
+          <div class="event-card slide-up" style="animation-delay: 0.05s;">
+            <div class="event-type-badge joined">参与</div>
+            <div class="event-main">
+              <span class="event-name">团建活动</span>
+              <div class="event-meta">
+                <div class="meta-item">
+                  <span class="meta-icon">📅</span>
+                  <span class="meta-text">3/25 - 3/26</span>
+                </div>
+                <div class="meta-item">
+                  <span class="meta-icon">👥</span>
+                  <span class="meta-text">12人</span>
+                </div>
+              </div>
+            </div>
+            <div class="event-status">剩余2天</div>
+          </div>
+
+          <div class="event-card slide-up" style="animation-delay: 0.1s;">
+            <div class="event-type-badge created">创建</div>
+            <div class="event-main">
+              <span class="event-name">生日派对</span>
+              <div class="event-meta">
+                <div class="meta-item">
+                  <span class="meta-icon">📅</span>
+                  <span class="meta-text">3/15 - 3/16</span>
+                </div>
+                <div class="meta-item">
+                  <span class="meta-icon">👥</span>
+                  <span class="meta-text">8人</span>
+                </div>
+              </div>
+            </div>
+            <div class="event-status expired">已过期</div>
+          </div>
+        </div>
+
+        <div class="guide-section fade-in" style="animation-delay: 0.3s;">
+          <span class="guide-title">如何使用</span>
+          <div class="guide-steps">
+            <div class="guide-step">
+              <div class="step-num">1</div>
+              <div class="step-info">
+                <span class="step-title">创建聚会</span>
+                <span class="step-desc">设置名称和时间范围</span>
+              </div>
+            </div>
+            <div class="guide-step">
+              <div class="step-num">2</div>
+              <div class="step-info">
+                <span class="step-title">分享好友</span>
+                <span class="step-desc">转发让好友填写时间</span>
+              </div>
+            </div>
+            <div class="guide-step">
+              <div class="step-num">3</div>
+              <div class="step-info">
+                <span class="step-title">查看统计</span>
+                <span class="step-desc">找出最佳聚会时间</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="footer">
+          <span class="footer-text">让相聚更简单 💫</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vote Page -->
+    <div id="page-vote" class="page">
+      <div class="page-container">
+        <div class="header-section fade-in">
+          <div class="event-info">
+            <span class="event-name">周末聚餐</span>
+            <div class="event-meta">
+              <span class="meta-item">📅 3/22 - 3/23</span>
+              <span class="meta-item">👥 5人已填</span>
+            </div>
+            <span class="event-note">备注：请大家尽量选择有空的时间段</span>
+          </div>
+        </div>
+
+        <div class="nickname-section fade-in" style="animation-delay: 0.1s;">
+          <div class="input-wrapper">
+            <span class="input-label">你的昵称</span>
+            <input class="nickname-input" type="text" placeholder="请输入昵称（可选）" maxlength="10">
+          </div>
+        </div>
+
+        <div class="tip-section fade-in" style="animation-delay: 0.15s;">
+          <div class="tip-card">
+            <span class="tip-icon">💡</span>
+            <span class="tip-text">点击时段格子选择你有空的时间</span>
+          </div>
+        </div>
+
+        <div class="date-tabs fade-in" style="animation-delay: 0.2s;">
+          <div class="date-tabs-inner">
+            <div class="date-tab active" data-date="0">
+              <span class="tab-weekday">周六</span>
+              <span class="tab-date">22</span>
+            </div>
+            <div class="date-tab" data-date="1">
+              <span class="tab-weekday">周日</span>
+              <span class="tab-date">23</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="slots-section fade-in" style="animation-delay: 0.25s;">
+          <div class="time-axis">
+            <span class="time-label">0</span>
+            <span class="time-label">2</span>
+            <span class="time-label">4</span>
+            <span class="time-label">6</span>
+            <span class="time-label">8</span>
+            <span class="time-label">10</span>
+            <span class="time-label">12</span>
+            <span class="time-label">14</span>
+            <span class="time-label">16</span>
+            <span class="time-label">18</span>
+            <span class="time-label">20</span>
+            <span class="time-label">22</span>
+          </div>
+          <div class="slots-grid" id="slots-grid">
+            <!-- Slots will be generated by JS -->
+          </div>
+        </div>
+
+        <div class="selection-summary fade-in" style="animation-delay: 0.3s;">
+          <div class="summary-left">
+            <span class="summary-label">已选择</span>
+            <span class="summary-count" id="selected-count">0</span>
+            <span class="summary-unit">个时段</span>
+          </div>
+          <div class="summary-actions">
+            <button class="action-btn clear-btn" id="clear-btn">清空</button>
+            <button class="action-btn select-all-btn" id="select-all-btn">全选</button>
+          </div>
+        </div>
+
+        <div class="submit-section">
+          <button class="submit-btn" id="submit-btn">
+            <div class="btn-content">
+              <span class="btn-icon">✨</span>
+              <span class="btn-text">请先选择时段</span>
+            </div>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Result Page -->
+    <div id="page-result" class="page">
+      <div class="page-container">
+        <div class="header-section fade-in">
+          <div class="event-header">
+            <span class="event-name">周末聚餐</span>
+            <div class="event-badges">
+              <div class="badge">剩余1天</div>
+            </div>
+          </div>
+          <div class="event-meta">
+            <span class="meta-item">📅 3/22 - 3/23</span>
+          </div>
+          <span class="event-note">备注：请大家尽量选择有空的时间段</span>
+        </div>
+
+        <div class="stats-cards fade-in" style="animation-delay: 0.1s;">
+          <div class="stat-card">
+            <div class="stat-value">
+              <span class="stat-number">5</span>
+            </div>
+            <span class="stat-label">参与人数</span>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">
+              <span class="stat-number">4</span>
+            </div>
+            <span class="stat-label">最高票数</span>
+          </div>
+        </div>
+
+        <div class="recommend-section fade-in" style="animation-delay: 0.15s;">
+          <div class="recommend-card">
+            <div class="recommend-icon">🏆</div>
+            <div class="recommend-content">
+              <span class="recommend-title">最佳时段</span>
+              <span class="recommend-time">周六 14:00-15:00</span>
+              <span class="recommend-count">4 人有空</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="heatmap-section fade-in" style="animation-delay: 0.2s;">
+          <div class="result-section-header">
+            <span class="result-section-title">时段热力图</span>
+            <div class="heatmap-legend">
+              <div class="legend-item">
+                <div class="legend-color low"></div>
+                <span>少</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-color high"></div>
+                <span>多</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="date-labels">
+            <div class="date-label">
+              <span class="label-weekday">周六</span>
+              <span class="label-day">22</span>
+            </div>
+            <div class="date-label">
+              <span class="label-weekday">周日</span>
+              <span class="label-day">23</span>
+            </div>
+          </div>
+
+          <div class="heatmap-wrapper">
+            <div class="time-column">
+              <span class="time-text">0</span>
+              <span class="time-text">2</span>
+              <span class="time-text">4</span>
+              <span class="time-text">6</span>
+              <span class="time-text">8</span>
+              <span class="time-text">10</span>
+              <span class="time-text">12</span>
+              <span class="time-text">14</span>
+              <span class="time-text">16</span>
+              <span class="time-text">18</span>
+              <span class="time-text">20</span>
+              <span class="time-text">22</span>
+            </div>
+
+            <div class="heatmap-grid">
+              <div class="heatmap-column" data-day="0">
+                <div class="heatmap-cell level-1" data-hour="8"><span class="cell-count">1</span></div>
+                <div class="heatmap-cell level-2" data-hour="9"><span class="cell-count">2</span></div>
+                <div class="heatmap-cell level-2" data-hour="10"><span class="cell-count">2</span></div>
+                <div class="heatmap-cell level-3" data-hour="11"><span class="cell-count">3</span></div>
+                <div class="heatmap-cell level-2" data-hour="12"><span class="cell-count">2</span></div>
+                <div class="heatmap-cell level-3" data-hour="13"><span class="cell-count">3</span></div>
+                <div class="heatmap-cell level-4" data-hour="14"><span class="cell-count">4</span></div>
+                <div class="heatmap-cell level-4" data-hour="15"><span class="cell-count">4</span></div>
+                <div class="heatmap-cell level-3" data-hour="16"><span class="cell-count">3</span></div>
+                <div class="heatmap-cell level-2" data-hour="17"><span class="cell-count">2</span></div>
+                <div class="heatmap-cell level-1" data-hour="18"><span class="cell-count">1</span></div>
+                <div class="heatmap-cell level-0" data-hour="19"></div>
+              </div>
+              <div class="heatmap-column" data-day="1">
+                <div class="heatmap-cell level-0" data-hour="8"></div>
+                <div class="heatmap-cell level-1" data-hour="9"><span class="cell-count">1</span></div>
+                <div class="heatmap-cell level-2" data-hour="10"><span class="cell-count">2</span></div>
+                <div class="heatmap-cell level-2" data-hour="11"><span class="cell-count">2</span></div>
+                <div class="heatmap-cell level-3" data-hour="12"><span class="cell-count">3</span></div>
+                <div class="heatmap-cell level-3" data-hour="13"><span class="cell-count">3</span></div>
+                <div class="heatmap-cell level-3" data-hour="14"><span class="cell-count">3</span></div>
+                <div class="heatmap-cell level-2" data-hour="15"><span class="cell-count">2</span></div>
+                <div class="heatmap-cell level-1" data-hour="16"><span class="cell-count">1</span></div>
+                <div class="heatmap-cell level-1" data-hour="17"><span class="cell-count">1</span></div>
+                <div class="heatmap-cell level-0" data-hour="18"></div>
+                <div class="heatmap-cell level-0" data-hour="19"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="participants-section fade-in" style="animation-delay: 0.25s;">
+          <div class="section-header">
+            <span class="section-title">参与者 (5)</span>
+          </div>
+          <div class="participants-list">
+            <div class="participant-card slide-in" style="animation-delay: 0s;">
+              <div class="participant-avatar">小</div>
+              <div class="participant-info">
+                <span class="participant-name">小明</span>
+                <span class="participant-slots">选择了 8 个时段</span>
+              </div>
+            </div>
+            <div class="participant-card slide-in" style="animation-delay: 0.05s;">
+              <div class="participant-avatar">小</div>
+              <div class="participant-info">
+                <span class="participant-name">小红</span>
+                <span class="participant-slots">选择了 6 个时段</span>
+              </div>
+            </div>
+            <div class="participant-card slide-in" style="animation-delay: 0.1s;">
+              <div class="participant-avatar">小</div>
+              <div class="participant-info">
+                <span class="participant-name">小李</span>
+                <span class="participant-slots">选择了 10 个时段</span>
+              </div>
+            </div>
+            <div class="participant-card slide-in" style="animation-delay: 0.15s;">
+              <div class="participant-avatar">小</div>
+              <div class="participant-info">
+                <span class="participant-name">小王</span>
+                <span class="participant-slots">选择了 5 个时段</span>
+              </div>
+            </div>
+            <div class="participant-card slide-in" style="animation-delay: 0.2s;">
+              <div class="participant-avatar">小</div>
+              <div class="participant-info">
+                <span class="participant-name">小张</span>
+                <span class="participant-slots">选择了 7 个时段</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="action-section">
+          <button class="share-btn">
+            <span class="result-btn-icon">🔗</span>
+            <span>分享给好友</span>
+          </button>
+          <button class="result-vote-btn">
+            <span class="result-btn-icon">✏️</span>
+            <span>填写/修改时间</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slot Detail Modal -->
+    <div class="slot-modal" id="slot-modal">
+      <div class="modal-backdrop" id="modal-backdrop"></div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <span class="modal-title" id="modal-title">周六 14:00-15:00</span>
+          <span class="modal-count" id="modal-count">4 人有空</span>
+        </div>
+        <div class="modal-body">
+          <div class="participant-list" id="modal-participants">
+            <div class="participant-item">
+              <div class="participant-avatar">小</div>
+              <span class="participant-name">小明</span>
+            </div>
+            <div class="participant-item">
+              <div class="participant-avatar">小</div>
+              <span class="participant-name">小红</span>
+            </div>
+            <div class="participant-item">
+              <div class="participant-avatar">小</div>
+              <span class="participant-name">小李</span>
+            </div>
+            <div class="participant-item">
+              <div class="participant-avatar">小</div>
+              <span class="participant-name">小王</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab Bar -->
+    <div class="tab-bar">
+      <div class="tab-item active" data-page="index">
+        <span class="tab-icon">🏠</span>
+        <span class="tab-label">首页</span>
+      </div>
+      <div class="tab-item" data-page="vote">
+        <span class="tab-icon">✏️</span>
+        <span class="tab-label">填写</span>
+      </div>
+      <div class="tab-item" data-page="result">
+        <span class="tab-icon">📊</span>
+        <span class="tab-label">统计</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Tab switching
+    const tabItems = document.querySelectorAll('.tab-item');
+    const pages = document.querySelectorAll('.page');
+
+    tabItems.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const targetPage = tab.dataset.page;
+
+        tabItems.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+
+        pages.forEach(page => {
+          page.classList.remove('active');
+          if (page.id === `page-${targetPage}`) {
+            page.classList.add('active');
+          }
+        });
+      });
+    });
+
+    // Vote page - slot selection
+    const slotsGrid = document.getElementById('slots-grid');
+    const selectedCountEl = document.getElementById('selected-count');
+    const submitBtn = document.getElementById('submit-btn');
+    const clearBtn = document.getElementById('clear-btn');
+    const selectAllBtn = document.getElementById('select-all-btn');
+
+    const slots = [];
+    const TOTAL_SLOTS = 12;
+
+    // Initialize slots
+    function initSlots() {
+      slotsGrid.innerHTML = '';
+      slots.length = 0;
+
+      for (let i = 0; i < TOTAL_SLOTS; i++) {
+        slots.push({ selected: false });
+        const slotEl = document.createElement('div');
+        slotEl.className = 'slot-cell';
+        slotEl.dataset.index = i;
+        slotEl.style.animationDelay = `${0.02 * i}s`;
+        slotEl.innerHTML = '<div class="slot-inner"></div>';
+
+        slotEl.addEventListener('click', () => toggleSlot(i));
+        slotsGrid.appendChild(slotEl);
+      }
+    }
+
+    function toggleSlot(index) {
+      slots[index].selected = !slots[index].selected;
+      updateSlotUI(index);
+      updateSummary();
+    }
+
+    function updateSlotUI(index) {
+      const slotEl = slotsGrid.children[index];
+      const innerEl = slotEl.querySelector('.slot-inner');
+
+      if (slots[index].selected) {
+        slotEl.classList.add('selected');
+        innerEl.innerHTML = '<div class="slot-check"><span class="check-icon">✓</span></div>';
+      } else {
+        slotEl.classList.remove('selected');
+        innerEl.innerHTML = '';
+      }
+    }
+
+    function updateSummary() {
+      const count = slots.filter(s => s.selected).length;
+      selectedCountEl.textContent = count;
+      selectedCountEl.style.animation = 'none';
+      selectedCountEl.offsetHeight; // Trigger reflow
+      selectedCountEl.style.animation = 'countPop 0.3s ease';
+
+      if (count > 0) {
+        submitBtn.classList.add('has-selection');
+        submitBtn.querySelector('.btn-text').textContent = '提交我的时间';
+      } else {
+        submitBtn.classList.remove('has-selection');
+        submitBtn.querySelector('.btn-text').textContent = '请先选择时段';
+      }
+    }
+
+    clearBtn.addEventListener('click', () => {
+      slots.forEach((slot, i) => {
+        slot.selected = false;
+        updateSlotUI(i);
+      });
+      updateSummary();
+    });
+
+    selectAllBtn.addEventListener('click', () => {
+      slots.forEach((slot, i) => {
+        slot.selected = true;
+        updateSlotUI(i);
+      });
+      updateSummary();
+    });
+
+    // Date tab switching
+    const dateTabs = document.querySelectorAll('.date-tab');
+    dateTabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        dateTabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        // Re-init slots for new date
+        initSlots();
+        updateSummary();
+      });
+    });
+
+    // Result page - heatmap modal
+    const heatmapCells = document.querySelectorAll('.heatmap-cell');
+    const slotModal = document.getElementById('slot-modal');
+    const modalBackdrop = document.getElementById('modal-backdrop');
+    const modalTitle = document.getElementById('modal-title');
+    const modalCount = document.getElementById('modal-count');
+    const modalParticipants = document.getElementById('modal-participants');
+
+    const dayNames = ['周六', '周日'];
+    const mockParticipants = {
+      '0-14': ['小明', '小红', '小李', '小王'],
+      '0-15': ['小明', '小红', '小李', '小张'],
+      '0-11': ['小明', '小红', '小李'],
+      '0-13': ['小红', '小李', '小王'],
+      '0-16': ['小明', '小红', '小李'],
+      '1-12': ['小明', '小红', '小张'],
+      '1-13': ['小明', '小李', '小张'],
+      '1-14': ['小明', '小红', '小李'],
+    };
+
+    heatmapCells.forEach(cell => {
+      cell.addEventListener('click', () => {
+        const day = cell.parentElement.dataset.day;
+        const hour = cell.dataset.hour;
+        const key = `${day}-${hour}`;
+        const participants = mockParticipants[key] || [];
+
+        const count = participants.length;
+        modalTitle.textContent = `${dayNames[day]} ${hour}:00-${parseInt(hour)+1}:00`;
+        modalCount.textContent = count > 0 ? `${count} 人有空` : '暂无人选择';
+
+        if (participants.length > 0) {
+          modalParticipants.innerHTML = participants.map(name =>
+            `<div class="participant-item">
+              <div class="participant-avatar">${name[0]}</div>
+              <span class="participant-name">${name}</span>
+            </div>`
+          ).join('');
+        } else {
+          modalParticipants.innerHTML = '<div class="no-data"><span>暂无人选择此时段</span></div>';
+        }
+
+        slotModal.classList.add('show');
+      });
+    });
+
+    modalBackdrop.addEventListener('click', () => {
+      slotModal.classList.remove('show');
+    });
+
+    // Submit button
+    submitBtn.addEventListener('click', () => {
+      const count = slots.filter(s => s.selected).length;
+      if (count > 0) {
+        alert(`提交成功！已选择 ${count} 个时段`);
+      }
+    });
+
+    // Initialize
+    initSlots();
+  </script>
+</body>
+</html>

@@ -14,15 +14,17 @@ Page({
     participantCount: 0,
 
     dates: [], // [{ date, weekday, day, slots: [{timeSlot, count, level}] }]
-    timeLabels: ['6', '8', '10', '12', '14', '16', '18', '20', '22'],
+    timeLabels: [], // 根据粒度动态生成
     slotCounts: {},
     slotUsers: {},
+    granularity: 'twoHours', // 时段粒度
+    slotsPerDay: 12, // 每天时段数
 
     bestSlot: { timeText: '', count: 0 },
     participants: [],
 
     showSlotModal: false,
-    selectedSlot: { timeText: '', count: 0, participants: [] }
+    selectedSlotInfo: { dateText: '', timeText: '', count: 0, users: [] }
   },
 
   onLoad(options) {
@@ -126,6 +128,29 @@ Page({
 
   // 处理数据
   processData(event, responses, expired) {
+    const granularity = event.granularity || 'twoHours'
+
+    // 根据粒度计算时段数量和时间标签
+    let slotsPerDay = 12
+    let timeLabels = []
+
+    if (granularity === 'hour') {
+      slotsPerDay = 24
+      // 生成24小时标签（每2小时显示一个）
+      for (let i = 0; i < 24; i += 2) {
+        timeLabels.push(String(i))
+      }
+    } else if (granularity === 'twoHours') {
+      slotsPerDay = 12
+      // 生成12个时段标签（0, 2, 4, ..., 22）
+      for (let i = 0; i < 24; i += 2) {
+        timeLabels.push(String(i))
+      }
+    } else if (granularity === 'halfDay') {
+      slotsPerDay = 4
+      timeLabels = ['上午', '下午', '晚上', '深夜']
+    }
+
     // 统计每个时段的人数和用户
     const slotCounts = {}
     const slotUsers = {}
@@ -152,13 +177,13 @@ Page({
         const weekDays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
         const d = new Date(date)
         const dateText = `${d.getMonth() + 1}月${d.getDate()}日 ${weekDays[d.getDay()]}`
-        const timeText = `${dateText} ${util.formatTimeSlot(parseInt(hour), event.granularity)}`
+        const timeText = `${dateText} ${util.formatTimeSlot(parseInt(hour), granularity)}`
         bestSlot = { timeText, count: slotCounts[slotId], slotId }
       }
     })
 
     // 生成日期列表（带热力数据）
-    const dates = this.generateDatesWithHeatmap(event.startDate, event.endDate, slotCounts, responses.length, event.granularity)
+    const dates = this.generateDatesWithHeatmap(event.startDate, event.endDate, slotCounts, responses.length, granularity, slotsPerDay)
 
     // 处理参与者列表
     const participants = responses.map(r => ({
@@ -183,6 +208,9 @@ Page({
       dates,
       slotCounts,
       slotUsers,
+      granularity,
+      slotsPerDay,
+      timeLabels,
       bestSlot,
       participants,
       participantCount: responses.length,
@@ -191,14 +219,14 @@ Page({
   },
 
   // 生成日期列表（带热力图数据）
-  generateDatesWithHeatmap(startDate, endDate, slotCounts, totalUsers, granularity) {
+  generateDatesWithHeatmap(startDate, endDate, slotCounts, totalUsers, granularity, slotsPerDay) {
     const dates = []
     const start = new Date(startDate)
     const end = new Date(endDate)
     const weekDays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
 
-    // 根据粒度确定时间槽数量
-    const slotCount = granularity === 'hour' ? 24 : (granularity === 'halfDay' ? 4 : 12)
+    // 使用传入的 slotsPerDay 或根据粒度计算
+    const slotCount = slotsPerDay || (granularity === 'hour' ? 24 : (granularity === 'halfDay' ? 4 : 12))
 
     while (start <= end) {
       const dateStr = this.formatDate(start)

@@ -80,7 +80,7 @@
       </view>
 
       <!-- 时段格子 -->
-      <view class="slots-grid">
+      <view class="slots-grid slots-{{slotsPerDay}}">
         <view
           class="slot-cell {{item.selected ? 'selected' : ''}} {{item.partial ? 'partial' : ''}}"
           wx:for="{{currentSlots}}"

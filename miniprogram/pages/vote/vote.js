@@ -17,8 +17,12 @@ Page({
     currentDateIndex: 0,
     currentSlots: [],
 
-    // 时间标签
-    timeLabels: ['0', '2', '4', '6', '8', '10', '12', '14', '16', '18', '20', '22'],
+    // 时间标签（根据粒度动态计算）
+    timeLabels: [],
+    // 时段粒度
+    granularity: 'twoHours',
+    // 每个日期的时段数量
+    slotsPerDay: 12,
 
     // 选择状态
     slots: {}, // { '2024-03-23_0': true, ... }
@@ -129,8 +133,24 @@ Page({
     // 生成日期数组
     const dates = this.generateDates(event.startDate, event.endDate)
 
+    // 根据粒度计算时段数量和时间标签
+    const granularity = event.granularity || 'twoHours'
+    let slotsPerDay = 12
+    let timeLabels = []
+
+    if (granularity === 'hour') {
+      slotsPerDay = 24
+      timeLabels = ['0', '2', '4', '6', '8', '10', '12', '14', '16', '18', '20', '22']
+    } else if (granularity === 'twoHours') {
+      slotsPerDay = 12
+      timeLabels = ['0', '2', '4', '6', '8', '10', '12', '14', '16', '18', '20', '22']
+    } else if (granularity === 'halfDay') {
+      slotsPerDay = 4
+      timeLabels = ['上午', '下午', '晚上', '深夜']
+    }
+
     // 生成所有时段
-    const allSlots = this.generateAllSlots(dates, event.granularity)
+    const allSlots = this.generateAllSlots(dates, granularity)
 
     // 合并已有选择
     const slots = { ...existingSlots }
@@ -155,6 +175,9 @@ Page({
       selectedCount,
       participantCount,
       nickname,
+      granularity,
+      slotsPerDay,
+      timeLabels,
       loading: false
     })
 
@@ -196,7 +219,8 @@ Page({
     let slotCount = 12 // 默认2小时粒度，12个时段
 
     if (granularity === 'hour') slotCount = 24
-    if (granularity === 'halfDay') slotCount = 4
+    else if (granularity === 'halfDay') slotCount = 4
+    else slotCount = 12 // twoHours
 
     dates.forEach(date => {
       for (let i = 0; i < slotCount; i++) {
@@ -210,12 +234,12 @@ Page({
 
   // 设置当前显示的时段
   setCurrentSlots(index) {
-    const { dates, slots } = this.data
+    const { dates, slots, slotsPerDay, granularity } = this.data
     const date = dates[index]
     const currentSlots = []
 
-    // 根据粒度生成时段（默认2小时，12个时段）
-    for (let i = 0; i < 12; i++) {
+    // 根据粒度生成时段
+    for (let i = 0; i < slotsPerDay; i++) {
       const id = `${date.date}_${i}`
       currentSlots.push({
         id,

@@ -40,8 +40,18 @@ const formatTimeSlot = (hour, granularity) => {
       endHour = hour + 2
       break
     case 'halfDay':
-      endHour = hour >= 12 ? 24 : 12
-      break
+      // 0: 0-12点 = 上午 0-12
+      // 12: 12-18点 = 下午 12-18
+      // 18: 18-24点 = 晚上 18-24
+      if (hour === 0) {
+        return '上午 00:00-12:00'
+      } else if (hour === 1) {
+        return '下午 12:00-18:00'
+      } else if (hour === 2) {
+        return '晚上 18:00-24:00'
+      } else {
+        return '深夜 00:00-06:00'
+      }
     default:
       endHour = hour + 1
   }
@@ -68,30 +78,34 @@ const generateDateRange = (startDate, endDate) => {
 }
 
 /**
- * 生成时间槽
+ * 生成时间槽（从0点开始，覆盖全天24小时）
  */
 const generateTimeSlots = (granularity) => {
   const slots = []
 
   switch (granularity) {
     case 'hour':
-      for (let i = 6; i < 24; i++) {
+      // 24个时段，每小时一个
+      for (let i = 0; i < 24; i++) {
         slots.push({ hour: i, label: formatTimeSlot(i, 'hour') })
       }
       break
     case 'twoHours':
-      for (let i = 6; i < 24; i += 2) {
+      // 12个时段，每2小时一个
+      for (let i = 0; i < 24; i += 2) {
         slots.push({ hour: i, label: formatTimeSlot(i, 'twoHours') })
       }
       break
     case 'halfDay':
-      slots.push({ hour: 0, label: '上午 06:00-12:00' })
+      // 4个时段：上午、下午、晚上、深夜
+      slots.push({ hour: 0, label: '上午 00:00-06:00' })
+      slots.push({ hour: 6, label: '上午 06:00-12:00' })
       slots.push({ hour: 12, label: '下午 12:00-18:00' })
       slots.push({ hour: 18, label: '晚上 18:00-24:00' })
       break
     default:
-      for (let i = 6; i < 24; i++) {
-        slots.push({ hour: i, label: formatTimeSlot(i, 'hour') })
+      for (let i = 0; i < 24; i += 2) {
+        slots.push({ hour: i, label: formatTimeSlot(i, 'twoHours') })
       }
   }
 

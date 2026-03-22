@@ -301,6 +301,21 @@
   gap: 12rpx;
 }
 
+/* 24小时粒度 - 24个格子 */
+.slots-grid.slots-24 .slot-cell {
+  width: calc((100% - 23 * 12rpx) / 24);
+}
+
+/* 12个时段 - 2小时粒度 */
+.slots-grid.slots-12 .slot-cell {
+  width: calc((100% - 11 * 12rpx) / 12);
+}
+
+/* 4个时段 - 半天粒度 */
+.slots-grid.slots-4 .slot-cell {
+  width: calc((100% - 3 * 12rpx) / 4);
+}
+
 .slot-cell {
   width: calc((100% - 11 * 12rpx) / 12);
   aspect-ratio: 1;

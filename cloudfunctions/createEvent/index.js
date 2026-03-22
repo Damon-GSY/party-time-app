@@ -10,11 +10,40 @@ const db = cloud.database()
 exports.main = async (event, context) => {
   const { name, startDate, endDate, granularity = 'twoHours', expireType = '7days', note = '' } = event
 
-  // 韶必填参数校验
+  // 必填参数校验
   if (!name || !startDate || !endDate) {
     return {
       success: false,
       error: '缺少必填参数'
+    }
+  }
+
+  // 日期范围校验
+  const start = new Date(startDate)
+  const end = new Date(endDate)
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  if (start < today) {
+    return {
+      success: false,
+      error: '开始日期不能早于今天'
+    }
+  }
+
+  if (end < start) {
+    return {
+      success: false,
+      error: '结束日期不能早于开始日期'
+    }
+  }
+
+  // 限制日期范围最大31天
+  const daysDiff = Math.floor((end - start) / (24 * 60 * 60 * 1000)) + 1
+  if (daysDiff > 31) {
+    return {
+      success: false,
+      error: '日期范围不能超过31天'
     }
   }
 
