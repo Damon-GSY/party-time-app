@@ -1,0 +1,607 @@
+/* 统计结果页面样式 - 热力图动画版 */
+.page-container {
+  min-height: 100vh;
+  background: linear-gradient(160deg, #1a1a2e 0%, #16213e 40%, #0f3460 100%);
+  padding-bottom: 160rpx;
+}
+
+/* 淡入动画 */
+.fade-in {
+  animation: fadeInUp 0.5s ease forwards;
+  opacity: 0;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20rpx);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 滑入动画 */
+.slide-in {
+  animation: slideIn 0.4s ease forwards;
+  opacity: 0;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20rpx);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* 加载状态 */
+.loading-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+.loading-animation {
+  position: relative;
+  width: 100rpx;
+  height: 100rpx;
+}
+
+.loading-ring {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border: 4rpx solid transparent;
+  border-top-color: var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.loading-ring:nth-child(2) {
+  width: 70%;
+  height: 70%;
+  top: 15%;
+  left: 15%;
+  border-top-color: var(--primary-light);
+  animation-duration: 0.7s;
+  animation-direction: reverse;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-text {
+  margin-top: 28rpx;
+  font-size: 28rpx;
+  color: var(--text-secondary);
+}
+
+/* 头部信息 */
+.header-section {
+  padding: 32rpx;
+}
+
+.event-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12rpx;
+}
+
+.event-name {
+  font-size: 42rpx;
+  font-weight: 700;
+  color: #fff;
+  flex: 1;
+}
+
+.event-badges {
+  display: flex;
+  gap: 12rpx;
+}
+
+.badge {
+  font-size: 22rpx;
+  padding: 8rpx 16rpx;
+  border-radius: 10rpx;
+  background: rgba(74, 222, 128, 0.15);
+  color: #4ade80;
+}
+
+.badge.expired {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+.event-meta {
+  margin-bottom: 12rpx;
+}
+
+.meta-item {
+  font-size: 26rpx;
+  color: var(--text-secondary);
+}
+
+.event-note {
+  font-size: 24rpx;
+  color: var(--text-muted);
+  padding: 16rpx 20rpx;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12rpx;
+  margin-top: 12rpx;
+}
+
+/* 统计卡片 */
+.stats-cards {
+  display: flex;
+  gap: 20rpx;
+  padding: 0 32rpx;
+  margin-bottom: 24rpx;
+}
+
+.stat-card {
+  flex: 1;
+  padding: 28rpx;
+  background: rgba(15, 52, 96, 0.5);
+  border-radius: 20rpx;
+  text-align: center;
+  border: 2rpx solid rgba(255, 255, 255, 0.08);
+}
+
+.stat-value {
+  margin-bottom: 8rpx;
+}
+
+.stat-number {
+  font-size: 56rpx;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.stat-label {
+  font-size: 24rpx;
+  color: var(--text-secondary);
+}
+
+/* 最佳时段推荐 */
+.recommend-section {
+  padding: 0 32rpx;
+  margin-bottom: 24rpx;
+}
+
+.recommend-card {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  padding: 28rpx;
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.15), rgba(251, 191, 36, 0.05));
+  border: 2rpx solid rgba(251, 191, 36, 0.3);
+  border-radius: 20rpx;
+}
+
+.recommend-icon {
+  font-size: 48rpx;
+}
+
+.recommend-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.recommend-title {
+  font-size: 24rpx;
+  color: #fbbf24;
+  margin-bottom: 8rpx;
+}
+
+.recommend-time {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 4rpx;
+}
+
+.recommend-count {
+  font-size: 24rpx;
+  color: var(--text-secondary);
+}
+
+/* 热力图 */
+.heatmap-section {
+  padding: 0 32rpx;
+  margin-bottom: 32rpx;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.section-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #fff;
+}
+
+.heatmap-legend {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  font-size: 22rpx;
+  color: var(--text-secondary);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.legend-color {
+  width: 24rpx;
+  height: 24rpx;
+  border-radius: 6rpx;
+}
+
+.legend-color.low {
+  background: rgba(233, 69, 96, 0.2);
+}
+
+.legend-color.high {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+}
+
+/* 日期标签 */
+.date-labels {
+  display: flex;
+  gap: 12rpx;
+  margin-bottom: 16rpx;
+  padding-left: 60rpx;
+}
+
+.date-label {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12rpx;
+  background: rgba(15, 52, 96, 0.4);
+  border-radius: 12rpx;
+}
+
+.label-weekday {
+  font-size: 20rpx;
+  color: var(--text-muted);
+}
+
+.label-day {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #fff;
+}
+
+/* 热力图主体 */
+.heatmap-wrapper {
+  display: flex;
+  gap: 12rpx;
+}
+
+.time-column {
+  width: 48rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.time-text {
+  height: 48rpx;
+  font-size: 18rpx;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.heatmap-grid {
+  flex: 1;
+  display: flex;
+  gap: 12rpx;
+}
+
+.heatmap-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.heatmap-cell {
+  height: 48rpx;
+  border-radius: 8rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.heatmap-cell-hover {
+  transform: scale(1.1);
+  z-index: 10;
+}
+
+/* 热力等级 */
+.heatmap-cell.level-0 {
+  background: rgba(15, 52, 96, 0.3);
+}
+
+.heatmap-cell.level-1 {
+  background: rgba(233, 69, 96, 0.2);
+}
+
+.heatmap-cell.level-2 {
+  background: rgba(233, 69, 96, 0.4);
+}
+
+.heatmap-cell.level-3 {
+  background: rgba(233, 69, 96, 0.6);
+}
+
+.heatmap-cell.level-4 {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+  box-shadow: 0 4rpx 16rpx rgba(233, 69, 96, 0.4);
+}
+
+.cell-count {
+  font-size: 20rpx;
+  font-weight: 600;
+  color: #fff;
+}
+
+/* 时段详情弹窗 */
+.slot-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.slot-modal.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.modal-content {
+  position: relative;
+  width: 100%;
+  max-height: 70vh;
+  background: var(--bg-card);
+  border-radius: 32rpx 32rpx 0 0;
+  padding: 32rpx;
+  padding-bottom: calc(32rpx + env(safe-area-inset-bottom));
+  transform: translateY(100%);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.slot-modal.show .modal-content {
+  transform: translateY(0);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24rpx;
+}
+
+.modal-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #fff;
+}
+
+.modal-count {
+  font-size: 26rpx;
+  color: var(--primary-light);
+  background: rgba(233, 69, 96, 0.15);
+  padding: 8rpx 16rpx;
+  border-radius: 10rpx;
+}
+
+.modal-body {
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+.participant-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.participant-item {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  padding: 12rpx 20rpx;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12rpx;
+}
+
+.participant-avatar {
+  width: 48rpx;
+  height: 48rpx;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+  color: #fff;
+  font-weight: 600;
+}
+
+.participant-name {
+  font-size: 26rpx;
+  color: #fff;
+}
+
+.no-data {
+  text-align: center;
+  padding: 48rpx;
+  color: var(--text-muted);
+  font-size: 28rpx;
+}
+
+/* 参与者列表 */
+.participants-section {
+  padding: 0 32rpx;
+  margin-bottom: 32rpx;
+}
+
+.participants-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.participant-card {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  padding: 20rpx 24rpx;
+  background: rgba(15, 52, 96, 0.4);
+  border-radius: 16rpx;
+  transition: all 0.3s ease;
+}
+
+.participant-card:active {
+  background: rgba(15, 52, 96, 0.6);
+  transform: scale(0.98);
+}
+
+.participant-info {
+  flex: 1;
+}
+
+.participant-name {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #fff;
+  display: block;
+  margin-bottom: 4rpx;
+}
+
+.participant-slots {
+  font-size: 24rpx;
+  color: var(--text-muted);
+}
+
+/* 操作按钮 */
+.action-section {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 24rpx 32rpx;
+  padding-bottom: calc(24rpx + env(safe-area-inset-bottom));
+  background: linear-gradient(to top, rgba(26, 26, 46, 0.98), transparent);
+  display: flex;
+  gap: 20rpx;
+}
+
+.share-btn,
+.vote-btn {
+  flex: 1;
+  height: 88rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+  border-radius: 20rpx;
+  font-size: 28rpx;
+  font-weight: 500;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.share-btn {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.share-btn:active {
+  background: rgba(255, 255, 255, 0.15);
+  transform: scale(0.98);
+}
+
+.vote-btn {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+  color: #fff;
+}
+
+.vote-btn:active {
+  transform: scale(0.98);
+}
+
+.btn-icon {
+  font-size: 28rpx;
+}
+
+/* 创建成功提示 */
+.created-tip {
+  position: fixed;
+  top: 32rpx;
+  left: 32rpx;
+  right: 32rpx;
+  z-index: 100;
+}
+
+.tip-content {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  padding: 20rpx 28rpx;
+  background: rgba(74, 222, 128, 0.15);
+  border: 2rpx solid rgba(74, 222, 128, 0.3);
+  border-radius: 16rpx;
+}
+
+.tip-icon {
+  font-size: 32rpx;
+}
+
+.tip-text {
+  font-size: 26rpx;
+  color: #4ade80;
+}

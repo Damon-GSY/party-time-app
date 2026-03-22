@@ -1,0 +1,9 @@
+{
+  "name": "createEvent",
+  "version": "1.0.0",
+  "description": "创建聚会活动",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}

@@ -1,0 +1,125 @@
+<!--首页 - 聚合时间统计-->
+<view class="page-container">
+  <!-- 装饰背景 -->
+  <view class="bg-decoration">
+    <view class="bg-circle c1"></view>
+    <view class="bg-circle c2"></view>
+    <view class="bg-circle c3"></view>
+  </view>
+
+  <!-- 头部 -->
+  <view class="header fade-in">
+    <view class="header-icon">
+      <text class="icon-emoji">🎉</text>
+    </view>
+    <text class="header-title">聚会时间</text>
+    <text class="header-subtitle">轻松找到大家都有空的时间</text>
+  </view>
+
+  <!-- 创建按钮 -->
+  <view class="create-section fade-in" style="animation-delay: 0.1s;">
+    <button class="create-btn" bindtap="goToCreate" hover-class="create-btn-active">
+      <view class="btn-shimmer"></view>
+      <text class="btn-icon">✨</text>
+      <text class="btn-text">创建新聚会</text>
+    </button>
+    <text class="create-hint">发起时间投票，邀请好友参与</text>
+  </view>
+
+  <!-- 我的聚会 -->
+  <view class="section fade-in" style="animation-delay: 0.2s;">
+    <view class="section-header">
+      <text class="section-title">我的聚会</text>
+      <view class="refresh-btn" bindtap="refreshEvents" hover-class="refresh-btn-active">
+        <text class="refresh-icon {{loading ? 'spinning' : ''}}">↻</text>
+      </view>
+    </view>
+
+    <!-- 加载中 -->
+    <view class="loading-state" wx:if="{{loading && events.length === 0}}">
+      <view class="loading-dots">
+        <view class="dot"></view>
+        <view class="dot"></view>
+        <view class="dot"></view>
+      </view>
+      <text class="loading-text">加载中...</text>
+    </view>
+
+    <!-- 聚会列表 -->
+    <block wx:if="{{events.length > 0}}">
+      <view
+        class="event-card slide-up"
+        wx:for="{{events}}"
+        wx:key="_id"
+        style="animation-delay: {{0.05 * index}}s;"
+        bindtap="goToEvent"
+        data-id="{{item._id}}"
+        data-type="{{item.type}}"
+        hover-class="event-card-active"
+      >
+        <view class="event-type-badge {{item.type}}">
+          {{item.type === 'created' ? '创建' : '参与'}}
+        </view>
+        <view class="event-main">
+          <text class="event-name">{{item.name}}</text>
+          <view class="event-meta">
+            <view class="meta-item">
+              <text class="meta-icon">📅</text>
+              <text class="meta-text">{{item.dateRangeText}}</text>
+            </view>
+            <view class="meta-item">
+              <text class="meta-icon">👥</text>
+              <text class="meta-text">{{item.participantCount || 0}}人</text>
+            </view>
+          </view>
+        </view>
+        <view class="event-status {{item.expired ? 'expired' : ''}}">
+          <text>{{item.expired ? '已过期' : item.expireText}}</text>
+        </view>
+      </view>
+    </block>
+
+    <!-- 空状态 -->
+    <view class="empty-state" wx:if="{{!loading && events.length === 0}}">
+      <view class="empty-illustration">
+        <view class="empty-circle"></view>
+        <text class="empty-emoji">🎊</text>
+      </view>
+      <text class="empty-title">还没有聚会</text>
+      <text class="empty-desc">点击上方按钮创建第一个聚会吧</text>
+    </view>
+  </view>
+
+  <!-- 使用说明 -->
+  <view class="guide-section fade-in" style="animation-delay: 0.3s;">
+    <text class="guide-title">如何使用</text>
+    <view class="guide-steps">
+      <view class="guide-step">
+        <view class="step-num">1</view>
+        <view class="step-info">
+          <text class="step-title">创建聚会</text>
+          <text class="step-desc">设置名称和时间范围</text>
+        </view>
+      </view>
+      <view class="guide-step">
+        <view class="step-num">2</view>
+        <view class="step-info">
+          <text class="step-title">分享好友</text>
+          <text class="step-desc">转发让好友填写时间</text>
+        </view>
+      </view>
+      <view class="guide-step">
+        <view class="step-num">3</view>
+        <view class="step-info">
+          <text class="step-title">查看统计</text>
+          <text class="step-desc">找出最佳聚会时间</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部 -->
+  <view class="footer">
+    <text class="footer-text">让相聚更简单 💫</text>
+  </view>
+</view>

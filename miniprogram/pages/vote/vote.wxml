@@ -1,0 +1,154 @@
+<!--投票页面 - 时段选择（核心交互页面）-->
+<view class="page-container">
+  <!-- 加载状态 -->
+  <view class="loading-screen" wx:if="{{loading}}">
+    <view class="loading-animation">
+      <view class="loading-ring"></view>
+      <view class="loading-ring"></view>
+      <view class="loading-ring"></view>
+    </view>
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <!-- 过期状态 -->
+  <view class="expired-screen" wx:elif="{{expired}}">
+    <view class="expired-icon">⏰</view>
+    <text class="expired-title">活动已过期</text>
+    <text class="expired-desc">该聚会投票已结束</text>
+    <button class="view-result-btn" bindtap="goToResult">查看结果</button>
+  </view>
+
+  <!-- 主内容 -->
+  <block wx:else>
+    <!-- 头部信息 -->
+    <view class="header-section fade-in">
+      <view class="event-info">
+        <text class="event-name">{{event.name}}</text>
+        <view class="event-meta">
+          <text class="meta-item">📅 {{event.dateRangeText}}</text>
+          <text class="meta-item">👥 {{participantCount}}人已填</text>
+        </view>
+        <text class="event-note" wx:if="{{event.note}}">{{event.note}}</text>
+      </view>
+    </view>
+
+    <!-- 昵称输入 -->
+    <view class="nickname-section fade-in" style="animation-delay: 0.1s;">
+      <view class="input-wrapper">
+        <text class="input-label">你的昵称</text>
+        <input
+          class="nickname-input {{nickname ? 'has-value' : ''}}"
+          placeholder="请输入昵称（可选）"
+          value="{{nickname}}"
+          bindinput="onNicknameInput"
+          maxlength="10"
+        />
+      </view>
+    </view>
+
+    <!-- 提示 -->
+    <view class="tip-section fade-in" style="animation-delay: 0.15s;">
+      <view class="tip-card">
+        <text class="tip-icon">💡</text>
+        <text class="tip-text">点击时段格子选择你有空的时间</text>
+      </view>
+    </view>
+
+    <!-- 日期切换 -->
+    <view class="date-tabs fade-in" style="animation-delay: 0.2s;" wx:if="{{dates.length > 1}}">
+      <scroll-view scroll-x class="date-scroll">
+        <view class="date-tabs-inner">
+          <view
+            class="date-tab {{currentDateIndex === index ? 'active' : ''}}"
+            wx:for="{{dates}}"
+            wx:key="date"
+            bindtap="switchDate"
+            data-index="{{index}}"
+          >
+            <text class="tab-weekday">{{item.weekday}}</text>
+            <text class="tab-date">{{item.day}}</text>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+
+    <!-- 时段网格 -->
+    <view class="slots-section fade-in" style="animation-delay: 0.25s;">
+      <!-- 时间轴 -->
+      <view class="time-axis">
+        <view class="time-label" wx:for="{{timeLabels}}" wx:key="*this">{{item}}</view>
+      </view>
+
+      <!-- 时段格子 -->
+      <view class="slots-grid">
+        <view
+          class="slot-cell {{item.selected ? 'selected' : ''}} {{item.partial ? 'partial' : ''}}"
+          wx:for="{{currentSlots}}"
+          wx:key="id"
+          bindtap="toggleSlot"
+          data-index="{{index}}"
+          hover-class="slot-cell-hover"
+          style="animation-delay: {{0.02 * index}}s;"
+        >
+          <view class="slot-inner">
+            <view class="slot-check" wx:if="{{item.selected}}">
+              <text class="check-icon">✓</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 已选统计 -->
+    <view class="selection-summary fade-in" style="animation-delay: 0.3s;">
+      <view class="summary-left">
+        <text class="summary-label">已选择</text>
+        <text class="summary-count">{{selectedCount}}</text>
+        <text class="summary-unit">个时段</text>
+      </view>
+      <view class="summary-actions">
+        <view class="action-btn clear-btn" bindtap="clearSelection" wx:if="{{selectedCount > 0}}">
+          <text>清空</text>
+        </view>
+        <view class="action-btn select-all-btn" bindtap="selectAll">
+          <text>全选</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 提交按钮 -->
+    <view class="submit-section fade-in" style="animation-delay: 0.35s;">
+      <button
+        class="submit-btn {{submitting ? 'submitting' : ''}} {{selectedCount > 0 ? 'has-selection' : ''}}"
+        bindtap="handleSubmit"
+        disabled="{{submitting}}"
+      >
+        <view class="btn-content" wx:if="{{!submitting}}">
+          <text class="btn-icon">✨</text>
+          <text class="btn-text">{{selectedCount > 0 ? '提交我的时间' : '请先选择时段'}}</text>
+        </view>
+        <view class="btn-loading" wx:else>
+          <view class="spinner"></view>
+          <text>提交中...</text>
+        </view>
+      </button>
+    </view>
+
+    <!-- 成功弹窗 -->
+    <view class="success-modal {{showSuccess ? 'show' : ''}}" catchtouchmove="preventMove">
+      <view class="modal-backdrop"></view>
+      <view class="modal-content">
+        <view class="success-animation">
+          <view class="checkmark-circle"></view>
+          <view class="checkmark"></view>
+        </view>
+        <text class="success-title">提交成功！</text>
+        <text class="success-desc">感谢你的参与</text>
+        <view class="modal-actions">
+          <button class="modal-btn secondary" bindtap="goToResult">查看统计</button>
+          <button class="modal-btn primary" bindtap="closeSuccess">继续修改</button>
+        </view>
+      </view>
+    </view>
+  </block>
+</view>
