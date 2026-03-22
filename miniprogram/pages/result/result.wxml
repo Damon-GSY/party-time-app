@@ -43,52 +43,56 @@
       </view>
     </view>
 
-    <!-- 最佳时段推荐 -->
+    <!-- 最佳时段推荐 - 醒目卡片 -->
     <view class="recommend-section fade-in" style="animation-delay: 0.15s;">
-      <view class="recommend-card" wx:if="{{bestSlot.timeText}}">
-        <view class="recommend-icon">🏆</view>
+      <view class="recommend-card recommend-highlight" wx:if="{{bestSlot.timeText}}">
+        <view class="recommend-icon-wrap">
+          <text class="recommend-trophy">🏆</text>
+        </view>
         <view class="recommend-content">
-          <text class="recommend-title">最佳时段</text>
+          <text class="recommend-label">最佳推荐时段</text>
           <text class="recommend-time">{{bestSlot.timeText}}</text>
-          <text class="recommend-count">{{bestSlot.count}} 人有空</text>
+          <view class="recommend-meta">
+            <text class="recommend-count">{{bestSlot.count}} 人有空</text>
+            <text class="recommend-percent" wx:if="{{participantCount > 0}}">({{bestSlot.count / participantCount * 100}}%)</text>
+          </view>
         </view>
       </view>
+      <!-- 空状态 -->
       <view class="recommend-card recommend-empty" wx:else>
-        <view class="recommend-icon">🗳️</view>
+        <view class="recommend-icon-wrap">
+          <text class="recommend-empty-icon">🗳️</text>
+        </view>
         <view class="recommend-content">
-          <text class="recommend-title">暂无数据</text>
+          <text class="recommend-label">暂无数据</text>
           <text class="recommend-time">等待参与者投票</text>
-          <text class="recommend-count">分享给好友开始投票</text>
+          <text class="recommend-hint">分享给好友开始投票吧～</text>
         </view>
       </view>
     </view>
 
-    <!-- 热力图 -->
+    <!-- 热力图 - 仅有人参与时显示 -->
     <view class="heatmap-section fade-in" style="animation-delay: 0.2s;" wx:if="{{participantCount > 0}}">
       <view class="section-header">
         <text class="section-title">时段热力图</text>
-        <view class="heatmap-legend">
-          <view class="legend-item">
-            <view class="legend-color level-0"></view>
-            <text>0人</text>
+      </view>
+
+      <!-- 清晰图例条 -->
+      <view class="legend-bar">
+        <text class="legend-label">人数：</text>
+        <view class="legend-gradient">
+          <view class="legend-step" wx:for="{{legendSteps}}" wx:key="value" style="background: {{item.color}};">
+            <text class="legend-value">{{item.value}}</text>
           </view>
-          <view class="legend-item">
-            <view class="legend-color level-2"></view>
-            <text>部分</text>
-          </view>
-          <view class="legend-item">
-            <view class="legend-color level-4"></view>
-            <text>最多</text>
-          </view>
-          <text class="legend-hint">点击查看详情</text>
         </view>
+        <text class="legend-hint">点击格子查看详情</text>
       </view>
 
       <!-- 日期标签 -->
       <view class="date-labels">
         <view class="date-label" wx:for="{{dates}}" wx:key="date">
           <text class="label-weekday">{{item.weekday}}</text>
-          <text class="label-day">{{item.day}}</text>
+          <text class="label-day">{{item.day}}日</text>
         </view>
       </view>
 
@@ -98,7 +102,7 @@
           <text class="time-text" wx:for="{{timeLabels}}" wx:key="*this">{{item}}</text>
         </view>
 
-        <!-- 热力格子 -->
+        <!-- 热力格子 - 加大尺寸 -->
         <view class="heatmap-grid">
           <view class="heatmap-column" wx:for="{{dates}}" wx:key="date">
             <view
@@ -117,6 +121,64 @@
       </view>
     </view>
 
+    <!-- 空状态引导 -->
+    <view class="empty-participants fade-in" style="animation-delay: 0.2s;" wx:if="{{participantCount === 0}}">
+      <view class="empty-icon">
+        <text>👥</text>
+      </view>
+      <text class="empty-title">还没有人参与</text>
+      <text class="empty-desc">分享给好友，让大家一起选时间吧！</text>
+      <button class="empty-share-btn" open-type="share">
+        <text>📤 立即分享</text>
+      </button>
+    </view>
+
+    <!-- 参与者列表 -->
+    <view class="participants-section fade-in" style="animation-delay: 0.25s;" wx:if="{{participants.length > 0}}">
+      <view class="section-header">
+        <text class="section-title">参与者 ({{participants.length}}人)</text>
+      </view>
+      <view class="participants-list">
+        <view
+          class="participant-card slide-in"
+          wx:for="{{participants}}"
+          wx:key="_id"
+          style="animation-delay: {{0.05 * index}}s;"
+        >
+          <view class="participant-avatar" style="background: {{item.avatarColor || 'linear-gradient(135deg, var(--primary-color), var(--primary-light))'}}">
+            <text>{{item.nickname[0]}}</text>
+          </view>
+          <view class="participant-info">
+            <text class="participant-name">{{item.nickname}}</text>
+            <text class="participant-slots">选择了 {{item.slotCount}} 个时段</text>
+          </view>
+          <view class="participant-badge" wx:if="{{item.slotCount >= 5}}">
+            <text>🌟</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 操作按钮 -->
+    <view class="action-section fade-in" style="animation-delay: 0.3s;">
+      <button class="share-btn" open-type="share">
+        <text class="btn-icon">🔗</text>
+        <text>分享结果</text>
+      </button>
+      <button class="vote-btn" bindtap="goToVote" wx:if="{{!event.expired}}">
+        <text class="btn-icon">✏️</text>
+        <text>填写/修改</text>
+      </button>
+    </view>
+
+    <!-- 刚创建成功的提示 -->
+    <view class="created-tip fade-in" style="animation-delay: 0.35s;" wx:if="{{justCreated}}">
+      <view class="tip-content">
+        <text class="tip-icon">🎉</text>
+        <text class="tip-text">聚会创建成功！快分享给好友吧</text>
+      </view>
+    </view>
+
     <!-- 时段详情弹窗 -->
     <view class="slot-modal {{showSlotModal ? 'show' : ''}}" catchtouchmove="preventMove">
       <view class="modal-backdrop" bindtap="closeSlotModal"></view>
@@ -131,7 +193,9 @@
         <view class="modal-body">
           <view class="participant-list" wx:if="{{selectedSlotInfo.users.length > 0}}">
             <view class="participant-item" wx:for="{{selectedSlotInfo.users}}" wx:key="*this">
-              <view class="participant-avatar">{{item[0]}}</view>
+              <view class="participant-avatar small">
+                <text>{{item[0]}}</text>
+              </view>
               <text class="participant-name">{{item}}</text>
             </view>
           </view>
@@ -139,47 +203,6 @@
             <text>暂无人选择此时段</text>
           </view>
         </view>
-      </view>
-    </view>
-
-    <!-- 参与者列表 -->
-    <view class="participants-section fade-in" style="animation-delay: 0.25s;" wx:if="{{participants.length > 0}}">
-      <view class="section-header">
-        <text class="section-title">参与者 ({{participants.length}})</text>
-      </view>
-      <view class="participants-list">
-        <view
-          class="participant-card slide-in"
-          wx:for="{{participants}}"
-          wx:key="_id"
-          style="animation-delay: {{0.05 * index}}s;"
-        >
-          <view class="participant-avatar">{{item.nickname[0]}}</view>
-          <view class="participant-info">
-            <text class="participant-name">{{item.nickname}}</text>
-            <text class="participant-slots">选择了 {{item.slotCount}} 个时段</text>
-          </view>
-        </view>
-      </view>
-    </view>
-
-    <!-- 操作按钮 -->
-    <view class="action-section fade-in" style="animation-delay: 0.3s;">
-      <button class="share-btn" open-type="share">
-        <text class="btn-icon">🔗</text>
-        <text>分享给好友</text>
-      </button>
-      <button class="vote-btn" bindtap="goToVote" wx:if="{{!event.expired}}">
-        <text class="btn-icon">✏️</text>
-        <text>填写/修改时间</text>
-      </button>
-    </view>
-
-    <!-- 刚创建成功的提示 -->
-    <view class="created-tip fade-in" style="animation-delay: 0.35s;" wx:if="{{justCreated}}">
-      <view class="tip-content">
-        <text class="tip-icon">🎉</text>
-        <text class="tip-text">聚会创建成功！快分享给好友吧</text>
       </view>
     </view>
   </block>

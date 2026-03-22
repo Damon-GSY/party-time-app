@@ -127,10 +127,10 @@ Page({
           icon: 'success'
         })
 
-        // 跳转到分享页面
+        // 跳转到投票页面让创建者填写时间
         setTimeout(() => {
           wx.redirectTo({
-            url: `/pages/result/result?id=${eventId}&created=1`
+            url: `/pages/vote/vote?id=${eventId}`
           })
         }, 1500)
       } else {

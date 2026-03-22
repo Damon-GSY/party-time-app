@@ -4,7 +4,11 @@ Page({
   data: {
     events: [],
     loading: false,
-    initialized: false
+    initialized: false,
+    guideExpanded: true, // 使用说明默认展开
+    swipeStartX: 0,
+    swipeStartY: 0,
+    activeSwipeId: null // 当前滑开的卡片ID
   },
 
   onLoad() {
@@ -17,9 +21,12 @@ Page({
     if (this.data.initialized) {
       this.loadEvents()
     }
+    // 重置滑动状态
+    this.closeAllSwipe()
   },
 
   onPullDownRefresh() {
+    this.closeAllSwipe()
     this.loadEvents().then(() => {
       wx.stopPullDownRefresh()
     })
@@ -64,8 +71,8 @@ Page({
 
       // 合并并标记类型
       const allEvents = [
-        ...createdRes.data.map(e => ({ ...e, type: 'created' })),
-        ...joinedEvents.map(e => ({ ...e, type: 'joined' }))
+        ...createdRes.data.map(e => ({ ...e, type: 'created', translateX: 0 })),
+        ...joinedEvents.map(e => ({ ...e, type: 'joined', translateX: 0 }))
       ]
 
       // 去重（如果同时是创建者和参与者）
@@ -116,7 +123,8 @@ Page({
               expired: false,
               participantCount: 5,
               type: 'created',
-              createdAt: new Date().toISOString()
+              createdAt: new Date().toISOString(),
+              translateX: 0
             }
           ]
         })
@@ -126,6 +134,7 @@ Page({
 
   // 刷新
   refreshEvents() {
+    this.closeAllSwipe()
     this.loadEvents()
   },
 
@@ -140,10 +149,15 @@ Page({
   goToEvent(e) {
     const { id, type } = e.currentTarget.dataset
 
+    // 如果正在滑动，不触发点击
+    const event = this.data.events.find(ev => ev._id === id)
+    if (event && event.translateX !== 0) {
+      this.closeSwipe(id)
+      return
+    }
+
     // 如果已过期或是我创建的，跳转到结果页
     // 否则跳转到填写页
-    const event = this.data.events.find(ev => ev._id === id)
-
     const targetUrl = (event.expired || type === 'created')
       ? `/pages/result/result?id=${id}`
       : `/pages/vote/vote?id=${id}`
@@ -155,6 +169,132 @@ Page({
         wx.navigateTo({ url: targetUrl })
       }
     })
+  },
+
+  // 折叠/展开使用说明
+  toggleGuide() {
+    this.setData({
+      guideExpanded: !this.data.guideExpanded
+    })
+  },
+
+  // 左滑开始
+  onSwipeStart(e) {
+    const { clientX, clientY } = e.touches[0]
+    this.setData({
+      swipeStartX: clientX,
+      swipeStartY: clientY
+    })
+  },
+
+  // 左滑结束
+  onSwipeEnd(e) {
+    const { id, type } = e.currentTarget.dataset
+    const { swipeStartX, swipeStartY, activeSwipeId } = this.data
+    const { clientX, clientY } = e.changedTouches[0]
+
+    // 计算滑动距离
+    const deltaX = clientX - swipeStartX
+    const deltaY = clientY - swipeStartY
+
+    // 如果垂直滑动大于水平滑动，忽略（滚动手势）
+    if (Math.abs(deltaY) > Math.abs(deltaX)) {
+      return
+    }
+
+    // 只有创建者创建的聚会才能删除
+    if (type !== 'created') {
+      return
+    }
+
+    // 左滑超过 60rpx 显示删除按钮
+    if (deltaX < -60) {
+      this.openSwipe(id)
+    } else if (deltaX > 30) {
+      // 右滑关闭
+      this.closeSwipe(id)
+    } else if (activeSwipeId && activeSwipeId !== id) {
+      // 点击其他卡片时关闭已打开的
+      this.closeAllSwipe()
+    }
+  },
+
+  // 打开滑动
+  openSwipe(id) {
+    const events = this.data.events.map(e => {
+      if (e._id === id) {
+        return { ...e, translateX: -140 }
+      }
+      return { ...e, translateX: 0 }
+    })
+    this.setData({ events, activeSwipeId: id })
+  },
+
+  // 关闭滑动
+  closeSwipe(id) {
+    const events = this.data.events.map(e => {
+      if (e._id === id) {
+        return { ...e, translateX: 0 }
+      }
+      return e
+    })
+    this.setData({ events, activeSwipeId: null })
+  },
+
+  // 关闭所有滑动
+  closeAllSwipe() {
+    const events = this.data.events.map(e => ({ ...e, translateX: 0 }))
+    this.setData({ events, activeSwipeId: null })
+  },
+
+  // 删除聚会
+  async deleteEvent(e) {
+    const { id } = e.currentTarget.dataset
+
+    const res = await wx.showModal({
+      title: '确认删除',
+      content: '删除后无法恢复，确定要删除这个聚会吗？',
+      confirmText: '删除',
+      confirmColor: '#ef4444'
+    })
+
+    if (!res.confirm) {
+      this.closeSwipe(id)
+      return
+    }
+
+    try {
+      wx.showLoading({ title: '删除中...' })
+
+      if (wx.cloud) {
+        const db = wx.cloud.database()
+        // 删除活动
+        await db.collection('events').doc(id).remove()
+        // 删除所有响应
+        await db.collection('responses').where({
+          eventId: id
+        }).remove()
+      }
+
+      wx.hideLoading()
+      wx.showToast({
+        title: '已删除',
+        icon: 'success'
+      })
+
+      // 从列表中移除
+      const events = this.data.events.filter(e => e._id !== id)
+      this.setData({ events, activeSwipeId: null })
+
+    } catch (err) {
+      wx.hideLoading()
+      console.error('删除失败', err)
+      wx.showToast({
+        title: '删除失败',
+        icon: 'none'
+      })
+      this.closeSwipe(id)
+    }
   },
 
   // 分享

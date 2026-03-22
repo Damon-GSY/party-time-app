@@ -119,14 +119,62 @@
   50% { box-shadow: 0 20rpx 60rpx rgba(233, 69, 96, 0.5); }
 }
 
-.icon-emoji {
-  font-size: 64rpx;
-  animation: bounce-gentle 2.5s ease-in-out infinite;
+/* CSS 动画日历图标 */
+.icon-animated {
+  width: 72rpx;
+  height: 72rpx;
 }
 
-@keyframes bounce-gentle {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8rpx); }
+.calendar-mini {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.cal-header {
+  width: 100%;
+  height: 20rpx;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 6rpx 6rpx 0 0;
+  position: relative;
+}
+
+.cal-header::before,
+.cal-header::after {
+  content: '';
+  position: absolute;
+  width: 8rpx;
+  height: 16rpx;
+  background: rgba(255, 255, 255, 0.9);
+  top: -8rpx;
+  border-radius: 4rpx;
+}
+
+.cal-header::before { left: 20rpx; }
+.cal-header::after { right: 20rpx; }
+
+.cal-body {
+  width: 100%;
+  height: 52rpx;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 0 0 6rpx 6rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cal-check {
+  width: 28rpx;
+  height: 14rpx;
+  border-left: 4rpx solid var(--primary-color);
+  border-bottom: 4rpx solid var(--primary-color);
+  transform: rotate(-45deg);
+  animation: check-bounce 1.5s ease-in-out infinite;
+}
+
+@keyframes check-bounce {
+  0%, 100% { transform: rotate(-45deg) scale(1); }
+  50% { transform: rotate(-45deg) scale(1.1); }
 }
 
 .header-title {
@@ -297,12 +345,24 @@
   color: var(--text-secondary);
 }
 
+/* 卡片滑动容器 */
+.event-card-wrapper {
+  position: relative;
+  margin-bottom: 20rpx;
+  overflow: hidden;
+}
+
+.event-card-swipe {
+  transition: transform 0.3s ease;
+  position: relative;
+  z-index: 2;
+}
+
 /* 聚会卡片 */
 .event-card {
   background: var(--bg-card);
   border-radius: 20rpx;
   padding: 28rpx 24rpx;
-  margin-bottom: 20rpx;
   position: relative;
   overflow: hidden;
   display: flex;
@@ -388,7 +448,33 @@
   color: #ef4444;
 }
 
-/* 空状态 */
+/* 删除按钮 */
+.delete-action {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 140rpx;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0 20rpx 20rpx 0;
+  z-index: 1;
+}
+
+.delete-icon {
+  font-size: 32rpx;
+  margin-bottom: 4rpx;
+}
+
+.delete-text {
+  font-size: 22rpx;
+  color: #fff;
+}
+
+/* 精致空状态 */
 .empty-state {
   display: flex;
   flex-direction: column;
@@ -401,31 +487,96 @@
   margin-bottom: 32rpx;
 }
 
-.empty-circle {
-  width: 160rpx;
-  height: 160rpx;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 50%;
-  animation: pulse-empty 2.5s ease-in-out infinite;
+/* CSS 日历图标 */
+.empty-calendar {
+  width: 140rpx;
+  height: 140rpx;
+  position: relative;
 }
 
-@keyframes pulse-empty {
-  0%, 100% { transform: scale(1); opacity: 0.5; }
-  50% { transform: scale(1.1); opacity: 0.3; }
+.empty-cal-header {
+  width: 100%;
+  height: 32rpx;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+  border-radius: 16rpx 16rpx 0 0;
+  position: relative;
+  animation: cal-float 3s ease-in-out infinite;
 }
 
-.empty-emoji {
+@keyframes cal-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8rpx); }
+}
+
+.empty-cal-ring {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 64rpx;
-  animation: float-emoji 3s ease-in-out infinite;
+  width: 100%;
+  top: 8rpx;
+  display: flex;
+  justify-content: center;
+  gap: 40rpx;
 }
 
-@keyframes float-emoji {
-  0%, 100% { transform: translate(-50%, -50%); }
-  50% { transform: translate(-50%, calc(-50% - 10rpx)); }
+.empty-cal-ring::before,
+.empty-cal-ring::after {
+  content: '';
+  width: 12rpx;
+  height: 20rpx;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 6rpx;
+}
+
+.empty-cal-body {
+  width: 100%;
+  height: 108rpx;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 0 0 16rpx 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-cal-plus {
+  font-size: 48rpx;
+  color: var(--primary-color);
+  font-weight: 300;
+  animation: plus-pulse 2s ease-in-out infinite;
+}
+
+@keyframes plus-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.15); opacity: 0.8; }
+}
+
+/* 闪光装饰 */
+.empty-sparkle {
+  position: absolute;
+  font-size: 20rpx;
+  color: var(--primary-light);
+  animation: sparkle 2s ease-in-out infinite;
+}
+
+.empty-sparkle.s1 {
+  top: -10rpx;
+  right: -20rpx;
+  animation-delay: 0s;
+}
+
+.empty-sparkle.s2 {
+  top: 40rpx;
+  left: -25rpx;
+  animation-delay: 0.5s;
+}
+
+.empty-sparkle.s3 {
+  bottom: 20rpx;
+  right: -15rpx;
+  animation-delay: 1s;
+}
+
+@keyframes sparkle {
+  0%, 100% { opacity: 0.3; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.2); }
 }
 
 .empty-title {
@@ -440,24 +591,51 @@
   color: var(--text-muted);
 }
 
-/* 使用说明 */
+/* 使用说明 - 可折叠 */
 .guide-section {
   margin: 0 32rpx 32rpx;
-  padding: 32rpx;
   background: rgba(255, 255, 255, 0.04);
   border-radius: 24rpx;
   border: 2rpx solid rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.guide-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 28rpx 32rpx;
+  cursor: pointer;
 }
 
 .guide-title {
   font-size: 28rpx;
   font-weight: 600;
   color: #fff;
-  text-align: center;
-  margin-bottom: 28rpx;
+}
+
+.guide-toggle {
+  font-size: 20rpx;
+  color: var(--text-secondary);
+  transition: transform 0.3s ease;
+}
+
+.guide-toggle.expanded {
+  transform: rotate(180deg);
+}
+
+.guide-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease;
+}
+
+.guide-content.expanded {
+  max-height: 600rpx;
 }
 
 .guide-steps {
+  padding: 0 32rpx 28rpx;
   display: flex;
   flex-direction: column;
   gap: 20rpx;
@@ -477,17 +655,15 @@
   transform: scale(0.98);
 }
 
-.step-num {
-  width: 48rpx;
-  height: 48rpx;
-  background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+.step-icon {
+  width: 56rpx;
+  height: 56rpx;
+  background: rgba(233, 69, 96, 0.15);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 26rpx;
-  font-weight: 600;
-  color: #fff;
+  font-size: 28rpx;
   margin-right: 20rpx;
   flex-shrink: 0;
 }

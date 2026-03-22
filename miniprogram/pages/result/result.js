@@ -22,6 +22,7 @@ Page({
 
     bestSlot: { timeText: '', count: 0 },
     participants: [],
+    legendSteps: [], // 图例数据
 
     showSlotModal: false,
     selectedSlotInfo: { dateText: '', timeText: '', count: 0, users: [] }
@@ -203,6 +204,9 @@ Page({
     event.expireText = util.formatExpireTime(event.expireAt)
     event.expired = expired
 
+    // 生成图例数据
+    const legendSteps = this.generateLegendSteps(responses.length)
+
     this.setData({
       event,
       dates,
@@ -214,6 +218,7 @@ Page({
       bestSlot,
       participants,
       participantCount: responses.length,
+      legendSteps,
       loading: false
     })
   },
@@ -235,8 +240,16 @@ Page({
       for (let i = 0; i < slotCount; i++) {
         const slotId = `${dateStr}_${i}`
         const count = slotCounts[slotId] || 0
-        const level = totalUsers > 0 ? Math.min(4, Math.floor((count / totalUsers) * 5)) : 0
-        slots.push({ timeSlot: i, count, level, slotId })
+        // 计算热度等级 0-4
+        let level = 0
+        if (totalUsers > 0 && count > 0) {
+          const ratio = count / totalUsers
+          if (ratio <= 0.25) level = 1
+          else if (ratio <= 0.5) level = 2
+          else if (ratio <= 0.75) level = 3
+          else level = 4
+        }
+        slots.push({ timeSlot: i, count, level, slotId, date: dateStr })
       }
 
       dates.push({
@@ -257,6 +270,34 @@ Page({
     const m = String(d.getMonth() + 1).padStart(2, '0')
     const day = String(d.getDate()).padStart(2, '0')
     return `${y}-${m}-${day}`
+  },
+
+  // 生成图例数据
+  generateLegendSteps(maxCount) {
+    const steps = []
+    const colors = [
+      'rgba(15, 52, 96, 0.4)',
+      'rgba(233, 69, 96, 0.25)',
+      'rgba(233, 69, 96, 0.45)',
+      'rgba(233, 69, 96, 0.7)',
+      'linear-gradient(135deg, #e94560, #ff6b6b)'
+    ]
+
+    if (maxCount <= 1) {
+      steps.push({ value: '0', color: colors[0] })
+      steps.push({ value: '1', color: colors[4] })
+    } else if (maxCount <= 2) {
+      steps.push({ value: '0', color: colors[0] })
+      steps.push({ value: '1', color: colors[2] })
+      steps.push({ value: '2+', color: colors[4] })
+    } else {
+      steps.push({ value: '0', color: colors[0] })
+      steps.push({ value: '1', color: colors[1] })
+      steps.push({ value: Math.floor(maxCount / 2).toString(), color: colors[3] })
+      steps.push({ value: maxCount.toString(), color: colors[4] })
+    }
+
+    return steps
   },
 
   // 格式化提交时间

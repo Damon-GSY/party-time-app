@@ -10,7 +10,14 @@
   <!-- 头部 -->
   <view class="header fade-in">
     <view class="header-icon">
-      <text class="icon-emoji">🎉</text>
+      <view class="icon-animated">
+        <view class="calendar-mini">
+          <view class="cal-header"></view>
+          <view class="cal-body">
+            <view class="cal-check"></view>
+          </view>
+        </view>
+      </view>
     </view>
     <text class="header-title">聚会时间</text>
     <text class="header-subtitle">轻松找到大家都有空的时间</text>
@@ -48,33 +55,51 @@
     <!-- 聚会列表 -->
     <block wx:if="{{events.length > 0}}">
       <view
-        class="event-card slide-up"
+        class="event-card-wrapper slide-up"
         wx:for="{{events}}"
         wx:key="_id"
         style="animation-delay: {{0.05 * index}}s;"
-        bindtap="goToEvent"
-        data-id="{{item._id}}"
-        data-type="{{item.type}}"
-        hover-class="event-card-active"
       >
-        <view class="event-type-badge {{item.type}}">
-          {{item.type === 'created' ? '创建' : '参与'}}
-        </view>
-        <view class="event-main">
-          <text class="event-name">{{item.name}}</text>
-          <view class="event-meta">
-            <view class="meta-item">
-              <text class="meta-icon">📅</text>
-              <text class="meta-text">{{item.dateRangeText}}</text>
+        <view
+          class="event-card-swipe"
+          data-id="{{item._id}}"
+          data-type="{{item.type}}"
+          bindtouchstart="onSwipeStart"
+          bindtouchend="onSwipeEnd"
+          bindtap="goToEvent"
+          style="transform: translateX({{item.translateX || 0}}rpx);"
+        >
+          <view class="event-card" hover-class="event-card-active">
+            <view class="event-type-badge {{item.type}}">
+              {{item.type === 'created' ? '创建' : '参与'}}
             </view>
-            <view class="meta-item">
-              <text class="meta-icon">👥</text>
-              <text class="meta-text">{{item.participantCount || 0}}人</text>
+            <view class="event-main">
+              <text class="event-name">{{item.name}}</text>
+              <view class="event-meta">
+                <view class="meta-item">
+                  <text class="meta-icon">📅</text>
+                  <text class="meta-text">{{item.dateRangeText}}</text>
+                </view>
+                <view class="meta-item">
+                  <text class="meta-icon">👥</text>
+                  <text class="meta-text">{{item.participantCount || 0}}人</text>
+                </view>
+              </view>
+            </view>
+            <view class="event-status {{item.expired ? 'expired' : ''}}">
+              <text>{{item.expired ? '已过期' : item.expireText}}</text>
             </view>
           </view>
         </view>
-        <view class="event-status {{item.expired ? 'expired' : ''}}">
-          <text>{{item.expired ? '已过期' : item.expireText}}</text>
+        <!-- 删除按钮 -->
+        <view
+          class="delete-action"
+          wx:if="{{item.type === 'created'}}"
+          bindtap="deleteEvent"
+          data-id="{{item._id}}"
+        >
+          <text class="delete-icon">🗑️</text>
+          <text class="delete-text">删除</text>
         </view>
       </view>
     </block>
@@ -82,37 +107,59 @@
     <!-- 空状态 -->
     <view class="empty-state" wx:if="{{!loading && events.length === 0}}">
       <view class="empty-illustration">
-        <view class="empty-circle"></view>
-        <text class="empty-emoji">🎊</text>
+        <view class="empty-calendar">
+          <view class="empty-cal-header">
+            <view class="empty-cal-ring"></view>
+          </view>
+          <view class="empty-cal-body">
+            <view class="empty-cal-plus">+</view>
+          </view>
+        </view>
+        <view class="empty-sparkle s1">✦</view>
+        <view class="empty-sparkle s2">✧</view>
+        <view class="empty-sparkle s3">✦</view>
       </view>
       <text class="empty-title">还没有聚会</text>
       <text class="empty-desc">点击上方按钮创建第一个聚会吧</text>
     </view>
   </view>
 
-  <!-- 使用说明 -->
+  <!-- 使用说明 - 可折叠 -->
   <view class="guide-section fade-in" style="animation-delay: 0.3s;">
-    <text class="guide-title">如何使用</text>
-    <view class="guide-steps">
-      <view class="guide-step">
-        <view class="step-num">1</view>
-        <view class="step-info">
-          <text class="step-title">创建聚会</text>
-          <text class="step-desc">设置名称和时间范围</text>
-        </view>
+    <view class="guide-header" bindtap="toggleGuide">
+      <text class="guide-title">如何使用</text>
+      <view class="guide-toggle {{guideExpanded ? 'expanded' : ''}}">
+        <text>▼</text>
       </view>
-      <view class="guide-step">
-        <view class="step-num">2</view>
-        <view class="step-info">
-          <text class="step-title">分享好友</text>
-          <text class="step-desc">转发让好友填写时间</text>
+    </view>
+    <view class="guide-content {{guideExpanded ? 'expanded' : ''}}">
+      <view class="guide-steps">
+        <view class="guide-step">
+          <view class="step-icon">
+            <text>📅</text>
+          </view>
+          <view class="step-info">
+            <text class="step-title">创建聚会</text>
+            <text class="step-desc">设置名称和时间范围</text>
+          </view>
         </view>
-      </view>
-      <view class="guide-step">
-        <view class="step-num">3</view>
-        <view class="step-info">
-          <text class="step-title">查看统计</text>
-          <text class="step-desc">找出最佳聚会时间</text>
+        <view class="guide-step">
+          <view class="step-icon">
+            <text>📤</text>
+          </view>
+          <view class="step-info">
+            <text class="step-title">分享好友</text>
+            <text class="step-desc">转发让好友填写时间</text>
+          </view>
+        </view>
+        <view class="guide-step">
+          <view class="step-icon">
+            <text>📊</text>
+          </view>
+          <view class="step-info">
+            <text class="step-title">查看统计</text>
+            <text class="step-desc">找出最佳聚会时间</text>
+          </view>
         </view>
       </view>
     </view>

@@ -30,7 +30,8 @@ Page({
 
     // 提交状态
     submitting: false,
-    showSuccess: false
+    showSuccess: false,
+    countAnimated: false
   },
 
   onLoad(options) {
@@ -281,8 +282,14 @@ Page({
     this.setData({
       [`slots.${slot.id}`]: newSelected,
       [`currentSlots[${index}].selected`]: newSelected,
-      selectedCount: selectedCount + (newSelected ? 1 : -1)
+      selectedCount: selectedCount + (newSelected ? 1 : -1),
+      countAnimated: true
     })
+
+    // 重置动画状态
+    setTimeout(() => {
+      this.setData({ countAnimated: false })
+    }, 300)
 
     // 触觉反馈
     try {

@@ -72,6 +72,24 @@
       </scroll-view>
     </view>
 
+    <!-- 选择操作按钮（移动到网格上方） -->
+    <view class="slot-actions fade-in" style="animation-delay: 0.22s;">
+      <view class="action-row">
+        <view class="day-selector">
+          <text class="day-label">{{dates[currentDateIndex].weekday}}</text>
+          <text class="day-date">{{dates[currentDateIndex].date}}</text>
+        </view>
+        <view class="quick-actions">
+          <view class="quick-btn select-all" bindtap="selectAll">
+            <text>✓ 全选当天</text>
+          </view>
+          <view class="quick-btn clear" bindtap="clearSelection" wx:if="{{selectedCount > 0}}">
+            <text>✕ 清空当天</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
     <!-- 时段网格 -->
     <view class="slots-section fade-in" style="animation-delay: 0.25s;">
       <!-- 时间轴 -->
@@ -104,16 +122,8 @@
     <view class="selection-summary fade-in" style="animation-delay: 0.3s;">
       <view class="summary-left">
         <text class="summary-label">已选择</text>
-        <text class="summary-count">{{selectedCount}}</text>
+        <text class="summary-count {{countAnimated ? 'animated' : ''}}">{{selectedCount}}</text>
         <text class="summary-unit">个时段</text>
-      </view>
-      <view class="summary-actions">
-        <view class="action-btn clear-btn" bindtap="clearSelection" wx:if="{{selectedCount > 0}}">
-          <text>清空</text>
-        </view>
-        <view class="action-btn select-all-btn" bindtap="selectAll">
-          <text>全选</text>
-        </view>
       </view>
     </view>
 
@@ -135,16 +145,31 @@
       </button>
     </view>
 
-    <!-- 成功弹窗 -->
+    <!-- 成功弹窗 - 带粒子效果 -->
     <view class="success-modal {{showSuccess ? 'show' : ''}}" catchtouchmove="preventMove">
       <view class="modal-backdrop"></view>
+      <!-- 粒子效果 -->
+      <view class="confetti-container" wx:if="{{showSuccess}}">
+        <view class="confetti c1"></view>
+        <view class="confetti c2"></view>
+        <view class="confetti c3"></view>
+        <view class="confetti c4"></view>
+        <view class="confetti c5"></view>
+        <view class="confetti c6"></view>
+        <view class="confetti c7"></view>
+        <view class="confetti c8"></view>
+        <view class="confetti c9"></view>
+        <view class="confetti c10"></view>
+        <view class="confetti c11"></view>
+        <view class="confetti c12"></view>
+      </view>
       <view class="modal-content">
         <view class="success-animation">
           <view class="checkmark-circle"></view>
           <view class="checkmark"></view>
         </view>
         <text class="success-title">提交成功！</text>
-        <text class="success-desc">感谢你的参与</text>
+        <text class="success-desc">感谢你的参与，已选择 {{selectedCount}} 个时段</text>
         <view class="modal-actions">
           <button class="modal-btn secondary" bindtap="goToResult">查看统计</button>
           <button class="modal-btn primary" bindtap="closeSuccess">继续修改</button>

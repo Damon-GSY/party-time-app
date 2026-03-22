@@ -1450,6 +1450,725 @@
       color: var(--text-muted);
       font-size: 14px;
     }
+
+    /* ========== Create Page Modal Styles ========== */
+    .create-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 200;
+      display: flex;
+      align-items: flex-end;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .create-modal.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .create-modal .modal-backdrop {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+    }
+
+    .create-modal .modal-content {
+      position: relative;
+      width: 100%;
+      max-width: 430px;
+      max-height: 90vh;
+      background: linear-gradient(180deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
+      border-radius: 20px 20px 0 0;
+      padding: 20px;
+      margin: 0 auto;
+      transform: translateY(100%);
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+      overflow-y: auto;
+    }
+
+    .create-modal.show .modal-content {
+      transform: translateY(0);
+    }
+
+    .create-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .create-modal-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .create-modal-close {
+      width: 36px;
+      height: 36px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: none;
+    }
+
+    .create-modal-close:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .form-label-hint {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 400;
+      margin-left: 6px;
+    }
+
+    .form-input {
+      width: 100%;
+      height: 48px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 0 14px;
+      font-size: 15px;
+      color: #fff;
+      transition: all 0.3s ease;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      background: rgba(255, 255, 255, 0.12);
+      box-shadow: 0 0 0 3px rgba(233, 69, 96, 0.15);
+    }
+
+    .form-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .form-textarea {
+      min-height: 80px;
+      padding: 12px 14px;
+      resize: none;
+    }
+
+    .date-range-picker {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .date-picker-item {
+      flex: 1;
+      position: relative;
+    }
+
+    .date-picker-item input {
+      width: 100%;
+    }
+
+    .date-range-separator {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .slot-granularity-options {
+      display: flex;
+      gap: 8px;
+    }
+
+    .granularity-option {
+      flex: 1;
+      padding: 12px 8px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .granularity-option:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .granularity-option.active {
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+      border-color: transparent;
+      transform: scale(1.02);
+    }
+
+    .granularity-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: #fff;
+      display: block;
+    }
+
+    .granularity-option:not(.active) .granularity-label {
+      color: var(--text-secondary);
+    }
+
+    .granularity-preview {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 4px;
+      display: block;
+    }
+
+    .granularity-option.active .granularity-preview {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .expire-options {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .expire-option {
+      padding: 10px 16px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .expire-option:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .expire-option.active {
+      background: rgba(233, 69, 96, 0.2);
+      border-color: var(--primary-color);
+      color: var(--primary-light);
+    }
+
+    .preview-section {
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: 12px;
+      padding: 14px;
+      margin-top: 16px;
+    }
+
+    .preview-title {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+
+    .preview-slots {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .preview-slot {
+      width: 20px;
+      height: 20px;
+      background: rgba(233, 69, 96, 0.2);
+      border-radius: 3px;
+    }
+
+    .preview-slot.highlight {
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+    }
+
+    .create-submit-btn {
+      width: 100%;
+      height: 54px;
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+      border-radius: 14px;
+      border: none;
+      font-size: 17px;
+      font-weight: 600;
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 20px;
+      box-shadow: 0 6px 20px rgba(233, 69, 96, 0.4);
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .create-submit-btn:hover {
+      transform: scale(0.98);
+    }
+
+    .create-submit-btn:active {
+      transform: scale(0.95);
+    }
+
+    /* Enhanced shimmer effect */
+    .create-btn {
+      overflow: hidden;
+    }
+
+    .btn-shimmer {
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 50%;
+      height: 100%;
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.1) 20%,
+        rgba(255, 255, 255, 0.3) 50%,
+        rgba(255, 255, 255, 0.1) 80%,
+        transparent 100%
+      );
+      animation: shimmer 3s ease-in-out infinite;
+      transform: skewX(-20deg);
+    }
+
+    @keyframes shimmer {
+      0% {
+        left: -50%;
+        opacity: 0;
+      }
+      20% {
+        opacity: 1;
+      }
+      80% {
+        opacity: 1;
+      }
+      100% {
+        left: 150%;
+        opacity: 0;
+      }
+    }
+
+    /* Enhanced guide steps with icons */
+    .guide-step {
+      display: flex;
+      align-items: center;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 10px;
+      transition: all 0.3s ease;
+    }
+
+    .guide-step:hover {
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .step-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      margin-right: 12px;
+      flex-shrink: 0;
+    }
+
+    .step-info {
+      flex: 1;
+    }
+
+    .step-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 2px;
+    }
+
+    .step-desc {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    /* Enhanced slot grid styles */
+    .slots-grid-wrapper {
+      position: relative;
+    }
+
+    .time-axis {
+      display: flex;
+      justify-content: space-between;
+      padding: 0 2px;
+      margin-bottom: 10px;
+    }
+
+    .time-axis-label {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-align: center;
+      flex: 1;
+    }
+
+    .slots-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 8px;
+    }
+
+    .slot-cell {
+      aspect-ratio: 1;
+      min-height: 50px;
+      background: rgba(15, 52, 96, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      position: relative;
+      animation: slotFadeIn 0.4s ease forwards;
+      opacity: 0;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .slot-cell:hover {
+      transform: scale(0.92);
+      background: rgba(233, 69, 96, 0.25);
+      border-color: rgba(233, 69, 96, 0.4);
+    }
+
+    .slot-time {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      transition: all 0.3s ease;
+    }
+
+    .slot-cell:hover .slot-time {
+      color: var(--primary-light);
+    }
+
+    .slot-cell.selected {
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+      border-color: transparent;
+      transform: scale(1.05);
+      box-shadow: 0 4px 15px rgba(233, 69, 96, 0.5);
+    }
+
+    .slot-cell.selected:hover {
+      transform: scale(1);
+    }
+
+    .slot-cell.selected .slot-time {
+      color: #fff;
+    }
+
+    .slot-check {
+      width: 16px;
+      height: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 2px;
+      animation: checkPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .check-icon {
+      font-size: 10px;
+      color: #fff;
+      font-weight: bold;
+    }
+
+    @keyframes slotPulse {
+      0%, 100% { box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4); }
+      50% { box-shadow: 0 6px 20px rgba(233, 69, 96, 0.6); }
+    }
+
+    .slot-cell.selected {
+      animation: slotPulse 2s ease-in-out infinite;
+    }
+
+    /* Enhanced heatmap styles */
+    .heatmap-section {
+      padding: 0 16px;
+      margin-bottom: 16px;
+    }
+
+    .result-section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .result-section-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .heatmap-legend {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .legend-color {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+    }
+
+    .legend-color.level-0 {
+      background: rgba(15, 52, 96, 0.5);
+    }
+
+    .legend-color.level-1 {
+      background: rgba(233, 69, 96, 0.25);
+    }
+
+    .legend-color.level-2 {
+      background: rgba(233, 69, 96, 0.5);
+    }
+
+    .legend-color.level-3 {
+      background: rgba(233, 69, 96, 0.75);
+    }
+
+    .legend-color.level-4 {
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+    }
+
+    .date-labels {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+      padding-left: 36px;
+    }
+
+    .date-label {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 8px;
+      background: rgba(15, 52, 96, 0.5);
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .label-weekday {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .label-day {
+      font-size: 16px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .heatmap-wrapper {
+      display: flex;
+      gap: 8px;
+    }
+
+    .time-column {
+      width: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding-top: 2px;
+    }
+
+    .time-text {
+      height: 32px;
+      font-size: 10px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .heatmap-grid {
+      flex: 1;
+      display: flex;
+      gap: 8px;
+    }
+
+    .heatmap-column {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .heatmap-cell {
+      height: 32px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      cursor: pointer;
+      position: relative;
+    }
+
+    .heatmap-cell:hover {
+      transform: scale(1.15);
+      z-index: 10;
+    }
+
+    .heatmap-cell.level-0 {
+      background: rgba(15, 52, 96, 0.4);
+    }
+
+    .heatmap-cell.level-1 {
+      background: rgba(233, 69, 96, 0.25);
+    }
+
+    .heatmap-cell.level-2 {
+      background: rgba(233, 69, 96, 0.45);
+    }
+
+    .heatmap-cell.level-3 {
+      background: rgba(233, 69, 96, 0.7);
+    }
+
+    .heatmap-cell.level-4 {
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+      box-shadow: 0 3px 12px rgba(233, 69, 96, 0.5);
+    }
+
+    .cell-count {
+      font-size: 12px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .heatmap-cell.level-0 .cell-count {
+      color: var(--text-muted);
+    }
+
+    /* Enhanced recommend card */
+    .recommend-card {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px;
+      background: linear-gradient(135deg, rgba(251, 191, 36, 0.2), rgba(251, 191, 36, 0.08));
+      border: 2px solid rgba(251, 191, 36, 0.4);
+      border-radius: 14px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .recommend-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 80px;
+      height: 80px;
+      background: radial-gradient(circle, rgba(251, 191, 36, 0.2) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .recommend-icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, #fbbf24, #f59e0b);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      flex-shrink: 0;
+      box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3);
+    }
+
+    .recommend-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .recommend-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+
+    .recommend-title {
+      font-size: 12px;
+      color: #fbbf24;
+      font-weight: 500;
+    }
+
+    .recommend-badge {
+      font-size: 10px;
+      padding: 2px 6px;
+      background: rgba(251, 191, 36, 0.3);
+      border-radius: 4px;
+      color: #fbbf24;
+    }
+
+    .recommend-time {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 2px;
+    }
+
+    .recommend-reason {
+      font-size: 12px;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .recommend-reason-icon {
+      font-size: 10px;
+    }
   </style>
 </head>
 <body>
@@ -1472,7 +2191,7 @@
         </div>
 
         <div class="create-section fade-in" style="animation-delay: 0.1s;">
-          <button class="create-btn">
+          <button class="create-btn create-btn" id="open-create-modal">
             <div class="btn-shimmer"></div>
             <span class="btn-icon">✨</span>
             <span class="btn-text">创建新聚会</span>
@@ -1548,21 +2267,21 @@
           <span class="guide-title">如何使用</span>
           <div class="guide-steps">
             <div class="guide-step">
-              <div class="step-num">1</div>
+              <div class="step-icon">📝</div>
               <div class="step-info">
                 <span class="step-title">创建聚会</span>
                 <span class="step-desc">设置名称和时间范围</span>
               </div>
             </div>
             <div class="guide-step">
-              <div class="step-num">2</div>
+              <div class="step-icon">🔗</div>
               <div class="step-info">
                 <span class="step-title">分享好友</span>
                 <span class="step-desc">转发让好友填写时间</span>
               </div>
             </div>
             <div class="guide-step">
-              <div class="step-num">3</div>
+              <div class="step-icon">📊</div>
               <div class="step-info">
                 <span class="step-title">查看统计</span>
                 <span class="step-desc">找出最佳聚会时间</span>
@@ -1619,22 +2338,18 @@
         </div>
 
         <div class="slots-section fade-in" style="animation-delay: 0.25s;">
-          <div class="time-axis">
-            <span class="time-label">0</span>
-            <span class="time-label">2</span>
-            <span class="time-label">4</span>
-            <span class="time-label">6</span>
-            <span class="time-label">8</span>
-            <span class="time-label">10</span>
-            <span class="time-label">12</span>
-            <span class="time-label">14</span>
-            <span class="time-label">16</span>
-            <span class="time-label">18</span>
-            <span class="time-label">20</span>
-            <span class="time-label">22</span>
-          </div>
-          <div class="slots-grid" id="slots-grid">
-            <!-- Slots will be generated by JS -->
+          <div class="slots-grid-wrapper">
+            <div class="time-axis">
+              <span class="time-axis-label">08:00</span>
+              <span class="time-axis-label">10:00</span>
+              <span class="time-axis-label">12:00</span>
+              <span class="time-axis-label">14:00</span>
+              <span class="time-axis-label">16:00</span>
+              <span class="time-axis-label">18:00</span>
+            </div>
+            <div class="slots-grid" id="slots-grid">
+              <!-- Slots will be generated by JS -->
+            </div>
           </div>
         </div>
 
@@ -1696,9 +2411,15 @@
           <div class="recommend-card">
             <div class="recommend-icon">🏆</div>
             <div class="recommend-content">
-              <span class="recommend-title">最佳时段</span>
+              <div class="recommend-label">
+                <span class="recommend-title">最佳时段</span>
+                <span class="recommend-badge">最高票</span>
+              </div>
               <span class="recommend-time">周六 14:00-15:00</span>
-              <span class="recommend-count">4 人有空</span>
+              <div class="recommend-reason">
+                <span class="recommend-reason-icon">👥</span>
+                <span>4 人有空 - 大多数人可参加</span>
+              </div>
             </div>
           </div>
         </div>
@@ -1708,12 +2429,24 @@
             <span class="result-section-title">时段热力图</span>
             <div class="heatmap-legend">
               <div class="legend-item">
-                <div class="legend-color low"></div>
-                <span>少</span>
+                <div class="legend-color level-0"></div>
+                <span>0人</span>
               </div>
               <div class="legend-item">
-                <div class="legend-color high"></div>
-                <span>多</span>
+                <div class="legend-color level-1"></div>
+                <span>1人</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-color level-2"></div>
+                <span>2人</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-color level-3"></div>
+                <span>3人</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-color level-4"></div>
+                <span>4人</span>
               </div>
             </div>
           </div>
@@ -1834,6 +2567,90 @@
       </div>
     </div>
 
+    <!-- Create Modal -->
+    <div class="create-modal" id="create-modal" role="dialog" aria-modal="true">
+      <div class="modal-backdrop" id="create-modal-backdrop"></div>
+      <div class="modal-content">
+        <div class="create-modal-header">
+          <span class="create-modal-title">创建新聚会</span>
+          <button class="create-modal-close" id="create-modal-close" aria-label="关闭">×</button>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">聚会名称<span class="form-label-hint">（必填）</span></label>
+          <input type="text" class="form-input" id="create-name" placeholder="例如：周末聚餐、生日派对..." maxlength="20">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">选择日期范围</label>
+          <div class="date-range-picker">
+            <div class="date-picker-item">
+              <input type="date" class="form-input" id="create-start-date">
+            </div>
+            <span class="date-range-separator">至</span>
+            <div class="date-picker-item">
+              <input type="date" class="form-input" id="create-end-date">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">时段粒度</label>
+          <div class="slot-granularity-options">
+            <div class="granularity-option active" data-value="1">
+              <span class="granularity-label">1小时</span>
+              <span class="granularity-preview">12个时段/天</span>
+            </div>
+            <div class="granularity-option" data-value="2">
+              <span class="granularity-label">2小时</span>
+              <span class="granularity-preview">6个时段/天</span>
+            </div>
+            <div class="granularity-option" data-value="4">
+              <span class="granularity-label">半天</span>
+              <span class="granularity-preview">2个时段/天</span>
+            </div>
+          </div>
+          <div class="preview-section">
+            <div class="preview-title">时段预览</div>
+            <div class="preview-slots" id="granularity-preview">
+              <div class="preview-slot highlight"></div>
+              <div class="preview-slot highlight"></div>
+              <div class="preview-slot"></div>
+              <div class="preview-slot"></div>
+              <div class="preview-slot"></div>
+              <div class="preview-slot"></div>
+              <div class="preview-slot highlight"></div>
+              <div class="preview-slot highlight"></div>
+              <div class="preview-slot"></div>
+              <div class="preview-slot"></div>
+              <div class="preview-slot"></div>
+              <div class="preview-slot"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">过期时间</label>
+          <div class="expire-options">
+            <div class="expire-option active" data-value="24">24小时</div>
+            <div class="expire-option" data-value="72">3天</div>
+            <div class="expire-option" data-value="168">7天</div>
+            <div class="expire-option" data-value="0">永久</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">备注<span class="form-label-hint">（可选）</span></label>
+          <textarea class="form-input form-textarea" id="create-note" placeholder="添加备注信息，如地点、特殊要求等..." maxlength="100"></textarea>
+        </div>
+
+        <button class="create-submit-btn" id="create-submit">
+          <span>✨</span>
+          <span>创建聚会</span>
+        </button>
+      </div>
+    </div>
+
     <!-- Slot Detail Modal -->
     <div class="slot-modal" id="slot-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
       <div class="modal-backdrop" id="modal-backdrop"></div>
@@ -1921,9 +2738,93 @@
       });
     }
 
-    // Create button click handler
-    document.querySelector('.create-btn')?.addEventListener('click', () => {
-      alert('创建聚会功能开发中...\n\n完整功能请使用微信小程序版本');
+    // ========== Create Modal Logic ==========
+    const createModal = document.getElementById('create-modal');
+    const createModalBackdrop = document.getElementById('create-modal-backdrop');
+    const createModalClose = document.getElementById('create-modal-close');
+    const openCreateBtn = document.getElementById('open-create-modal');
+    const createSubmitBtn = document.getElementById('create-submit');
+
+    // Set default dates
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const dayAfter = new Date(today);
+    dayAfter.setDate(dayAfter.getDate() + 2);
+
+    document.getElementById('create-start-date').value = tomorrow.toISOString().split('T')[0];
+    document.getElementById('create-end-date').value = dayAfter.toISOString().split('T')[0];
+
+    function openCreateModal() {
+      createModal.classList.add('show');
+    }
+
+    function closeCreateModal() {
+      createModal.classList.remove('show');
+    }
+
+    openCreateBtn?.addEventListener('click', openCreateModal);
+    createModalBackdrop?.addEventListener('click', closeCreateModal);
+    createModalClose?.addEventListener('click', closeCreateModal);
+
+    // Granularity selection
+    const granularityOptions = document.querySelectorAll('.granularity-option');
+    const previewSlots = document.getElementById('granularity-preview');
+
+    function updateGranularityPreview(value) {
+      const slotCounts = { '1': 12, '2': 6, '4': 2 };
+      const count = slotCounts[value] || 12;
+
+      let html = '';
+      for (let i = 0; i < count; i++) {
+        const isHighlight = i < Math.ceil(count / 3);
+        html += `<div class="preview-slot${isHighlight ? ' highlight' : ''}"></div>`;
+      }
+      previewSlots.innerHTML = html;
+    }
+
+    granularityOptions.forEach(opt => {
+      opt.addEventListener('click', () => {
+        granularityOptions.forEach(o => o.classList.remove('active'));
+        opt.classList.add('active');
+        updateGranularityPreview(opt.dataset.value);
+      });
+    });
+
+    // Expire options
+    const expireOptions = document.querySelectorAll('.expire-option');
+    expireOptions.forEach(opt => {
+      opt.addEventListener('click', () => {
+        expireOptions.forEach(o => o.classList.remove('active'));
+        opt.classList.add('active');
+      });
+    });
+
+    // Create submit
+    createSubmitBtn?.addEventListener('click', () => {
+      const name = document.getElementById('create-name').value.trim();
+      if (!name) {
+        document.getElementById('create-name').focus();
+        document.getElementById('create-name').style.borderColor = '#ef4444';
+        setTimeout(() => {
+          document.getElementById('create-name').style.borderColor = '';
+        }, 2000);
+        return;
+      }
+
+      // Simulate creation and switch to vote page
+      closeCreateModal();
+
+      // Update vote page with new event data
+      const voteEventName = document.querySelector('#page-vote .event-name');
+      if (voteEventName) voteEventName.textContent = name;
+
+      // Switch to vote page
+      document.querySelector('[data-page="vote"]').click();
+
+      // Reset form
+      document.getElementById('create-name').value = '';
+      document.getElementById('create-note').value = '';
     });
 
     // Event cards click handler
@@ -1935,7 +2836,7 @@
       });
     });
 
-    // Vote page - slot selection with persistence per date
+    // ========== Vote Page - Slot Selection ==========
     const slotsGrid = document.getElementById('slots-grid');
     const selectedCountEl = document.getElementById('selected-count');
     const submitBtn = document.getElementById('submit-btn');
@@ -1943,23 +2844,33 @@
     const selectAllBtn = document.getElementById('select-all-btn');
 
     const TOTAL_SLOTS = 12;
+    const SLOT_START_HOUR = 8; // 8:00 AM
     let currentDate = 0;
     const selectionsByDate = { 0: [], 1: [] };
 
-    // Initialize slots
+    // Format hour to time string
+    function formatTime(hour) {
+      return `${hour.toString().padStart(2, '0')}:00`;
+    }
+
+    // Initialize slots with time labels
     function initSlots() {
       slotsGrid.innerHTML = '';
       const currentSelections = selectionsByDate[currentDate] || [];
 
       for (let i = 0; i < TOTAL_SLOTS; i++) {
+        const hour = SLOT_START_HOUR + i;
         const isSelected = currentSelections.includes(i);
         const slotEl = document.createElement('div');
         slotEl.className = 'slot-cell' + (isSelected ? ' selected' : '');
         slotEl.dataset.index = i;
-        slotEl.style.animationDelay = `${0.02 * i}s`;
-        slotEl.innerHTML = isSelected
-          ? '<div class="slot-inner"><div class="slot-check"><span class="check-icon">✓</span></div></div>'
-          : '<div class="slot-inner"></div>';
+        slotEl.dataset.hour = hour;
+        slotEl.style.animationDelay = `${0.03 * i}s`;
+
+        slotEl.innerHTML = `
+          <span class="slot-time">${formatTime(hour)}</span>
+          ${isSelected ? '<div class="slot-check"><span class="check-icon">✓</span></div>' : ''}
+        `;
 
         slotEl.addEventListener('click', () => toggleSlot(i));
         slotsGrid.appendChild(slotEl);
@@ -1982,15 +2893,18 @@
 
     function updateSlotUI(index) {
       const slotEl = slotsGrid.children[index];
-      const innerEl = slotEl.querySelector('.slot-inner');
       const isSelected = selectionsByDate[currentDate].includes(index);
+      const hour = SLOT_START_HOUR + index;
 
       if (isSelected) {
         slotEl.classList.add('selected');
-        innerEl.innerHTML = '<div class="slot-check"><span class="check-icon">✓</span></div>';
+        slotEl.innerHTML = `
+          <span class="slot-time">${formatTime(hour)}</span>
+          <div class="slot-check"><span class="check-icon">✓</span></div>
+        `;
       } else {
         slotEl.classList.remove('selected');
-        innerEl.innerHTML = '';
+        slotEl.innerHTML = `<span class="slot-time">${formatTime(hour)}</span>`;
       }
     }
 
@@ -2034,7 +2948,7 @@
       });
     });
 
-    // Result page - heatmap modal
+    // ========== Result Page - Heatmap Modal ==========
     const heatmapCells = document.querySelectorAll('.heatmap-cell');
     const slotModal = document.getElementById('slot-modal');
     const modalBackdrop = document.getElementById('modal-backdrop');
@@ -2055,7 +2969,7 @@
       '1-14': ['小明', '小红', '小李'],
     };
 
-    function closeModal() {
+    function closeSlotModal() {
       slotModal.classList.remove('show');
     }
 
@@ -2085,14 +2999,15 @@
       });
     });
 
-    modalBackdrop.addEventListener('click', closeModal);
-    modalClose?.addEventListener('click', closeModal);
+    modalBackdrop.addEventListener('click', closeSlotModal);
+    modalClose?.addEventListener('click', closeSlotModal);
 
     // Submit button
     submitBtn.addEventListener('click', () => {
       const count = Object.values(selectionsByDate).flat().length;
       if (count > 0) {
-        alert(`提交成功！已选择 ${count} 个时段`);
+        // Simulate submit and switch to result page
+        document.querySelector('[data-page="result"]').click();
       }
     });
 
