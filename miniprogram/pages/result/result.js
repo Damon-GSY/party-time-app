@@ -20,7 +20,7 @@ Page({
     granularity: 'twoHours', // 时段粒度
     slotsPerDay: 12, // 每天时段数
 
-    bestSlot: { timeText: '', count: 0 },
+    bestSlot: { timeText: '', count: 0, percent: '' },
     participants: [],
     legendSteps: [], // 图例数据
 
@@ -76,7 +76,6 @@ Page({
         this.loadMockData()
       }
     } catch (err) {
-      console.error('加载结果失败', err)
       this.loadMockData()
     }
   },
@@ -169,8 +168,9 @@ Page({
     })
 
     // 找出最佳时段
-    let bestSlot = { timeText: '', count: 0, slotId: '' }
+    let bestSlot = { timeText: '', count: 0, percent: '', slotId: '' }
     let maxCount = 0
+    const totalParticipants = responses.length
     Object.keys(slotCounts).forEach(slotId => {
       if (slotCounts[slotId] > maxCount) {
         maxCount = slotCounts[slotId]
@@ -179,7 +179,8 @@ Page({
         const d = new Date(date)
         const dateText = `${d.getMonth() + 1}月${d.getDate()}日 ${weekDays[d.getDay()]}`
         const timeText = `${dateText} ${util.formatTimeSlot(parseInt(hour), granularity)}`
-        bestSlot = { timeText, count: slotCounts[slotId], slotId }
+        const percent = totalParticipants > 0 ? Math.round(slotCounts[slotId] / totalParticipants * 100) : 0
+        bestSlot = { timeText, count: slotCounts[slotId], percent, slotId }
       }
     })
 

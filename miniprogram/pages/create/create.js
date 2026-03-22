@@ -137,8 +137,6 @@ Page({
         throw new Error(res.result?.error || '创建失败')
       }
     } catch (err) {
-      console.error('创建聚会失败', err)
-
       // 开发环境模拟成功
       if (!wx.cloud) {
         wx.showToast({

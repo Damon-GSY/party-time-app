@@ -106,7 +106,6 @@ Page({
         this.initMockData()
       }
     } catch (err) {
-      console.error('加载活动失败', err)
       // 使用模拟数据
       this.initMockData()
     }
@@ -376,7 +375,6 @@ Page({
         this.showSuccessModal()
       }
     } catch (err) {
-      console.error('提交失败', err)
       wx.showToast({
         title: err.message || '提交失败',
         icon: 'none'

@@ -54,7 +54,7 @@
           <text class="recommend-time">{{bestSlot.timeText}}</text>
           <view class="recommend-meta">
             <text class="recommend-count">{{bestSlot.count}} 人有空</text>
-            <text class="recommend-percent" wx:if="{{participantCount > 0}}">({{bestSlot.count / participantCount * 100}}%)</text>
+            <text class="recommend-percent" wx:if="{{bestSlot.percent > 0}}">({{bestSlot.percent}}%)</text>
           </view>
         </view>
       </view>

@@ -106,7 +106,7 @@ Page({
         initialized: true
       })
     } catch (err) {
-      console.error('加载聚会列表失败', err)
+      // 加载失败，使用模拟数据
       this.setData({ loading: false })
 
       // 开发环境使用模拟数据
@@ -288,7 +288,6 @@ Page({
 
     } catch (err) {
       wx.hideLoading()
-      console.error('删除失败', err)
       wx.showToast({
         title: '删除失败',
         icon: 'none'
