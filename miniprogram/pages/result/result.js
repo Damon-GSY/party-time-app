@@ -24,6 +24,9 @@ Page({
     participants: [],
     legendSteps: [], // 图例数据
 
+    displayParticipantCount: 0,
+    displayBestCount: 0,
+
     showSlotModal: false,
     selectedSlotInfo: { dateText: '', timeText: '', count: 0, users: [] }
   },
@@ -222,6 +225,29 @@ Page({
       legendSteps,
       loading: false
     })
+
+    // countUp animations
+    this.countUp(responses.length, 'displayParticipantCount')
+    if (bestSlot.count > 0) {
+      this.countUp(bestSlot.count, 'displayBestCount')
+    }
+  },
+
+  // countUp: ease-out 0->target in 1s
+  countUp(targetValue, dataKey) {
+    if (targetValue <= 0) return
+    const duration = 1000
+    const startTime = Date.now()
+    const timer = setInterval(() => {
+      const elapsed = Date.now() - startTime
+      const progress = Math.min(elapsed / duration, 1)
+      const eased = 1 - Math.pow(1 - progress, 3)
+      const current = Math.round(eased * targetValue)
+      const update = {}
+      update[dataKey] = current
+      this.setData(update)
+      if (progress >= 1) clearInterval(timer)
+    }, 16)
   },
 
   // 生成日期列表（带热力图数据）
