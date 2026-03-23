@@ -335,16 +335,18 @@
 .slots-section {
   padding: 0 32rpx;
   margin-bottom: 24rpx;
-  transition: opacity 0.15s ease;
 }
 
+/* 日期切换过渡 */
 .slots-grid.grid-hidden {
   opacity: 0;
   pointer-events: none;
+  transition: opacity 0.15s ease;
 }
 
 .slots-grid.grid-visible {
   opacity: 1;
+  transition: opacity 0.15s ease;
 }
 
 .time-axis {
@@ -448,14 +450,14 @@
   transition: all 0.3s ease;
 }
 
-/* 选中动画：scale 1.0 → 1.15 → 1.0 */
+/* 选中动画：scale 1.0 -> 1.15 -> 1.0 */
 @keyframes slotSelect {
   0% { transform: scale(1.0); }
   40% { transform: scale(1.15); }
   100% { transform: scale(1.0); }
 }
 
-/* 取消选中动画：scale 1.0 → 0.9 → 1.0 */
+/* 取消选中动画：scale 1.0 -> 0.9 -> 1.0 */
 @keyframes slotDeselect {
   0% { transform: scale(1.0); }
   40% { transform: scale(0.9); }
@@ -652,13 +654,13 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  transform: scale(0.8);
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform: translateY(100%);
+  transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
   box-shadow: 0 20rpx 60rpx rgba(0, 0, 0, 0.4);
 }
 
 .success-modal.show .modal-content {
-  transform: scale(1);
+  transform: translateY(0);
 }
 
 /* 粒子效果 */
@@ -692,6 +694,16 @@
 .confetti.c10 { background: #fbbf24; left: 45%; animation-delay: 0.2s; }
 .confetti.c11 { background: #4ade80; left: 75%; animation-delay: 0.12s; }
 .confetti.c12 { background: #60a5fa; left: 90%; animation-delay: 0.18s; }
+
+/* 新增粒子 c13-c20：不同形状和轨迹 */
+.confetti.c13 { background: #f472b6; left: 5%; animation-delay: 0.08s; animation-duration: 2.5s; border-radius: 2rpx; width: 20rpx; height: 10rpx; }
+.confetti.c14 { background: #fbbf24; left: 25%; animation-delay: 0.22s; animation-duration: 1.8s; border-radius: 2rpx; width: 10rpx; height: 20rpx; }
+.confetti.c15 { background: #a78bfa; left: 35%; animation-delay: 0.05s; animation-duration: 2.2s; }
+.confetti.c16 { background: #fb923c; left: 55%; animation-delay: 0.28s; animation-duration: 2.8s; border-radius: 2rpx; width: 18rpx; height: 12rpx; }
+.confetti.c17 { background: #2dd4bf; left: 65%; animation-delay: 0.15s; animation-duration: 1.6s; }
+.confetti.c18 { background: #e94560; left: 85%; animation-delay: 0.3s; animation-duration: 2.4s; border-radius: 2rpx; width: 14rpx; height: 14rpx; }
+.confetti.c19 { background: #60a5fa; left: 12%; animation-delay: 0.2s; animation-duration: 2.1s; }
+.confetti.c20 { background: #4ade80; left: 48%; animation-delay: 0.1s; animation-duration: 1.9s; border-radius: 2rpx; width: 12rpx; height: 18rpx; }
 
 @keyframes confetti-fall {
   0% {
@@ -732,55 +744,46 @@
   }
 }
 
-.checkmark {
+/* SVG 对号动画 */
+.checkmark-svg {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 60rpx;
-  height: 60rpx;
+  width: 120rpx;
+  height: 120rpx;
 }
 
-.checkmark::before,
-.checkmark::after {
-  content: '';
-  position: absolute;
-  background: var(--primary-color);
-  border-radius: 4rpx;
-  animation: checkDraw 0.4s ease forwards 0.3s;
-  transform-origin: left center;
+.checkmark-svg-path {
+  width: 100%;
+  height: 100%;
 }
 
-.checkmark::before {
-  width: 36rpx;
-  height: 6rpx;
-  top: 30rpx;
-  left: 12rpx;
-  transform: rotate(45deg) scaleX(0);
+.checkmark-svg-circle {
+  stroke-dasharray: 166;
+  stroke-dashoffset: 166;
+  animation: svgCircleIn 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
 }
 
-.checkmark::after {
-  width: 48rpx;
-  height: 6rpx;
-  top: 26rpx;
-  left: 20rpx;
-  transform: rotate(-45deg) scaleX(0);
+.checkmark-svg-check {
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  animation: svgCheckDraw 0.4s cubic-bezier(0.65, 0, 0.45, 1) 0.45s forwards;
 }
 
-@keyframes checkDraw {
-  to {
-    transform: rotate(45deg) scaleX(1);
-  }
+@keyframes svgCircleIn {
+  0% { stroke-dashoffset: 166; }
+  100% { stroke-dashoffset: 0; }
 }
 
-@keyframes checkDrawAfter {
-  to {
-    transform: rotate(-45deg) scaleX(1);
-  }
+@keyframes svgCheckDraw {
+  0% { stroke-dashoffset: 48; }
+  100% { stroke-dashoffset: 0; }
 }
 
-.checkmark::after {
-  animation-name: checkDrawAfter;
+/* 隐藏旧的 checkmark 伪元素（已被 SVG 替代） */
+.checkmark {
+  display: none;
 }
 
 .success-title {

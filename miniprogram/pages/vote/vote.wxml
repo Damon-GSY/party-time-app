@@ -162,7 +162,7 @@
         <view class="confetti c10"></view>
         <view class="confetti c11"></view>
         <view class="confetti c12"></view>
-        <!-- 新增粒子 c13-c20 -->
+        <!-- 新增粒子 c13-c20：不同形状和轨迹 -->
         <view class="confetti c13"></view>
         <view class="confetti c14"></view>
         <view class="confetti c15"></view>

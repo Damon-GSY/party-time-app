@@ -187,6 +187,7 @@ Page({
       dates,
       slots,
       selectedCount,
+      displayCount: selectedCount, // 初始显示值
       participantCount,
       nickname,
       granularity,
@@ -316,9 +317,7 @@ Page({
     // 触觉反馈
     try {
       wx.vibrateShort({ type: 'light' })
-    } catch (e) {
-      // 部分设备不支持振动，忽略错误
-    }
+    } catch (e) {}
   },
 
   // 数字动画：从旧值逐步变化到新值
@@ -327,7 +326,7 @@ Page({
 
     const step = from < to ? 1 : -1
     const totalSteps = Math.abs(to - from)
-    const interval = Math.max(30, Math.min(80, 300 / totalSteps)) // 根据差距动态调整速度
+    const interval = Math.max(30, Math.min(80, 300 / totalSteps))
 
     let current = from
     clearInterval(this._countTimer)
@@ -345,7 +344,6 @@ Page({
   clearSelection() {
     const { currentSlots } = this.data
 
-    // 清空所有当前日期的选择
     currentSlots.forEach((slot, index) => {
       if (slot.selected) {
         setTimeout(() => {
@@ -355,17 +353,15 @@ Page({
             animatingSlotIndex: index,
             animatingSlotAction: 'deselect'
           })
-
           setTimeout(() => {
             if (this.data.animatingSlotIndex === index) {
               this.setData({ animatingSlotIndex: -1, animatingSlotAction: '' })
             }
           }, 350)
-        }, index * 30) // 每 30ms 一个，多米诺效果
+        }, index * 30)
       }
     })
 
-    // 最后更新计数
     const totalSelected = currentSlots.length
     setTimeout(() => {
       const newSlots = { ...this.data.slots }
@@ -390,17 +386,15 @@ Page({
             animatingSlotIndex: index,
             animatingSlotAction: 'select'
           })
-
           setTimeout(() => {
             if (this.data.animatingSlotIndex === index) {
               this.setData({ animatingSlotIndex: -1, animatingSlotAction: '' })
             }
           }, 350)
-        }, index * 30) // 每 30ms 一个，波浪效果
+        }, index * 30)
       }
     })
 
-    // 最后更新计数
     const totalSlots = currentSlots.length
     setTimeout(() => {
       const newSlots = { ...this.data.slots }
@@ -491,7 +485,6 @@ Page({
   },
 
   onUnload() {
-    // 清理计时器
     if (this._countTimer) {
       clearInterval(this._countTimer)
       this._countTimer = null

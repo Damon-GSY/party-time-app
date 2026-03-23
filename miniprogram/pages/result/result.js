@@ -226,31 +226,28 @@ Page({
       loading: false
     })
 
-    // 触发数字 countUp 动画
+    // countUp animations
     this.countUp(responses.length, 'displayParticipantCount')
     if (bestSlot.count > 0) {
       this.countUp(bestSlot.count, 'displayBestCount')
     }
   },
 
-  // 数字 countUp 动画（ease-out 效果，1s 内从 0 递增到目标值）
+  // countUp: ease-out 0->target in 1s
   countUp(targetValue, dataKey) {
     if (targetValue <= 0) return
-    const duration = 1000 // ms
+    const duration = 1000
     const startTime = Date.now()
     const timer = setInterval(() => {
       const elapsed = Date.now() - startTime
       const progress = Math.min(elapsed / duration, 1)
-      // ease-out cubic: 1 - (1-t)^3
       const eased = 1 - Math.pow(1 - progress, 3)
       const current = Math.round(eased * targetValue)
       const update = {}
       update[dataKey] = current
       this.setData(update)
-      if (progress >= 1) {
-        clearInterval(timer)
-      }
-    }, 16) // ~60fps
+      if (progress >= 1) clearInterval(timer)
+    }, 16)
   },
 
   // 生成日期列表（带热力图数据）
