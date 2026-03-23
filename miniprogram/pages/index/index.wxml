@@ -69,7 +69,7 @@
           bindtap="goToEvent"
           style="transform: translateX({{item.translateX || 0}}rpx);"
         >
-          <view class="event-card" hover-class="event-card-active">
+          <view class="event-card {{cardPulse ? 'card-pulse' : ''}} {{cardPressedId === item._id ? 'card-pressed' : ''}}" data-id="{{item._id}}" hover-class="event-card-active" bindtouchstart="onCardTouchStart" catchtouchend="onCardTouchEnd">
             <view class="event-type-badge {{item.type}}">
               {{item.type === 'created' ? '创建' : '参与'}}
             </view>

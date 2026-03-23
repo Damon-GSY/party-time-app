@@ -12,13 +12,21 @@ Page({
     note: '',
     canSubmit: false,
     submitting: false,
-    createdEventId: '' // 存储创建成功的活动ID，用于分享
+    createdEventId: '', // 存储创建成功的活动ID，用于分享
+    showForm: false,    // 控制入场动画
+    focusedField: ''    // 当前聚焦的输入字段
   },
 
   onLoad() {
     // 设置今天的日期
     const today = util.formatDate(new Date())
-    this.setData({ today })
+
+    // 下一帧触发入场动画，确保 DOM 已渲染
+    this.setData({ today }, () => {
+      setTimeout(() => {
+        this.setData({ showForm: true })
+      }, 50)
+    })
   },
 
   // 输入聚会名称
@@ -83,6 +91,17 @@ Page({
   onNoteInput(e) {
     const note = e.detail.value
     this.setData({ note })
+  },
+
+  // 输入框聚焦
+  onInputFocus(e) {
+    const field = e.currentTarget.dataset.field || 'unknown'
+    this.setData({ focusedField: field })
+  },
+
+  // 输入框失焦
+  onInputBlur() {
+    this.setData({ focusedField: '' })
   },
 
   // 检查是否可以提交

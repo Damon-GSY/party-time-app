@@ -8,7 +8,9 @@ Page({
     guideExpanded: true, // 使用说明默认展开
     swipeStartX: 0,
     swipeStartY: 0,
-    activeSwipeId: null // 当前滑开的卡片ID
+    activeSwipeId: null, // 当前滑开的卡片ID
+    cardPulse: false, // 卡片脉冲动画状态
+    cardPressedId: null // 当前按下的卡片ID
   },
 
   onLoad() {
@@ -156,19 +158,39 @@ Page({
       return
     }
 
-    // 如果已过期或是我创建的，跳转到结果页
-    // 否则跳转到填写页
-    const targetUrl = (event.expired || type === 'created')
-      ? `/pages/result/result?id=${id}`
-      : `/pages/vote/vote?id=${id}`
+    // 触发卡片脉冲动画
+    this.setData({ cardPulse: true })
+    setTimeout(() => {
+      this.setData({ cardPulse: false })
+    }, 400)
 
-    // 使用 redirectTo 防止页面栈溢出，失败时回退到 navigateTo
-    wx.redirectTo({
-      url: targetUrl,
-      fail: () => {
-        wx.navigateTo({ url: targetUrl })
-      }
-    })
+    // 延迟跳转以展示脉冲动画
+    setTimeout(() => {
+      // 如果已过期或是我创建的，跳转到结果页
+      // 否则跳转到填写页
+      const targetUrl = (event.expired || type === 'created')
+        ? `/pages/result/result?id=${id}`
+        : `/pages/vote/vote?id=${id}`
+
+      // 使用 redirectTo 防止页面栈溢出，失败时回退到 navigateTo
+      wx.redirectTo({
+        url: targetUrl,
+        fail: () => {
+          wx.navigateTo({ url: targetUrl })
+        }
+      })
+    }, 150)
+  },
+
+  // 卡片按下反馈
+  onCardTouchStart(e) {
+    const { id } = e.currentTarget.dataset
+    this.setData({ cardPressedId: id })
+  },
+
+  // 卡片触摸结束
+  onCardTouchEnd() {
+    this.setData({ cardPressedId: null })
   },
 
   // 折叠/展开使用说明

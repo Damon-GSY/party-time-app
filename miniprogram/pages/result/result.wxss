@@ -22,7 +22,7 @@
   }
 }
 
-/* 滑入动画 */
+/* 滑入动画 - 增强弹性效果 */
 .slide-in {
   animation: slideIn 0.4s ease forwards;
   opacity: 0;
@@ -36,6 +36,110 @@
   to {
     opacity: 1;
     transform: translateX(0);
+  }
+}
+
+/* 增强弹性滑入 */
+.slide-in-bounce {
+  animation: slideInBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  opacity: 0;
+}
+
+@keyframes slideInBounce {
+  from {
+    opacity: 0;
+    transform: translateX(-30rpx) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+/* 头像弹性出现 */
+.avatar-bounce {
+  animation: avatarPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  transform: scale(0);
+}
+
+@keyframes avatarPop {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* 星星徽章闪烁旋转 */
+.badge-sparkle {
+  animation: sparkleRotate 2s ease-in-out infinite;
+}
+
+@keyframes sparkleRotate {
+  0%, 100% {
+    transform: rotate(0deg) scale(1);
+  }
+  25% {
+    transform: rotate(-15deg) scale(1.2);
+  }
+  50% {
+    transform: rotate(0deg) scale(1);
+  }
+  75% {
+    transform: rotate(15deg) scale(1.2);
+  }
+}
+
+/* 空状态人物呼吸浮动 */
+.breathe-float {
+  animation: breatheFloat 3s ease-in-out infinite;
+}
+
+@keyframes breatheFloat {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translateY(-16rpx) scale(1.05);
+    opacity: 1;
+  }
+}
+
+/* Shimmer 光效按钮 */
+.shimmer-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.2) 50%,
+    transparent 100%
+  );
+  animation: shimmer 2.5s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
   }
 }
 
@@ -192,6 +296,30 @@
   background: linear-gradient(135deg, rgba(251, 191, 36, 0.2), rgba(251, 191, 36, 0.08));
   border: 2rpx solid rgba(251, 191, 36, 0.4);
   box-shadow: 0 8rpx 32rpx rgba(251, 191, 36, 0.15);
+  animation: recommendBounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards,
+             recommendGlow 3s ease-in-out 0.6s infinite;
+  opacity: 0;
+  transform: translateY(-30rpx) scale(0.95);
+}
+
+@keyframes recommendBounce {
+  from {
+    opacity: 0;
+    transform: translateY(-30rpx) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes recommendGlow {
+  0%, 100% {
+    box-shadow: 0 8rpx 32rpx rgba(251, 191, 36, 0.15);
+  }
+  50% {
+    box-shadow: 0 8rpx 40rpx rgba(251, 191, 36, 0.35), 0 0 60rpx rgba(251, 191, 36, 0.1);
+  }
 }
 
 .recommend-card.recommend-empty {
@@ -210,12 +338,15 @@
 
 .recommend-trophy {
   font-size: 56rpx;
-  animation: trophy-bounce 2s ease-in-out infinite;
+  animation: trophyFloat 2.5s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+  filter: drop-shadow(0 4rpx 8rpx rgba(251, 191, 36, 0.3));
 }
 
-@keyframes trophy-bounce {
-  0%, 100% { transform: translateY(0) rotate(-5deg); }
-  50% { transform: translateY(-8rpx) rotate(5deg); }
+@keyframes trophyFloat {
+  0%, 100% { transform: translateY(0) rotate(-5deg) scale(1); }
+  25% { transform: translateY(-12rpx) rotate(3deg) scale(1.05); }
+  50% { transform: translateY(-6rpx) rotate(5deg) scale(1.1); }
+  75% { transform: translateY(-10rpx) rotate(-3deg) scale(1.05); }
 }
 
 .recommend-empty-icon {
@@ -400,6 +531,27 @@
   display: flex;
   flex-direction: column;
   gap: 8rpx;
+  animation: columnFadeIn 0.4s ease forwards;
+  opacity: 0;
+}
+
+.heatmap-column:nth-child(1) { animation-delay: 0.1s; }
+.heatmap-column:nth-child(2) { animation-delay: 0.2s; }
+.heatmap-column:nth-child(3) { animation-delay: 0.3s; }
+.heatmap-column:nth-child(4) { animation-delay: 0.4s; }
+.heatmap-column:nth-child(5) { animation-delay: 0.5s; }
+.heatmap-column:nth-child(6) { animation-delay: 0.6s; }
+.heatmap-column:nth-child(7) { animation-delay: 0.7s; }
+
+@keyframes columnFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(16rpx);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* 热力格子 - 加大尺寸 */
@@ -410,9 +562,35 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s ease;
+  transition: background-color 0.5s ease, transform 0.3s ease, box-shadow 0.3s ease;
   cursor: pointer;
   position: relative;
+  animation: cellFadeIn 0.3s ease forwards;
+  opacity: 0;
+}
+
+.heatmap-cell:nth-child(1) { animation-delay: 0.05s; }
+.heatmap-cell:nth-child(2) { animation-delay: 0.1s; }
+.heatmap-cell:nth-child(3) { animation-delay: 0.15s; }
+.heatmap-cell:nth-child(4) { animation-delay: 0.2s; }
+.heatmap-cell:nth-child(5) { animation-delay: 0.25s; }
+.heatmap-cell:nth-child(6) { animation-delay: 0.3s; }
+.heatmap-cell:nth-child(7) { animation-delay: 0.35s; }
+.heatmap-cell:nth-child(8) { animation-delay: 0.4s; }
+.heatmap-cell:nth-child(9) { animation-delay: 0.45s; }
+.heatmap-cell:nth-child(10) { animation-delay: 0.5s; }
+.heatmap-cell:nth-child(11) { animation-delay: 0.55s; }
+.heatmap-cell:nth-child(12) { animation-delay: 0.6s; }
+
+@keyframes cellFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .heatmap-cell-hover {

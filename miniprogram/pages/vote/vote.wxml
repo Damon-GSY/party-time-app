@@ -98,9 +98,9 @@
       </view>
 
       <!-- 时段格子 -->
-      <view class="slots-grid slots-{{slotsPerDay}}">
+      <view class="slots-grid slots-{{slotsPerDay}} {{gridVisible ? 'grid-visible' : 'grid-hidden'}}">
         <view
-          class="slot-cell {{item.selected ? 'selected' : ''}} {{item.partial ? 'partial' : ''}}"
+          class="slot-cell {{item.selected ? 'selected' : ''}} {{item.partial ? 'partial' : ''}} {{animatingSlotIndex === index && animatingSlotAction === 'select' ? 'anim-select' : ''}} {{animatingSlotIndex === index && animatingSlotAction === 'deselect' ? 'anim-deselect' : ''}}"
           wx:for="{{currentSlots}}"
           wx:key="id"
           bindtap="toggleSlot"
@@ -122,7 +122,7 @@
     <view class="selection-summary fade-in" style="animation-delay: 0.3s;">
       <view class="summary-left">
         <text class="summary-label">已选择</text>
-        <text class="summary-count {{countAnimated ? 'animated' : ''}}">{{selectedCount}}</text>
+        <text class="summary-count {{countAnimated ? 'animated' : ''}}">{{displayCount || selectedCount}}</text>
         <text class="summary-unit">个时段</text>
       </view>
     </view>
@@ -162,11 +162,26 @@
         <view class="confetti c10"></view>
         <view class="confetti c11"></view>
         <view class="confetti c12"></view>
+        <!-- 新增粒子 c13-c20 -->
+        <view class="confetti c13"></view>
+        <view class="confetti c14"></view>
+        <view class="confetti c15"></view>
+        <view class="confetti c16"></view>
+        <view class="confetti c17"></view>
+        <view class="confetti c18"></view>
+        <view class="confetti c19"></view>
+        <view class="confetti c20"></view>
       </view>
       <view class="modal-content">
         <view class="success-animation">
           <view class="checkmark-circle"></view>
-          <view class="checkmark"></view>
+          <!-- SVG 对号动画 -->
+          <view class="checkmark-svg">
+            <svg class="checkmark-svg-path" viewBox="0 0 52 52">
+              <circle class="checkmark-svg-circle" cx="26" cy="26" r="24" fill="none" stroke="#e94560" stroke-width="2"/>
+              <path class="checkmark-svg-check" fill="none" stroke="#e94560" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="M14 27l7 7 16-16"/>
+            </svg>
+          </view>
         </view>
         <text class="success-title">提交成功！</text>
         <text class="success-desc">感谢你的参与，已选择 {{selectedCount}} 个时段</text>
