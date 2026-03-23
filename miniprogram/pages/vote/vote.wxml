@@ -38,7 +38,7 @@
         <text class="input-label">你的昵称</text>
         <input
           class="nickname-input {{nickname ? 'has-value' : ''}}"
-          placeholder="请输入昵称（可选）"
+          placeholder="使用微信昵称"
           value="{{nickname}}"
           bindinput="onNicknameInput"
           maxlength="10"
@@ -188,6 +188,13 @@
         <view class="modal-actions">
           <button class="modal-btn secondary" bindtap="goToResult">查看统计</button>
           <button class="modal-btn primary" bindtap="closeSuccess">继续修改</button>
+        </view>
+        <!-- 开启提醒按钮 -->
+        <view class="subscribe-row" wx:if="{{!subscribeRequested}}">
+          <button class="subscribe-btn" bindtap="requestSubscribe">
+            <text class="subscribe-icon">🔔</text>
+            <text class="subscribe-text">开启提醒，第一时间收到通知</text>
+          </button>
         </view>
       </view>
     </view>

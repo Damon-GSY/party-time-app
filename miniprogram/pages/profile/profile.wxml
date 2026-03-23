@@ -1,0 +1,137 @@
+<!--个人资料页面-->
+<view class="profile-page">
+  <!-- 头部渐变装饰 -->
+  <view class="profile-header-bg">
+    <view class="header-orb orb1"></view>
+    <view class="header-orb orb2"></view>
+    <view class="header-orb orb3"></view>
+  </view>
+
+  <!-- 用户信息卡片 -->
+  <view class="user-card fade-in">
+    <view class="avatar-section" bindtap="changeAvatar">
+      <view class="avatar-ring">
+        <image
+          class="user-avatar"
+          src="{{userInfo.avatarUrl || '/images/default-avatar.png'}}"
+          mode="aspectFill"
+        />
+        <view class="avatar-placeholder" wx:if="{{!userInfo.avatarUrl}}">
+          <text class="avatar-letter">{{userInfo.customNickname[0] || userInfo.nickName[0] || '👤'}}</text>
+        </view>
+      </view>
+      <view class="avatar-edit-hint">
+        <text>点击更换</text>
+      </view>
+    </view>
+    <view class="user-name-section">
+      <input
+        class="nickname-input"
+        placeholder="设置昵称"
+        value="{{userInfo.customNickname || userInfo.nickName || ''}}"
+        bindinput="onNicknameInput"
+        bindblur="saveNickname"
+        maxlength="12"
+      />
+      <text class="user-id" wx:if="{{showOpenId}}">ID: {{openIdText}}</text>
+    </view>
+    <view class="user-stats">
+      <view class="stat-item" bindtap="goToHistory" data-type="created">
+        <text class="stat-number">{{stats.createdCount}}</text>
+        <text class="stat-label">创建聚会</text>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="stat-item" bindtap="goToHistory" data-type="joined">
+        <text class="stat-number">{{stats.joinedCount}}</text>
+        <text class="stat-label">参与聚会</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 功能列表 -->
+  <view class="menu-section fade-in" style="animation-delay: 0.15s;">
+    <view class="menu-group">
+      <view class="menu-item" bindtap="goToHistory" data-type="created">
+        <view class="menu-icon-wrap created">
+          <text class="menu-icon">📝</text>
+        </view>
+        <text class="menu-text">我的创建</text>
+        <view class="menu-arrow">
+          <text class="arrow-text">›</text>
+        </view>
+      </view>
+      <view class="menu-item" bindtap="goToHistory" data-type="joined">
+        <view class="menu-icon-wrap joined">
+          <text class="menu-icon">🎯</text>
+        </view>
+        <text class="menu-text">我的参与</text>
+        <view class="menu-arrow">
+          <text class="arrow-text">›</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="menu-group">
+      <view class="menu-item" bindtap="goToNotification">
+        <view class="menu-icon-wrap notification">
+          <text class="menu-icon">🔔</text>
+        </view>
+        <text class="menu-text">通知设置</text>
+        <view class="menu-extra">
+          <text class="extra-text">敬请期待</text>
+        </view>
+        <view class="menu-arrow">
+          <text class="arrow-text">›</text>
+        </view>
+      </view>
+      <view class="menu-item" bindtap="showAbout">
+        <view class="menu-icon-wrap about">
+          <text class="menu-icon">💡</text>
+        </view>
+        <text class="menu-text">关于</text>
+        <view class="menu-arrow">
+          <text class="arrow-text">›</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 关于弹窗 -->
+  <view class="about-modal {{showAboutModal ? 'show' : ''}}" catchtouchmove="preventMove">
+    <view class="modal-backdrop" bindtap="hideAbout"></view>
+    <view class="modal-content">
+      <view class="about-header">
+        <view class="about-logo">
+          <view class="logo-inner">
+            <view class="cal-h"></view>
+            <view class="cal-b">
+              <view class="cal-check">✓</view>
+            </view>
+          </view>
+        </view>
+        <text class="about-name">聚会时间</text>
+        <text class="about-version">v1.0.0</text>
+      </view>
+      <view class="about-body">
+        <text class="about-desc">轻松找到大家都有空的时间，让聚会安排不再纠结。</text>
+        <view class="about-features">
+          <view class="feature-item">
+            <text class="feature-icon">✨</text>
+            <text class="feature-text">创建时间投票</text>
+          </view>
+          <view class="feature-item">
+            <text class="feature-icon">📊</text>
+            <text class="feature-text">智能热力统计</text>
+          </view>
+          <view class="feature-item">
+            <text class="feature-icon">👥</text>
+            <text class="feature-text">一键分享好友</text>
+          </view>
+        </view>
+      </view>
+      <view class="about-footer">
+        <button class="about-close-btn" bindtap="hideAbout">知道了</button>
+      </view>
+    </view>
+  </view>
+</view>

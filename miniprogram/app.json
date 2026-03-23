@@ -3,7 +3,11 @@
     "pages/index/index",
     "pages/create/create",
     "pages/vote/vote",
-    "pages/result/result"
+    "pages/result/result",
+    "pages/poster/poster",
+    "pages/notifications/notifications",
+    "pages/profile/profile",
+    "pages/history/history"
   ],
   "window": {
     "backgroundTextStyle": "dark",

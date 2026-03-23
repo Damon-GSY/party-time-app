@@ -1,4 +1,7 @@
 const util = require('../../utils/util')
+const user = require('../../utils/user')
+const notificationUtil = require('../../utils/notification')
+const app = getApp()
 
 Page({
   data: {
@@ -10,21 +13,38 @@ Page({
     swipeStartY: 0,
     activeSwipeId: null, // 当前滑开的卡片ID
     cardPulse: false, // 卡片脉冲动画状态
-    cardPressedId: null // 当前按下的卡片ID
+    cardPressedId: null, // 当前按下的卡片ID
+    userAvatar: '', // 用户头像
+    unreadCount: 0 // 未读通知数
   },
 
   onLoad() {
     // onLoad 时加载一次
+    this.loadUserAvatar()
     this.loadEvents()
   },
 
   onShow() {
     // onShow 时只在已初始化的情况下刷新（从其他页面返回时）
+    this.loadUserAvatar()
     if (this.data.initialized) {
       this.loadEvents()
     }
     // 重置滑动状态
     this.closeAllSwipe()
+  },
+
+  // 加载用户头像
+  loadUserAvatar() {
+    const info = app.globalData.userInfo || user.getUserInfo()
+    this.setData({ userAvatar: info.avatarUrl || '' })
+  },
+
+  // 跳转到个人资料页
+  goToProfile() {
+    wx.navigateTo({
+      url: '/pages/profile/profile'
+    })
   },
 
   onPullDownRefresh() {

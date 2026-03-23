@@ -1,5 +1,7 @@
 // 投票页面逻辑
 const util = require('../../utils/util')
+const userUtil = require('../../utils/user')
+const app = getApp()
 
 Page({
   data: {
@@ -33,6 +35,7 @@ Page({
     submitting: false,
     showSuccess: false,
     countAnimated: false,
+    subscribeRequested: false,  // 是否已请求订阅
 
     // 动画状态
     gridVisible: true,        // 日期切换过渡
@@ -195,6 +198,14 @@ Page({
       timeLabels,
       loading: false
     })
+
+    // 如果用户没有设置过昵称，自动填充缓存的昵称
+    if (!nickname) {
+      const cachedNickname = userUtil.getNickname()
+      if (cachedNickname && cachedNickname !== '匿名用户') {
+        this.setData({ nickname: cachedNickname })
+      }
+    }
 
     // 设置当前显示的时段
     this.setCurrentSlots(0)
@@ -457,6 +468,23 @@ Page({
   showSuccessModal() {
     this.setData({ showSuccess: true })
     wx.vibrateShort({ type: 'medium' })
+
+    // 记录本地通知（有人参与）
+    notificationUtil.saveLocalNotification('new_participant', {
+      participantName: this.data.nickname || '匿名用户',
+      eventName: this.data.event?.name || '聚会'
+    })
+  },
+
+  // 开启提醒
+  async requestSubscribe() {
+    this.setData({ subscribeRequested: true })
+    const result = await notificationUtil.subscribeAll()
+    if (result === 'accepted') {
+      wx.showToast({ title: '已开启提醒', icon: 'success' })
+    } else if (result === 'rejected') {
+      wx.showToast({ title: '可在设置中开启', icon: 'none' })
+    }
   },
 
   // 关闭成功弹窗
@@ -477,9 +505,9 @@ Page({
 
   // 分享
   onShareAppMessage() {
-    const { event } = this.data
+    const { event, participantCount } = this.data
     return {
-      title: `来选一下「${event?.name || '聚会'}」的时间吧`,
+      title: `${participantCount}人正在选「${event?.name || '聚会'}」的时间，来投票吧！`,
       path: `/pages/vote/vote?id=${this.data.eventId}`
     }
   },

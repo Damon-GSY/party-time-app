@@ -1,0 +1,35 @@
+<!--海报页面 - 生成分享海报-->
+<view class="page-container">
+  <!-- 加载状态 -->
+  <view class="loading-screen" wx:if="{{loading}}">
+    <view class="loading-animation">
+      <view class="loading-ring"></view>
+      <view class="loading-ring"></view>
+    </view>
+    <text class="loading-text">生成海报中...</text>
+  </view>
+
+  <block wx:else>
+    <!-- 海报预览 -->
+    <view class="poster-preview">
+      <canvas
+        type="2d"
+        id="posterCanvas"
+        class="poster-canvas"
+        style="width: 375px; height: 667px;"
+      ></canvas>
+    </view>
+
+    <!-- 操作按钮 -->
+    <view class="action-section">
+      <button class="action-btn save-btn" bindtap="saveToAlbum">
+        <text class="action-icon">🖼️</text>
+        <text class="action-text">保存到相册</text>
+      </button>
+      <button class="action-btn share-btn" open-type="share">
+        <text class="action-icon">📤</text>
+        <text class="action-text">分享给好友</text>
+      </button>
+    </view>
+  </block>
+</view>

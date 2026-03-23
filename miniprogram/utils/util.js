@@ -187,6 +187,36 @@ const generateSharePath = (eventId) => {
   return `/pages/vote/vote?id=${eventId}`
 }
 
+/**
+ * 根据昵称字符串 hash 生成一致的头像渐变色
+ * 同一昵称始终返回同一颜色
+ */
+const getAvatarColor = (nickname) => {
+  if (!nickname) nickname = '匿名'
+
+  // 简单字符串 hash
+  let hash = 0
+  for (let i = 0; i < nickname.length; i++) {
+    hash = ((hash << 5) - hash) + nickname.charCodeAt(i)
+    hash |= 0 // Convert to 32bit integer
+  }
+  hash = Math.abs(hash)
+
+  // 预设渐变色方案（8 种）
+  const gradients = [
+    'linear-gradient(135deg, #e94560, #ff6b6b)',
+    'linear-gradient(135deg, #4facfe, #00f2fe)',
+    'linear-gradient(135deg, #43e97b, #38f9d7)',
+    'linear-gradient(135deg, #fa709a, #fee140)',
+    'linear-gradient(135deg, #a18cd1, #fbc2eb)',
+    'linear-gradient(135deg, #fccb90, #d57eeb)',
+    'linear-gradient(135deg, #667eea, #764ba2)',
+    'linear-gradient(135deg, #f093fb, #f5576c)'
+  ]
+
+  return gradients[hash % gradients.length]
+}
+
 module.exports = {
   formatDate,
   formatDateShort,
@@ -199,5 +229,6 @@ module.exports = {
   isExpired,
   formatExpireTime,
   getHeatColor,
-  generateSharePath
+  generateSharePath,
+  getAvatarColor
 }

@@ -10,11 +10,39 @@ App({
 
     // 获取用户openid
     this.getOpenId()
+
+    // 获取用户信息（从缓存）
+    this.initUserInfo()
   },
 
   globalData: {
     openId: '',
     userInfo: null
+  },
+
+  // 初始化用户信息
+  initUserInfo() {
+    try {
+      const info = wx.getStorageSync('userInfo')
+      if (info) {
+        this.globalData.userInfo = info
+      }
+    } catch (e) {
+      // ignore
+    }
+  },
+
+  // 更新用户信息（供其他页面调用）
+  updateUserInfo(data) {
+    const existing = this.globalData.userInfo || {}
+    const updated = { ...existing, ...data }
+    this.globalData.userInfo = updated
+    try {
+      wx.setStorageSync('userInfo', updated)
+    } catch (e) {
+      console.error('updateUserInfo failed:', e)
+    }
+    return updated
   },
 
   getOpenId() {

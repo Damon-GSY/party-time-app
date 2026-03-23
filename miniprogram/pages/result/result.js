@@ -1,4 +1,6 @@
 const util = require('../../utils/util')
+const notificationUtil = require('../../utils/notification')
+const app = getApp()
 
 Page({
   data: {
@@ -28,7 +30,9 @@ Page({
     displayBestCount: 0,
 
     showSlotModal: false,
-    selectedSlotInfo: { dateText: '', timeText: '', count: 0, users: [] }
+    selectedSlotInfo: { dateText: '', timeText: '', count: 0, users: [] },
+    notifying: false,  // 通知参与者中
+    subscribeRequested: false  // 是否已请求订阅
   },
 
   onLoad(options) {
@@ -190,11 +194,18 @@ Page({
     // 生成日期列表（带热力数据）
     const dates = this.generateDatesWithHeatmap(event.startDate, event.endDate, slotCounts, responses.length, granularity, slotsPerDay)
 
-    // 处理参与者列表
-    const participants = responses.map(r => ({
-      ...r,
-      slotCount: (r.slots || r.availableSlots || []).length
-    }))
+    // 处理参与者列表 - 添加头像颜色和首字母处理
+    const participants = responses.map(r => {
+      const nickname = r.nickname || '匿名'
+      const displayName = (r.nickname && r.nickname.trim() !== '') ? r.nickname : '匿名用户'
+      const avatarColor = util.getAvatarColor(displayName)
+      return {
+        ...r,
+        nickname: displayName,
+        slotCount: (r.slots || r.availableSlots || []).length,
+        avatarColor
+      }
+    })
 
     // 格式化显示文本
     const startDate = util.formatDateShort(event.startDate)
@@ -230,6 +241,36 @@ Page({
     this.countUp(responses.length, 'displayParticipantCount')
     if (bestSlot.count > 0) {
       this.countUp(bestSlot.count, 'displayBestCount')
+    }
+
+    // 刚创建时引导订阅通知
+    if (this.data.justCreated && responses.length <= 1) {
+      this.showSubscribeGuide()
+    }
+  },
+
+  // 引导创建者订阅通知
+  async showSubscribeGuide() {
+    if (this.data.subscribeRequested) return
+    const result = await notificationUtil.subscribeAll()
+    this.setData({ subscribeRequested: true })
+    if (result === 'accepted') {
+      wx.showToast({ title: '已开启提醒', icon: 'success' })
+      // 更新活动的订阅状态
+      this.updateCreatorSubscribed()
+    }
+  },
+
+  // 更新创建者的订阅状态
+  async updateCreatorSubscribed() {
+    if (!this.data.eventId || !wx.cloud) return
+    try {
+      const db = wx.cloud.database()
+      await db.collection('events').doc(this.data.eventId).update({
+        data: { 'notifications.creatorSubscribed': true }
+      })
+    } catch (err) {
+      console.warn('[result] 更新订阅状态失败', err)
     }
   },
 
@@ -444,11 +485,100 @@ Page({
     })
   },
 
+  // 通知参与者
+  async notifyParticipants() {
+    const { eventId, event, bestSlot, participants, notifying } = this.data
+    if (notifying) return
+
+    // 确认弹窗
+    const res = await wx.showModal({
+      title: '通知参与者',
+      content: `将通知 ${participants.length} 位参与者：最佳时间为 ${bestSlot.timeText}`,
+      confirmText: '发送通知',
+      confirmColor: '#e94560'
+    })
+
+    if (!res.confirm) return
+
+    this.setData({ notifying: true })
+    wx.showLoading({ title: '发送中...' })
+
+    try {
+      if (!wx.cloud) {
+        throw new Error('云开发未初始化')
+      }
+
+      const db = wx.cloud.database()
+
+      // 获取所有参与者（排除创建者自己）
+      const responsesRes = await db.collection('responses')
+        .where({ eventId })
+        .get()
+
+      const responses = responsesRes.data || []
+      let successCount = 0
+      let failCount = 0
+
+      for (const response of responses) {
+        // 排除创建者自己的响应
+        if (response._openid === app.globalData.openId) continue
+
+        try {
+          const sendResult = await wx.cloud.callFunction({
+            name: 'sendNotification',
+            data: {
+              type: 'result_ready',
+              eventId,
+              toOpenId: response._openid,
+              data: {
+                eventName: event?.name || '聚会',
+                bestTime: bestSlot.timeText || '查看详情'
+              }
+            }
+          })
+
+          if (sendResult.result && sendResult.result.success) {
+            successCount++
+          } else {
+            failCount++
+          }
+        } catch (e) {
+          failCount++
+        }
+      }
+
+      wx.hideLoading()
+      wx.showToast({
+        title: `通知已发送（成功${successCount}，失败${failCount}）`,
+        icon: 'none',
+        duration: 3000
+      })
+
+      // 记录本地通知
+      notificationUtil.saveLocalNotification('result_ready', {
+        eventName: event?.name || '聚会',
+        bestTime: bestSlot.timeText
+      })
+    } catch (err) {
+      wx.hideLoading()
+      wx.showToast({ title: err.message || '发送失败', icon: 'none' })
+    } finally {
+      this.setData({ notifying: false })
+    }
+  },
+
+  // 跳转到海报页
+  goToPoster() {
+    wx.navigateTo({
+      url: `/pages/poster/poster?id=${this.data.eventId}`
+    })
+  },
+
   // 分享
   onShareAppMessage() {
-    const { event } = this.data
+    const { event, participantCount } = this.data
     return {
-      title: `来选一下「${event?.name || '聚会'}」的时间吧`,
+      title: `${participantCount}人正在选「${event?.name || '聚会'}」的时间，来投票吧！`,
       path: `/pages/vote/vote?id=${this.data.eventId}`
     }
   }

@@ -80,7 +80,11 @@ exports.main = async (event, context) => {
         expireAt: expireAt.toISOString(),
         note: note.trim(),
         createdAt: db.serverDate(),
-        createdBy: cloud.getWXContext().OPENID
+        createdBy: cloud.getWXContext().OPENID,
+        notifications: {
+          creatorSubscribed: false,  // 创建者是否已订阅通知，由前端更新
+          lastExpiringReminderAt: null  // 上次发送过期提醒的时间
+        }
       }
     })
 

@@ -1,0 +1,9 @@
+{
+  "name": "checkExpiring",
+  "version": "1.0.0",
+  "description": "检查即将过期的活动并发送提醒",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}

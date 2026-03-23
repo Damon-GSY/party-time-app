@@ -161,6 +161,16 @@
 
     <!-- 操作按钮 -->
     <view class="action-section fade-in" style="animation-delay: 0.3s;">
+      <!-- 通知参与者按钮（仅创建者可见，且有参与者时） -->
+      <button
+        class="notify-btn {{notifying ? 'notifying' : ''}}"
+        bindtap="notifyParticipants"
+        wx:if="{{isCreator && participantCount > 1 && bestSlot.timeText}}"
+        disabled="{{notifying}}"
+      >
+        <text class="btn-icon">🔔</text>
+        <text>{{notifying ? '发送中...' : '通知参与者'}}</text>
+      </button>
       <button class="share-btn" open-type="share">
         <text class="btn-icon">🔗</text>
         <text>分享结果</text>

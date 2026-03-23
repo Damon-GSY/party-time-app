@@ -1,0 +1,76 @@
+<!--历史聚会页面-->
+<view class="history-page">
+  <!-- Tab 切换 -->
+  <view class="tab-bar fade-in">
+    <view class="tab-item {{activeTab === 'created' ? 'active' : ''}}" bindtap="switchTab" data-tab="created">
+      <text class="tab-text">我创建的</text>
+      <view class="tab-indicator" wx:if="{{activeTab === 'created'}}"></view>
+    </view>
+    <view class="tab-item {{activeTab === 'joined' ? 'active' : ''}}" bindtap="switchTab" data-tab="joined">
+      <text class="tab-text">我参与的</text>
+      <view class="tab-indicator" wx:if="{{activeTab === 'joined'}}"></view>
+    </view>
+  </view>
+
+  <!-- 加载中 -->
+  <view class="loading-state" wx:if="{{loading && events.length === 0}}">
+    <view class="loading-dots">
+      <view class="dot"></view>
+      <view class="dot"></view>
+      <view class="dot"></view>
+    </view>
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <!-- 聚会列表 -->
+  <view class="event-list" wx:if="{{!loading || events.length > 0}}">
+    <view
+      class="event-card slide-up"
+      wx:for="{{events}}"
+      wx:key="_id"
+      style="animation-delay: {{0.05 * index}}s;"
+      bindtap="goToResult"
+      data-id="{{item._id}}"
+      hover-class="event-card-active"
+    >
+      <view class="card-status-badge {{item.statusType}}">
+        <text>{{item.statusText}}</text>
+      </view>
+      <view class="card-main">
+        <text class="card-title">{{item.name}}</text>
+        <view class="card-meta">
+          <view class="meta-row">
+            <text class="meta-icon">📅</text>
+            <text class="meta-text">{{item.dateRangeText}}</text>
+          </view>
+          <view class="meta-row">
+            <text class="meta-icon">👥</text>
+            <text class="meta-text">{{item.participantCount || 0}} 人参与</text>
+          </view>
+        </view>
+      </view>
+      <view class="card-arrow">
+        <text>›</text>
+      </view>
+    </view>
+
+    <!-- 加载更多 -->
+    <view class="load-more" wx:if="{{hasMore && events.length > 0}}">
+      <text class="load-more-text" wx:if="{{loadingMore}}">加载中...</text>
+      <text class="load-more-text" wx:else bindtap="loadMore">加载更多</text>
+    </view>
+
+    <!-- 空状态 -->
+    <view class="empty-state" wx:if="{{!loading && events.length === 0}}">
+      <view class="empty-icon">{{activeTab === 'created' ? '📝' : '🎯'}}</view>
+      <text class="empty-title">{{activeTab === 'created' ? '还没有创建过聚会' : '还没有参与过聚会'}}</text>
+      <text class="empty-desc">{{activeTab === 'created' ? '去创建第一个聚会吧' : '参与一个聚会试试看'}}</text>
+      <button class="empty-btn" bindtap="goCreate" wx:if="{{activeTab === 'created'}}">
+        <text>✨ 创建聚会</text>
+      </button>
+      <button class="empty-btn secondary" bindtap="goBack" wx:else>
+        <text>↩ 返回首页</text>
+      </button>
+    </view>
+  </view>
+</view>

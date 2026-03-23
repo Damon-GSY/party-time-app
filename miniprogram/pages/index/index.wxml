@@ -7,6 +7,19 @@
     <view class="bg-circle c3"></view>
   </view>
 
+  <!-- 个人入口 - 右上角头像 -->
+  <view class="profile-entry fade-in" bindtap="goToProfile" hover-class="profile-entry-active">
+    <image
+      class="profile-avatar"
+      src="{{userAvatar}}"
+      mode="aspectFill"
+      wx:if="{{userAvatar}}"
+    />
+    <view class="profile-avatar-default" wx:else>
+      <text>👤</text>
+    </view>
+  </view>
+
   <!-- 头部 -->
   <view class="header fade-in">
     <view class="header-icon">
@@ -167,6 +180,6 @@
 
   <!-- 底部 -->
   <view class="footer">
-    <text class="footer-text">让相聚更简单 💫</text>
+    <text class="footer-text">由 聚会时间 提供</text>
   </view>
 </view>
