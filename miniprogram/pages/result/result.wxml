@@ -31,13 +31,13 @@
     <view class="stats-cards fade-in" style="animation-delay: 0.1s;">
       <view class="stat-card">
         <view class="stat-value">
-          <text class="stat-number">{{participantCount}}</text>
+          <text class="stat-number">{{displayParticipantCount}}</text>
         </view>
         <text class="stat-label">参与人数</text>
       </view>
       <view class="stat-card">
         <view class="stat-value">
-          <text class="stat-number">{{bestSlot.count}}</text>
+          <text class="stat-number">{{displayBestCount}}</text>
         </view>
         <text class="stat-label">最高票数</text>
       </view>
@@ -123,12 +123,12 @@
 
     <!-- 空状态引导 -->
     <view class="empty-participants fade-in" style="animation-delay: 0.2s;" wx:if="{{participantCount === 0}}">
-      <view class="empty-icon">
+      <view class="empty-icon breathe-float">
         <text>👥</text>
       </view>
       <text class="empty-title">还没有人参与</text>
       <text class="empty-desc">分享给好友，让大家一起选时间吧！</text>
-      <button class="empty-share-btn" open-type="share">
+      <button class="empty-share-btn shimmer-btn" open-type="share">
         <text>📤 立即分享</text>
       </button>
     </view>
@@ -140,19 +140,19 @@
       </view>
       <view class="participants-list">
         <view
-          class="participant-card slide-in"
+          class="participant-card slide-in-bounce"
           wx:for="{{participants}}"
           wx:key="_id"
           style="animation-delay: {{0.05 * index}}s;"
         >
-          <view class="participant-avatar" style="background: {{item.avatarColor || 'linear-gradient(135deg, var(--primary-color), var(--primary-light))'}}">
+          <view class="participant-avatar avatar-bounce" style="background: {{item.avatarColor || 'linear-gradient(135deg, var(--primary-color), var(--primary-light))'}}">
             <text>{{item.nickname[0]}}</text>
           </view>
           <view class="participant-info">
             <text class="participant-name">{{item.nickname}}</text>
             <text class="participant-slots">选择了 {{item.slotCount}} 个时段</text>
           </view>
-          <view class="participant-badge" wx:if="{{item.slotCount >= 5}}">
+          <view class="participant-badge badge-sparkle" wx:if="{{item.slotCount >= 5}}">
             <text>🌟</text>
           </view>
         </view>

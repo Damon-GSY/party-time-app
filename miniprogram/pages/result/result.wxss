@@ -1,45 +1,102 @@
-/* 统计结果页面样式 - 热力图动画版 */
+/* \u7edf\u8ba1\u7ed3\u679c\u9875\u9762\u6837\u5f0f - \u52a8\u753b\u589e\u5f3a\u7248 */
 .page-container {
   min-height: 100vh;
   background: linear-gradient(160deg, #1a1a2e 0%, #16213e 40%, #0f3460 100%);
   padding-bottom: 180rpx;
 }
 
-/* 淡入动画 */
+/* ========== \u57fa\u7840\u5165\u573a\u52a8\u753b ========== */
+
 .fade-in {
   animation: fadeInUp 0.5s ease forwards;
   opacity: 0;
 }
 
 @keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20rpx);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(20rpx); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-/* 滑入动画 */
+/* \u6ed1\u5165\u52a8\u753b\uff08\u4fdd\u7559\u517c\u5bb9\uff09 */
 .slide-in {
   animation: slideIn 0.4s ease forwards;
   opacity: 0;
 }
 
 @keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateX(-20rpx);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+  from { opacity: 0; transform: translateX(-20rpx); }
+  to { opacity: 1; transform: translateX(0); }
 }
 
-/* 加载状态 */
+/* \u589e\u5f3a\u5f39\u6027\u6ed1\u5165 */
+.slide-in-bounce {
+  animation: slideInBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  opacity: 0;
+}
+
+@keyframes slideInBounce {
+  from { opacity: 0; transform: translateX(-30rpx) scale(0.95); }
+  to { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+/* \u5934\u50cf\u5f39\u6027\u51fa\u73b0 */
+.avatar-bounce {
+  animation: avatarPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  transform: scale(0);
+}
+
+@keyframes avatarPop {
+  0% { transform: scale(0); opacity: 0; }
+  60% { transform: scale(1.15); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* \u661f\u661f\u5fbd\u7ae0\u95ea\u70c1\u65cb\u8f6c */
+.badge-sparkle {
+  animation: sparkleRotate 2s ease-in-out infinite;
+}
+
+@keyframes sparkleRotate {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  25% { transform: rotate(-15deg) scale(1.2); }
+  50% { transform: rotate(0deg) scale(1); }
+  75% { transform: rotate(15deg) scale(1.2); }
+}
+
+/* \u7a7a\u72b6\u6001\u4eba\u7269\u547c\u5438\u6d6e\u52a8 */
+.breathe-float {
+  animation: breatheFloat 3s ease-in-out infinite;
+}
+
+@keyframes breatheFloat {
+  0%, 100% { transform: translateY(0) scale(1); opacity: 0.7; }
+  50% { transform: translateY(-16rpx) scale(1.05); opacity: 1; }
+}
+
+/* Shimmer \u5149\u6548\u6309\u94ae */
+.shimmer-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.2) 50%, transparent 100%);
+  animation: shimmer 2.5s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+/* ========== \u52a0\u8f7d\u72b6\u6001 ========== */
+
 .loading-screen {
   display: flex;
   flex-direction: column;
@@ -84,10 +141,9 @@
   color: var(--text-secondary);
 }
 
-/* 头部信息 */
-.header-section {
-  padding: 32rpx;
-}
+/* ========== \u5934\u90e8\u4fe1\u606f ========== */
+
+.header-section { padding: 32rpx; }
 
 .event-header {
   display: flex;
@@ -103,10 +159,7 @@
   flex: 1;
 }
 
-.event-badges {
-  display: flex;
-  gap: 12rpx;
-}
+.event-badges { display: flex; gap: 12rpx; }
 
 .badge {
   font-size: 22rpx;
@@ -121,9 +174,7 @@
   color: #ef4444;
 }
 
-.event-meta {
-  margin-bottom: 12rpx;
-}
+.event-meta { margin-bottom: 12rpx; }
 
 .meta-item {
   font-size: 26rpx;
@@ -139,7 +190,8 @@
   margin-top: 12rpx;
 }
 
-/* 统计卡片 */
+/* ========== \u7edf\u8ba1\u5361\u7247 ========== */
+
 .stats-cards {
   display: flex;
   gap: 20rpx;
@@ -156,9 +208,7 @@
   border: 2rpx solid rgba(255, 255, 255, 0.08);
 }
 
-.stat-value {
-  margin-bottom: 8rpx;
-}
+.stat-value { margin-bottom: 8rpx; }
 
 .stat-number {
   font-size: 56rpx;
@@ -174,7 +224,8 @@
   color: var(--text-secondary);
 }
 
-/* 最佳时段推荐 - 醒目卡片 */
+/* ========== \u63a8\u8350\u5361\u7247 - Spring Bounce + \u547c\u5438\u5149\u6548 ========== */
+
 .recommend-section {
   padding: 0 32rpx;
   margin-bottom: 24rpx;
@@ -192,6 +243,20 @@
   background: linear-gradient(135deg, rgba(251, 191, 36, 0.2), rgba(251, 191, 36, 0.08));
   border: 2rpx solid rgba(251, 191, 36, 0.4);
   box-shadow: 0 8rpx 32rpx rgba(251, 191, 36, 0.15);
+  animation: recommendBounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards,
+             recommendGlow 3s ease-in-out 0.6s infinite;
+  opacity: 0;
+  transform: translateY(-30rpx) scale(0.95);
+}
+
+@keyframes recommendBounce {
+  from { opacity: 0; transform: translateY(-30rpx) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes recommendGlow {
+  0%, 100% { box-shadow: 0 8rpx 32rpx rgba(251, 191, 36, 0.15); }
+  50% { box-shadow: 0 8rpx 40rpx rgba(251, 191, 36, 0.35), 0 0 60rpx rgba(251, 191, 36, 0.1); }
 }
 
 .recommend-card.recommend-empty {
@@ -210,12 +275,15 @@
 
 .recommend-trophy {
   font-size: 56rpx;
-  animation: trophy-bounce 2s ease-in-out infinite;
+  animation: trophyFloat 2.5s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+  filter: drop-shadow(0 4rpx 8rpx rgba(251, 191, 36, 0.3));
 }
 
-@keyframes trophy-bounce {
-  0%, 100% { transform: translateY(0) rotate(-5deg); }
-  50% { transform: translateY(-8rpx) rotate(5deg); }
+@keyframes trophyFloat {
+  0%, 100% { transform: translateY(0) rotate(-5deg) scale(1); }
+  25% { transform: translateY(-12rpx) rotate(3deg) scale(1.05); }
+  50% { transform: translateY(-6rpx) rotate(5deg) scale(1.1); }
+  75% { transform: translateY(-10rpx) rotate(-3deg) scale(1.05); }
 }
 
 .recommend-empty-icon {
@@ -275,7 +343,8 @@
   margin-top: 4rpx;
 }
 
-/* 热力图 */
+/* ========== \u70ed\u529b\u56fe ========== */
+
 .heatmap-section {
   padding: 0 32rpx;
   margin-bottom: 32rpx;
@@ -294,7 +363,6 @@
   color: #fff;
 }
 
-/* 清晰图例条 */
 .legend-bar {
   display: flex;
   align-items: center;
@@ -338,7 +406,6 @@
   flex-shrink: 0;
 }
 
-/* 日期标签 */
 .date-labels {
   display: flex;
   gap: 12rpx;
@@ -367,7 +434,6 @@
   color: #fff;
 }
 
-/* 热力图主体 */
 .heatmap-wrapper {
   display: flex;
   gap: 12rpx;
@@ -395,14 +461,30 @@
   gap: 12rpx;
 }
 
+/* \u70ed\u529b\u5217 - \u4ea4\u9519\u5165\u573a */
 .heatmap-column {
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: 8rpx;
+  animation: columnFadeIn 0.4s ease forwards;
+  opacity: 0;
 }
 
-/* 热力格子 - 加大尺寸 */
+.heatmap-column:nth-child(1) { animation-delay: 0.1s; }
+.heatmap-column:nth-child(2) { animation-delay: 0.2s; }
+.heatmap-column:nth-child(3) { animation-delay: 0.3s; }
+.heatmap-column:nth-child(4) { animation-delay: 0.4s; }
+.heatmap-column:nth-child(5) { animation-delay: 0.5s; }
+.heatmap-column:nth-child(6) { animation-delay: 0.6s; }
+.heatmap-column:nth-child(7) { animation-delay: 0.7s; }
+
+@keyframes columnFadeIn {
+  from { opacity: 0; transform: translateY(16rpx); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* \u70ed\u529b\u683c\u5b50 - \u6e10\u5165 + \u989c\u8272\u8fc7\u6e21 */
 .heatmap-cell {
   height: 80rpx;
   min-height: 80rpx;
@@ -410,9 +492,29 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s ease;
+  transition: background-color 0.5s ease, transform 0.3s ease, box-shadow 0.3s ease;
   cursor: pointer;
   position: relative;
+  animation: cellFadeIn 0.3s ease forwards;
+  opacity: 0;
+}
+
+.heatmap-cell:nth-child(1) { animation-delay: 0.05s; }
+.heatmap-cell:nth-child(2) { animation-delay: 0.1s; }
+.heatmap-cell:nth-child(3) { animation-delay: 0.15s; }
+.heatmap-cell:nth-child(4) { animation-delay: 0.2s; }
+.heatmap-cell:nth-child(5) { animation-delay: 0.25s; }
+.heatmap-cell:nth-child(6) { animation-delay: 0.3s; }
+.heatmap-cell:nth-child(7) { animation-delay: 0.35s; }
+.heatmap-cell:nth-child(8) { animation-delay: 0.4s; }
+.heatmap-cell:nth-child(9) { animation-delay: 0.45s; }
+.heatmap-cell:nth-child(10) { animation-delay: 0.5s; }
+.heatmap-cell:nth-child(11) { animation-delay: 0.55s; }
+.heatmap-cell:nth-child(12) { animation-delay: 0.6s; }
+
+@keyframes cellFadeIn {
+  from { opacity: 0; transform: scale(0.7); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 .heatmap-cell-hover {
@@ -421,23 +523,10 @@
   box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.3);
 }
 
-/* 热力等级 - 更明显的颜色对比 */
-.heatmap-cell.level-0 {
-  background: rgba(15, 52, 96, 0.3);
-}
-
-.heatmap-cell.level-1 {
-  background: rgba(233, 69, 96, 0.25);
-}
-
-.heatmap-cell.level-2 {
-  background: rgba(233, 69, 96, 0.45);
-}
-
-.heatmap-cell.level-3 {
-  background: rgba(233, 69, 96, 0.7);
-}
-
+.heatmap-cell.level-0 { background: rgba(15, 52, 96, 0.3); }
+.heatmap-cell.level-1 { background: rgba(233, 69, 96, 0.25); }
+.heatmap-cell.level-2 { background: rgba(233, 69, 96, 0.45); }
+.heatmap-cell.level-3 { background: rgba(233, 69, 96, 0.7); }
 .heatmap-cell.level-4 {
   background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
   box-shadow: 0 4rpx 16rpx rgba(233, 69, 96, 0.4);
@@ -449,7 +538,8 @@
   color: #fff;
 }
 
-/* 空状态 */
+/* ========== \u7a7a\u72b6\u6001\u5f15\u5bfc ========== */
+
 .empty-participants {
   display: flex;
   flex-direction: column;
@@ -489,11 +579,10 @@
   border: none;
 }
 
-.empty-share-btn::after {
-  display: none;
-}
+.empty-share-btn::after { display: none; }
 
-/* 参与者列表 */
+/* ========== \u53c2\u4e0e\u8005\u5217\u8868 ========== */
+
 .participants-section {
   padding: 0 32rpx;
   margin-bottom: 32rpx;
@@ -539,9 +628,7 @@
   font-size: 22rpx;
 }
 
-.participant-info {
-  flex: 1;
-}
+.participant-info { flex: 1; }
 
 .participant-name {
   font-size: 28rpx;
@@ -556,11 +643,10 @@
   color: var(--text-muted);
 }
 
-.participant-badge {
-  font-size: 24rpx;
-}
+.participant-badge { font-size: 24rpx; }
 
-/* 操作按钮 */
+/* ========== \u64cd\u4f5c\u6309\u94ae ========== */
+
 .action-section {
   position: fixed;
   bottom: 0;
@@ -607,11 +693,10 @@
   transform: scale(0.98);
 }
 
-.btn-icon {
-  font-size: 28rpx;
-}
+.btn-icon { font-size: 28rpx; }
 
-/* 创建成功提示 */
+/* ========== \u521b\u5efa\u6210\u529f\u63d0\u793a ========== */
+
 .created-tip {
   position: fixed;
   top: 32rpx;
@@ -630,16 +715,15 @@
   border-radius: 16rpx;
 }
 
-.tip-icon {
-  font-size: 32rpx;
-}
+.tip-icon { font-size: 32rpx; }
 
 .tip-text {
   font-size: 26rpx;
   color: #4ade80;
 }
 
-/* 时段详情弹窗 */
+/* ========== \u65f6\u6bb5\u8be6\u60c5\u5f39\u7a97 - Scale \u5165\u573a ========== */
+
 .slot-modal {
   position: fixed;
   top: 0;
@@ -676,12 +760,14 @@
   border-radius: 32rpx 32rpx 0 0;
   padding: 32rpx;
   padding-bottom: calc(32rpx + env(safe-area-inset-bottom));
-  transform: translateY(100%);
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform: translateY(100%) scale(0.9);
+  opacity: 0;
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
 }
 
 .slot-modal.show .modal-content {
-  transform: translateY(0);
+  transform: translateY(0) scale(1);
+  opacity: 1;
 }
 
 .modal-header {

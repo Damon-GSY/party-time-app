@@ -27,11 +27,17 @@ Page({
     // 选择状态
     slots: {}, // { '2024-03-23_0': true, ... }
     selectedCount: 0,
+    displayCount: 0, // 数字动画用的显示值
 
     // 提交状态
     submitting: false,
     showSuccess: false,
-    countAnimated: false
+    countAnimated: false,
+
+    // 动画状态
+    gridVisible: true,        // 日期切换过渡
+    animatingSlotIndex: -1,   // 当前正在动画的格子索引
+    animatingSlotAction: '',  // 'select' | 'deselect'
   },
 
   onLoad(options) {
@@ -181,6 +187,7 @@ Page({
       dates,
       slots,
       selectedCount,
+      displayCount: selectedCount, // 初始显示值
       participantCount,
       nickname,
       granularity,
@@ -262,79 +269,141 @@ Page({
     })
   },
 
-  // 切换日期
+  // 切换日期（带过渡动画）
   switchDate(e) {
     const { index } = e.currentTarget.dataset
-    this.setCurrentSlots(index)
+    if (index === this.data.currentDateIndex) return
+
+    // 先淡出
+    this.setData({ gridVisible: false })
+
+    // 100ms 后切换数据并淡入
+    setTimeout(() => {
+      this.setCurrentSlots(index)
+      this.setData({ gridVisible: true })
+    }, 100)
   },
 
-  // 切换时段选择（优化：使用路径更新避免完整对象复制）
+  // 切换时段选择（带动画反馈）
   toggleSlot(e) {
     const { index } = e.currentTarget.dataset
     const { currentSlots, selectedCount } = this.data
     const slot = currentSlots[index]
-
-    // 切换状态
     const newSelected = !slot.selected
 
-    // 使用路径更新，避免完整对象复制
+    // 设置动画状态
+    const animAction = newSelected ? 'select' : 'deselect'
     this.setData({
       [`slots.${slot.id}`]: newSelected,
       [`currentSlots[${index}].selected`]: newSelected,
       selectedCount: selectedCount + (newSelected ? 1 : -1),
-      countAnimated: true
+      animatingSlotIndex: index,
+      animatingSlotAction: animAction
     })
 
-    // 重置动画状态
+    // 延迟清除动画状态（让动画播放完）
     setTimeout(() => {
-      this.setData({ countAnimated: false })
-    }, 300)
+      this.setData({
+        animatingSlotIndex: -1,
+        animatingSlotAction: ''
+      })
+    }, 350)
+
+    // 数字动画
+    const oldCount = selectedCount
+    const newCount = selectedCount + (newSelected ? 1 : -1)
+    this.animateCount(oldCount, newCount)
 
     // 触觉反馈
     try {
       wx.vibrateShort({ type: 'light' })
-    } catch (e) {
-      // 部分设备不支持振动，忽略错误
-    }
+    } catch (e) {}
   },
 
-  // 清空选择
+  // 数字动画：从旧值逐步变化到新值
+  animateCount(from, to) {
+    if (from === to) return
+
+    const step = from < to ? 1 : -1
+    const totalSteps = Math.abs(to - from)
+    const interval = Math.max(30, Math.min(80, 300 / totalSteps))
+
+    let current = from
+    clearInterval(this._countTimer)
+    this._countTimer = setInterval(() => {
+      current += step
+      this.setData({ displayCount: current })
+      if (current === to) {
+        clearInterval(this._countTimer)
+        this._countTimer = null
+      }
+    }, interval)
+  },
+
+  // 清空选择（多米诺效果）
   clearSelection() {
-    const { currentSlots, dates } = this.data
+    const { currentSlots } = this.data
 
-    // 清空当前日期的选择
-    const newSlots = { ...this.data.slots }
-    currentSlots.forEach(slot => {
-      newSlots[slot.id] = false
+    currentSlots.forEach((slot, index) => {
+      if (slot.selected) {
+        setTimeout(() => {
+          this.setData({
+            [`slots.${slot.id}`]: false,
+            [`currentSlots[${index}].selected`]: false,
+            animatingSlotIndex: index,
+            animatingSlotAction: 'deselect'
+          })
+          setTimeout(() => {
+            if (this.data.animatingSlotIndex === index) {
+              this.setData({ animatingSlotIndex: -1, animatingSlotAction: '' })
+            }
+          }, 350)
+        }, index * 30)
+      }
     })
 
-    const newCurrentSlots = currentSlots.map(s => ({ ...s, selected: false }))
-    const selectedCount = Object.keys(newSlots).filter(k => newSlots[k]).length
-
-    this.setData({
-      slots: newSlots,
-      currentSlots: newCurrentSlots,
-      selectedCount
-    })
+    const totalSelected = currentSlots.length
+    setTimeout(() => {
+      const newSlots = { ...this.data.slots }
+      currentSlots.forEach(slot => { newSlots[slot.id] = false })
+      const selectedCount = Object.keys(newSlots).filter(k => newSlots[k]).length
+      const oldCount = this.data.selectedCount
+      this.setData({ selectedCount })
+      this.animateCount(oldCount, selectedCount)
+    }, totalSelected * 30 + 50)
   },
 
-  // 全选当前日期
+  // 全选当前日期（波浪效果）
   selectAll() {
     const { currentSlots } = this.data
 
-    const newSlots = { ...this.data.slots }
-    currentSlots.forEach(slot => {
-      newSlots[slot.id] = true
+    currentSlots.forEach((slot, index) => {
+      if (!slot.selected) {
+        setTimeout(() => {
+          this.setData({
+            [`slots.${slot.id}`]: true,
+            [`currentSlots[${index}].selected`]: true,
+            animatingSlotIndex: index,
+            animatingSlotAction: 'select'
+          })
+          setTimeout(() => {
+            if (this.data.animatingSlotIndex === index) {
+              this.setData({ animatingSlotIndex: -1, animatingSlotAction: '' })
+            }
+          }, 350)
+        }, index * 30)
+      }
     })
 
-    const newCurrentSlots = currentSlots.map(s => ({ ...s, selected: true }))
-    const selectedCount = Object.keys(newSlots).filter(k => newSlots[k]).length
-
-    this.setData({
-      slots: newSlots,
-      currentSlots: newCurrentSlots,
-      selectedCount
-    })
+    const totalSlots = currentSlots.length
+    setTimeout(() => {
+      const newSlots = { ...this.data.slots }
+      currentSlots.forEach(slot => { newSlots[slot.id] = true })
+      const selectedCount = Object.keys(newSlots).filter(k => newSlots[k]).length
+      const oldCount = this.data.selectedCount
+      this.setData({ selectedCount })
+      this.animateCount(oldCount, selectedCount)
+    }, totalSlots * 30 + 50)
   },
 
   // 昵称输入
@@ -412,6 +481,13 @@ Page({
     return {
       title: `来选一下「${event?.name || '聚会'}」的时间吧`,
       path: `/pages/vote/vote?id=${this.data.eventId}`
+    }
+  },
+
+  onUnload() {
+    if (this._countTimer) {
+      clearInterval(this._countTimer)
+      this._countTimer = null
     }
   }
 })
