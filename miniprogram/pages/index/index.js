@@ -1,4 +1,5 @@
 const util = require('../../utils/util')
+const notificationUtil = require('../../utils/notification')
 
 Page({
   data: {
@@ -10,7 +11,8 @@ Page({
     swipeStartY: 0,
     activeSwipeId: null, // 当前滑开的卡片ID
     cardPulse: false, // 卡片脉冲动画状态
-    cardPressedId: null // 当前按下的卡片ID
+    cardPressedId: null, // 当前按下的卡片ID
+    unreadCount: 0 // 未读通知数
   },
 
   onLoad() {
@@ -25,6 +27,8 @@ Page({
     }
     // 重置滑动状态
     this.closeAllSwipe()
+    // 更新未读通知数
+    this.updateUnreadCount()
   },
 
   onPullDownRefresh() {
@@ -318,11 +322,70 @@ Page({
     }
   },
 
+  // 卡片长按 - 操作菜单
+  onCardLongPress(e) {
+    const { id } = e.currentTarget.dataset
+    const event = this.data.events.find(ev => ev._id === id)
+    if (!event) return
+
+    const itemList = ['复制链接', '生成海报']
+    if (event.type === 'created') {
+      itemList.push('删除')
+    }
+
+    wx.showActionSheet({
+      itemList,
+      success: (res) => {
+        switch (res.tapIndex) {
+          case 0: // 复制链接
+            wx.setClipboardData({
+              data: `/pages/vote/vote?id=${id}`,
+              success: () => {
+                wx.showToast({ title: '链接已复制', icon: 'success' })
+              }
+            })
+            break
+          case 1: // 生成海报
+            wx.navigateTo({
+              url: `/pages/poster/poster?id=${id}`
+            })
+            break
+          case 2: // 删除（仅创建者）
+            if (event.type === 'created') {
+              this.deleteEvent({ currentTarget: { dataset: { id } } })
+            }
+            break
+        }
+      }
+    })
+  },
+
   // 分享
   onShareAppMessage() {
     return {
       title: '聚会时间 - 轻松找到大家都有空的时间',
       path: '/pages/index/index'
+    }
+  },
+
+  // 更新未读通知数
+  updateUnreadCount() {
+    const count = notificationUtil.getUnreadCount()
+    this.setData({ unreadCount: count })
+  },
+
+  // 跳转到通知中心
+  goToNotifications() {
+    wx.navigateTo({ url: '/pages/notifications/notifications' })
+  },
+
+  // 通知设置（订阅所有模板）
+  async goToNotificationSettings() {
+    const result = await notificationUtil.subscribeAll()
+    if (result === 'accepted') {
+      wx.showToast({ title: '已开启提醒', icon: 'success' })
+    } else if (result === 'rejected') {
+      wx.showToast({ title: '暂不开启', icon: 'none' })
     }
   }
 })

@@ -80,7 +80,11 @@ exports.main = async (event, context) => {
         expireAt: expireAt.toISOString(),
         note: note.trim(),
         createdAt: db.serverDate(),
-        createdBy: cloud.getWXContext().OPENID
+        createdBy: cloud.getWXContext().OPENID,
+        notifications: {
+          creatorSubscribed: false,
+          lastExpiringReminderAt: null
+        }
       }
     })
 

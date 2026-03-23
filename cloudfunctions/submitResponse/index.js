@@ -69,6 +69,27 @@ exports.main = async (event, context) => {
       })
     }
 
+    // 通知创建者：有人参与了投票
+    try {
+      const creatorOpenId = eventData.createdBy || eventData._openid
+      if (creatorOpenId && creatorOpenId !== openid) {
+        await cloud.callFunction({
+          name: 'sendNotification',
+          data: {
+            type: 'new_participant',
+            eventId,
+            toOpenId: creatorOpenId,
+            data: {
+              participantName: responseName,
+              eventName: eventData.name || '聚会'
+            }
+          }
+        })
+      }
+    } catch (notifyErr) {
+      console.warn('[submitResponse] 通知创建者失败', notifyErr)
+    }
+
     return {
       success: true
     }

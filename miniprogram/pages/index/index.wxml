@@ -69,7 +69,7 @@
           bindtap="goToEvent"
           style="transform: translateX({{item.translateX || 0}}rpx);"
         >
-          <view class="event-card {{cardPulse ? 'card-pulse' : ''}} {{cardPressedId === item._id ? 'card-pressed' : ''}}" data-id="{{item._id}}" hover-class="event-card-active" bindtouchstart="onCardTouchStart" catchtouchend="onCardTouchEnd">
+          <view class="event-card {{cardPulse ? 'card-pulse' : ''}} {{cardPressedId === item._id ? 'card-pressed' : ''}}" data-id="{{item._id}}" hover-class="event-card-active" bindtouchstart="onCardTouchStart" catchtouchend="onCardTouchEnd" bindlongpress="onCardLongPress">
             <view class="event-type-badge {{item.type}}">
               {{item.type === 'created' ? '创建' : '参与'}}
             </view>
@@ -167,6 +167,17 @@
 
   <!-- 底部 -->
   <view class="footer">
+    <view class="footer-actions">
+      <view class="footer-action" bindtap="goToNotifications">
+        <text class="footer-action-icon">🔔</text>
+        <text class="footer-action-text">通知中心</text>
+        <view class="footer-badge" wx:if="{{unreadCount > 0}}">{{unreadCount > 99 ? '99+' : unreadCount}}</view>
+      </view>
+      <view class="footer-action" bindtap="goToNotificationSettings">
+        <text class="footer-action-icon">⚙️</text>
+        <text class="footer-action-text">通知设置</text>
+      </view>
+    </view>
     <text class="footer-text">让相聚更简单 💫</text>
   </view>
 </view>

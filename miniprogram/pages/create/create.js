@@ -1,4 +1,5 @@
 const util = require('../../utils/util')
+const notificationUtil = require('../../utils/notification')
 
 Page({
   data: {
@@ -145,6 +146,9 @@ Page({
           title: '创建成功',
           icon: 'success'
         })
+
+        // 引导创建者开启通知提醒
+        notificationUtil.subscribeAll().catch(() => {})
 
         // 跳转到投票页面让创建者填写时间
         setTimeout(() => {

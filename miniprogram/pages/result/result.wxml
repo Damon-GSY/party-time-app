@@ -161,9 +161,22 @@
 
     <!-- 操作按钮 -->
     <view class="action-section fade-in" style="animation-delay: 0.3s;">
+      <button
+        class="notify-btn {{notifying ? 'notifying' : ''}}"
+        bindtap="notifyParticipants"
+        wx:if="{{isCreator && participantCount > 1 && bestSlot.timeText}}"
+        disabled="{{notifying}}"
+      >
+        <text class="btn-icon">🔔</text>
+        <text>{{notifying ? '发送中...' : '通知参与者'}}</text>
+      </button>
       <button class="share-btn" open-type="share">
         <text class="btn-icon">🔗</text>
         <text>分享结果</text>
+      </button>
+      <button class="poster-btn" bindtap="goToPoster">
+        <text class="btn-icon">🖼️</text>
+        <text>生成海报</text>
       </button>
       <button class="vote-btn" bindtap="goToVote" wx:if="{{!event.expired}}">
         <text class="btn-icon">✏️</text>
