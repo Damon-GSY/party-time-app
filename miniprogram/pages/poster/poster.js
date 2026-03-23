@@ -1,7 +1,7 @@
 // 海报页面逻辑 - Canvas 2D API
 const util = require('../../utils/util')
 
-// 海报设计尺寸（像素，CSS像素，会通过 dpr 放大）
+// 海报设计尺寸（CSS像素）
 const POSTER_WIDTH = 375
 const POSTER_HEIGHT = 667
 
@@ -11,8 +11,7 @@ Page({
     loading: true,
     event: null,
     participantCount: 0,
-    bestSlot: null,
-    posterImagePath: ''
+    bestSlot: null
   },
 
   onLoad(options) {
@@ -127,22 +126,30 @@ Page({
 
           const { event, participantCount, bestSlot } = this.data
 
-          // 绘制背景
-          await this.drawBackground(ctx)
+          // 1. 绘制背景
+          this.drawBackground(ctx)
 
-          // 绘制右上角小程序名称
-          this.drawText(ctx, '聚会时间', POSTER_WIDTH - 20, 36, 14, 'rgba(255,255,255,0.6)', 'right')
-
-          // 绘制装饰线条
+          // 2. 绘制装饰元素
           this.drawDecorations(ctx)
 
-          // 绘制活动名称
+          // 3. 右上角小程序名称
+          this.drawSingleText(ctx, '聚会时间', POSTER_WIDTH - 20, 36, 14, 'rgba(255,255,255,0.6)', 'right')
+
+          // 4. 顶部装饰线条
+          ctx.strokeStyle = 'rgba(233, 69, 96, 0.4)'
+          ctx.lineWidth = 2
+          ctx.beginPath()
+          ctx.moveTo(32, 70)
+          ctx.lineTo(120, 70)
+          ctx.stroke()
+
+          // 5. 活动名称
           this.drawEventName(ctx, event.name)
 
-          // 绘制日期范围
-          this.drawText(ctx, `📅 ${event.dateRangeText}`, 32, 240, 16, '#b8b8c8', 'left')
+          // 6. 日期范围
+          this.drawSingleText(ctx, `📅 ${event.dateRangeText}`, 32, 240, 16, '#b8b8c8', 'left')
 
-          // 绘制分隔线
+          // 7. 分隔线
           ctx.strokeStyle = 'rgba(233, 69, 96, 0.3)'
           ctx.lineWidth = 1
           ctx.beginPath()
@@ -150,23 +157,23 @@ Page({
           ctx.lineTo(POSTER_WIDTH - 32, 270)
           ctx.stroke()
 
-          // 绘制统计信息
+          // 8. 统计信息
           this.drawStats(ctx, participantCount)
 
-          // 绘制最佳时段推荐
+          // 9. 最佳时段推荐
           if (bestSlot) {
             this.drawBestSlot(ctx, bestSlot, participantCount)
           }
 
-          // 绘制备注
+          // 10. 备注
           if (event.note) {
             this.drawNote(ctx, event.note)
           }
 
-          // 绘制小程序码占位区域
+          // 11. 小程序码占位区域
           this.drawQRCodePlaceholder(ctx)
 
-          // 绘制底部提示
+          // 12. 底部提示
           this.drawBottomText(ctx)
 
           this.setData({ loading: false })
@@ -179,19 +186,15 @@ Page({
   },
 
   // 绘制渐变背景
-  async drawBackground(ctx) {
-    return new Promise((resolve) => {
-      const gradient = ctx.createLinearGradient(0, 0, POSTER_WIDTH, POSTER_HEIGHT)
-      gradient.addColorStop(0, '#1a1a2e')
-      gradient.addColorStop(0.4, '#16213e')
-      gradient.addColorStop(1, '#0f3460')
+  drawBackground(ctx) {
+    const gradient = ctx.createLinearGradient(0, 0, POSTER_WIDTH, POSTER_HEIGHT)
+    gradient.addColorStop(0, '#1a1a2e')
+    gradient.addColorStop(0.4, '#16213e')
+    gradient.addColorStop(1, '#0f3460')
 
-      // 圆角矩形背景
-      this.roundRect(ctx, 0, 0, POSTER_WIDTH, POSTER_HEIGHT, 0)
-      ctx.fillStyle = gradient
-      ctx.fill()
-      resolve()
-    })
+    this.roundRect(ctx, 0, 0, POSTER_WIDTH, POSTER_HEIGHT, 0)
+    ctx.fillStyle = gradient
+    ctx.fill()
   },
 
   // 绘制装饰元素
@@ -209,6 +212,17 @@ Page({
     glow2.addColorStop(1, 'rgba(255, 107, 107, 0)')
     ctx.fillStyle = glow2
     ctx.fillRect(0, POSTER_HEIGHT - 300, POSTER_WIDTH, 300)
+
+    // 装饰圆点
+    ctx.fillStyle = 'rgba(233, 69, 96, 0.08)'
+    ctx.beginPath()
+    ctx.arc(POSTER_WIDTH - 60, 120, 40, 0, Math.PI * 2)
+    ctx.fill()
+
+    ctx.fillStyle = 'rgba(255, 107, 107, 0.06)'
+    ctx.beginPath()
+    ctx.arc(40, POSTER_HEIGHT - 350, 50, 0, Math.PI * 2)
+    ctx.fill()
   },
 
   // 绘制活动名称
@@ -221,7 +235,7 @@ Page({
     // 文字换行处理
     const maxWidth = POSTER_WIDTH - 64
     const lines = this.wrapText(ctx, name, maxWidth)
-    let y = 140
+    let y = 100
     lines.forEach(line => {
       ctx.fillText(line, 32, y)
       y += 40
@@ -230,10 +244,12 @@ Page({
 
   // 绘制统计数据
   drawStats(ctx, participantCount) {
-    const y = 310
+    const y = 300
+    const cardWidth = (POSTER_WIDTH - 76) / 2
+    const cardHeight = 80
 
     // 参与人数卡片
-    this.roundRect(ctx, 32, y, (POSTER_WIDTH - 76) / 2, 80, 12)
+    this.roundRect(ctx, 32, y, cardWidth, cardHeight, 12)
     ctx.fillStyle = 'rgba(233, 69, 96, 0.15)'
     ctx.fill()
     ctx.strokeStyle = 'rgba(233, 69, 96, 0.3)'
@@ -244,16 +260,15 @@ Page({
     ctx.fillStyle = '#e94560'
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
-    ctx.fillText(String(participantCount), 32 + (POSTER_WIDTH - 76) / 4, y + 36)
+    ctx.fillText(String(participantCount), 32 + cardWidth / 2, y + 36)
 
     ctx.font = '12px -apple-system, BlinkMacSystemFont, sans-serif'
     ctx.fillStyle = '#b8b8c8'
-    ctx.fillText('参与人数', 32 + (POSTER_WIDTH - 76) / 4, y + 62)
+    ctx.fillText('参与人数', 32 + cardWidth / 2, y + 62)
 
-    // 正在投票提示
-    const card2X = 32 + (POSTER_WIDTH - 76) / 2 + 12
-    const card2W = (POSTER_WIDTH - 76) / 2
-    this.roundRect(ctx, card2X, y, card2W, 80, 12)
+    // 投票状态卡片
+    const card2X = 32 + cardWidth + 12
+    this.roundRect(ctx, card2X, y, cardWidth, cardHeight, 12)
     ctx.fillStyle = 'rgba(74, 222, 128, 0.1)'
     ctx.fill()
     ctx.strokeStyle = 'rgba(74, 222, 128, 0.2)'
@@ -262,29 +277,30 @@ Page({
 
     ctx.font = '22px -apple-system, BlinkMacSystemFont, sans-serif'
     ctx.fillStyle = '#4ade80'
-    ctx.fillText('🗳️ 进行中', card2X + card2W / 2, y + 40)
+    ctx.fillText('🗳️ 进行中', card2X + cardWidth / 2, y + cardHeight / 2)
   },
 
   // 绘制最佳时段推荐
   drawBestSlot(ctx, bestSlot, participantCount) {
-    const y = 420
+    const y = 410
+    const cardWidth = POSTER_WIDTH - 64
+    const cardHeight = 100
 
     // 推荐卡片背景
-    this.roundRect(ctx, 32, y, POSTER_WIDTH - 64, 100, 16)
+    this.roundRect(ctx, 32, y, cardWidth, cardHeight, 16)
     ctx.fillStyle = 'rgba(251, 191, 36, 0.08)'
     ctx.fill()
     ctx.strokeStyle = 'rgba(251, 191, 36, 0.25)'
     ctx.lineWidth = 1
     ctx.stroke()
 
-    // 奖杯图标
+    // 奖杯图标 + 标签
     ctx.font = '28px -apple-system, BlinkMacSystemFont, sans-serif'
     ctx.fillStyle = '#fbbf24'
     ctx.textAlign = 'left'
     ctx.textBaseline = 'top'
     ctx.fillText('🏆', 52, y + 16)
 
-    // 推荐标签
     ctx.font = '12px -apple-system, BlinkMacSystemFont, sans-serif'
     ctx.fillStyle = '#fbbf24'
     ctx.fillText('最佳推荐时段', 90, y + 20)
@@ -302,15 +318,14 @@ Page({
 
   // 绘制备注
   drawNote(ctx, note) {
-    if (!note) return
-    const y = 540
+    const y = 530
+    const maxWidth = POSTER_WIDTH - 100
 
     ctx.font = '13px -apple-system, BlinkMacSystemFont, sans-serif'
     ctx.fillStyle = 'rgba(136, 136, 160, 0.8)'
     ctx.textAlign = 'center'
     ctx.textBaseline = 'top'
 
-    const maxWidth = POSTER_WIDTH - 64
     const lines = this.wrapText(ctx, `"${note}"`, maxWidth)
     let lineY = y
     lines.forEach(line => {
@@ -323,7 +338,7 @@ Page({
   drawQRCodePlaceholder(ctx) {
     const size = 80
     const x = POSTER_WIDTH / 2 - size / 2
-    const y = 580
+    const y = 575
 
     // 白色背景
     this.roundRect(ctx, x, y, size, size, 12)
@@ -346,12 +361,6 @@ Page({
 
   // 绘制底部提示文字
   drawBottomText(ctx) {
-    ctx.font = '13px -apple-system, BlinkMacSystemFont, sans-serif'
-    ctx.fillStyle = 'rgba(184, 184, 200, 0.6)'
-    ctx.textAlign = 'center'
-    ctx.textBaseline = 'bottom'
-    ctx.fillText('长按识别小程序码参与投票', POSTER_WIDTH / 2, POSTER_HEIGHT - 24)
-
     // 分隔线
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)'
     ctx.lineWidth = 1
@@ -359,6 +368,21 @@ Page({
     ctx.moveTo(60, POSTER_HEIGHT - 48)
     ctx.lineTo(POSTER_WIDTH - 60, POSTER_HEIGHT - 48)
     ctx.stroke()
+
+    ctx.font = '13px -apple-system, BlinkMacSystemFont, sans-serif'
+    ctx.fillStyle = 'rgba(184, 184, 200, 0.6)'
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'bottom'
+    ctx.fillText('长按识别小程序码参与投票', POSTER_WIDTH / 2, POSTER_HEIGHT - 24)
+  },
+
+  // 绘制文字（封装）
+  drawSingleText(ctx, text, x, y, fontSize, color, align) {
+    ctx.font = `${fontSize}px -apple-system, BlinkMacSystemFont, sans-serif`
+    ctx.fillStyle = color
+    ctx.textAlign = align || 'left'
+    ctx.textBaseline = 'top'
+    ctx.fillText(text, x, y)
   },
 
   // 文字换行
@@ -379,17 +403,9 @@ Page({
     return lines
   },
 
-  // 绘制文字（封装方法）
-  drawText(ctx, text, x, y, fontSize, color, align) {
-    ctx.font = `${fontSize}px -apple-system, BlinkMacSystemFont, sans-serif`
-    ctx.fillStyle = color
-    ctx.textAlign = align || 'left'
-    ctx.textBaseline = 'top'
-    ctx.fillText(text, x, y)
-  },
-
   // 圆角矩形
   roundRect(ctx, x, y, w, h, r) {
+    r = Math.max(0, r)
     ctx.beginPath()
     ctx.moveTo(x + r, y)
     ctx.lineTo(x + w - r, y)
@@ -404,61 +420,56 @@ Page({
   },
 
   // 保存到相册
-  async saveToAlbum() {
-    try {
-      wx.showLoading({ title: '保存中...' })
+  saveToAlbum() {
+    wx.showLoading({ title: '保存中...' })
 
-      const query = wx.createSelectorQuery()
-      query.select('#posterCanvas')
-        .fields({ node: true })
-        .exec((res) => {
-          if (!res[0] || !res[0].node) {
-            wx.hideLoading()
-            wx.showToast({ title: '保存失败', icon: 'none' })
-            return
-          }
+    const query = wx.createSelectorQuery()
+    query.select('#posterCanvas')
+      .fields({ node: true })
+      .exec((res) => {
+        if (!res[0] || !res[0].node) {
+          wx.hideLoading()
+          wx.showToast({ title: '保存失败', icon: 'none' })
+          return
+        }
 
-          const canvas = res[0].node
-          wx.canvasToTempFilePath({
-            canvas,
-            fileType: 'png',
-            quality: 1,
-            success: (res) => {
-              wx.saveImageToPhotosAlbum({
-                filePath: res.tempFilePath,
-                success: () => {
-                  wx.hideLoading()
-                  wx.showToast({ title: '已保存到相册', icon: 'success' })
-                },
-                fail: (err) => {
-                  wx.hideLoading()
-                  if (err.errMsg && err.errMsg.includes('auth deny')) {
-                    wx.showModal({
-                      title: '需要相册权限',
-                      content: '请在设置中开启「保存到相册」权限',
-                      confirmText: '去设置',
-                      success: (modalRes) => {
-                        if (modalRes.confirm) {
-                          wx.openSetting()
-                        }
+        const canvas = res[0].node
+        wx.canvasToTempFilePath({
+          canvas,
+          fileType: 'png',
+          quality: 1,
+          success: (res) => {
+            wx.saveImageToPhotosAlbum({
+              filePath: res.tempFilePath,
+              success: () => {
+                wx.hideLoading()
+                wx.showToast({ title: '已保存到相册', icon: 'success' })
+              },
+              fail: (err) => {
+                wx.hideLoading()
+                if (err.errMsg && err.errMsg.includes('auth deny')) {
+                  wx.showModal({
+                    title: '需要相册权限',
+                    content: '请在设置中开启「保存到相册」权限',
+                    confirmText: '去设置',
+                    success: (modalRes) => {
+                      if (modalRes.confirm) {
+                        wx.openSetting()
                       }
-                    })
-                  } else {
-                    wx.showToast({ title: '保存失败', icon: 'none' })
-                  }
+                    }
+                  })
+                } else {
+                  wx.showToast({ title: '保存失败', icon: 'none' })
                 }
-              })
-            },
-            fail: () => {
-              wx.hideLoading()
-              wx.showToast({ title: '生成图片失败', icon: 'none' })
-            }
-          })
+              }
+            })
+          },
+          fail: () => {
+            wx.hideLoading()
+            wx.showToast({ title: '生成图片失败', icon: 'none' })
+          }
         })
-    } catch (err) {
-      wx.hideLoading()
-      wx.showToast({ title: '保存失败', icon: 'none' })
-    }
+      })
   },
 
   // 分享

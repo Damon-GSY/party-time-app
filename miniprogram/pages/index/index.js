@@ -338,6 +338,30 @@ Page({
     }
   },
 
+  // 长按卡片菜单
+  onCardLongPress(e) {
+    const { id, type } = e.currentTarget.dataset
+    const itemList = ['复制链接', '生成海报']
+    if (type === 'created') itemList.push('删除')
+
+    wx.showActionSheet({
+      itemList,
+      success: (res) => {
+        switch(res.tapIndex) {
+          case 0: // 复制链接
+            wx.setClipboardData({ data: `pages/vote/vote?id=${id}` })
+            break
+          case 1: // 生成海报
+            wx.navigateTo({ url: `/pages/poster/poster?id=${id}` })
+            break
+          case 2: // 删除
+            this.deleteEvent({ currentTarget: { dataset: { id } } })
+            break
+        }
+      }
+    })
+  },
+
   // 分享
   onShareAppMessage() {
     return {

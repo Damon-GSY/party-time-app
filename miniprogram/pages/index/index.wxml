@@ -80,6 +80,7 @@
           bindtouchstart="onSwipeStart"
           bindtouchend="onSwipeEnd"
           bindtap="goToEvent"
+          bindlongpress="onCardLongPress"
           style="transform: translateX({{item.translateX || 0}}rpx);"
         >
           <view class="event-card {{cardPulse ? 'card-pulse' : ''}} {{cardPressedId === item._id ? 'card-pressed' : ''}}" data-id="{{item._id}}" hover-class="event-card-active" bindtouchstart="onCardTouchStart" catchtouchend="onCardTouchEnd">

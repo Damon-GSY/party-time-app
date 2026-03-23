@@ -175,6 +175,10 @@
         <text class="btn-icon">🔗</text>
         <text>分享结果</text>
       </button>
+      <button class="poster-btn" bindtap="goToPoster">
+        <text class="btn-icon">🖼️</text>
+        <text>生成海报</text>
+      </button>
       <button class="vote-btn" bindtap="goToVote" wx:if="{{!event.expired}}">
         <text class="btn-icon">✏️</text>
         <text>填写/修改</text>

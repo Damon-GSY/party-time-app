@@ -661,7 +661,8 @@
 
 .share-btn,
 .vote-btn,
-.notify-btn {
+.notify-btn,
+.poster-btn {
   flex: 1;
   height: 88rpx;
   display: flex;
@@ -708,6 +709,21 @@
 
 .notify-btn.notifying {
   opacity: 0.7;
+}
+
+.poster-btn {
+  background: rgba(251, 191, 36, 0.15);
+  color: #fbbf24;
+  border: 2rpx solid rgba(251, 191, 36, 0.25);
+}
+
+.poster-btn:active {
+  background: rgba(251, 191, 36, 0.25);
+  transform: scale(0.98);
+}
+
+.poster-btn::after {
+  display: none;
 }
 
 .btn-icon { font-size: 28rpx; }
