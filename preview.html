@@ -30,9 +30,9 @@ body{background:#0a0a14;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',
 .meteor:nth-child(1){left:15%;animation-duration:3s}.meteor:nth-child(2){left:45%;animation-duration:4s;animation-delay:1s}.meteor:nth-child(3){left:75%;animation-duration:3.5s;animation-delay:2s}.meteor:nth-child(4){left:30%;animation-duration:4.5s;animation-delay:.5s}.meteor:nth-child(5){left:60%;animation-duration:3.8s;animation-delay:1.5s}
 @keyframes meteor-fall{0%{transform:translateY(-100px) rotate(-25deg);opacity:0}10%{opacity:1}80%{opacity:.3}100%{transform:translateY(812px) rotate(-25deg);opacity:0}}
 .border-beam{position:relative;overflow:hidden;border-radius:24px}
-.border-beam::before{content:'';position:absolute;width:200%;height:200%;top:50%;left:50%;transform:translate(-50%,-50%);background:conic-gradient(from 0deg,transparent 0%,var(--glow) 10%,transparent 20%);animation:border-rotate 4s linear infinite;border-radius:inherit}
-.border-beam::after{content:'';position:absolute;top:3px;left:3px;right:3px;bottom:3px;background:var(--bg2);border-radius:22px;z-index:0}
-.border-beam .beam-content{position:relative;z-index:1}
+.border-beam::before{content:'';position:absolute;width:200%;height:200%;top:50%;left:50%;transform:translate(-50%,-50%);background:conic-gradient(from 0deg,transparent 0%,var(--glow) 10%,transparent 20%);animation:border-rotate 4s linear infinite;border-radius:inherit;pointer-events:none;z-index:0}
+.border-beam::after{content:'';position:absolute;top:3px;left:3px;right:3px;bottom:3px;background:var(--bg2);border-radius:22px;pointer-events:none;z-index:1}
+.border-beam .beam-content{position:relative;z-index:2}
 @keyframes border-rotate{to{transform:translate(-50%,-50%) rotate(360deg)}}
 .glass-card{background:var(--glass-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid var(--glass-border);border-radius:20px;position:relative;overflow:hidden}
 .spotlight-card{position:relative;overflow:hidden}
@@ -240,8 +240,8 @@ body{background:#0a0a14;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',
   <div class="create-page" style="padding:16px">
     <div class="glass-section"><div class="form-label">聚会名称<span class="form-required">*</span></div><input class="form-input" placeholder="例如：周末聚餐、生日派对..." value="周五团建聚餐"></div>
     <div class="glass-section"><div class="form-label">日期范围<span class="form-required">*</span></div><div class="date-row"><input class="form-input" value="2026-04-04" readonly><span class="date-sep">至</span><input class="form-input" value="2026-04-06" readonly></div><div class="form-hint">共 3 天</div></div>
-    <div class="glass-section"><div class="form-label">时段粒度</div><div class="options"><div class="option glass-card"><div class="option-title">1小时</div><div class="option-desc">精确安排</div></div><div class="option active glass-card"><div class="option-title">2小时</div><div class="option-desc">推荐</div></div><div class="option glass-card"><div class="option-title">半天</div><div class="option-desc">快速选择</div></div></div></div>
-    <div class="glass-section"><div class="form-label">过期时间</div><div class="expire-row"><div class="expire-opt glass-card" style="border-radius:12px">24小时</div><div class="expire-opt active glass-card" style="border-radius:12px">3天</div><div class="expire-opt glass-card" style="border-radius:12px">7天</div><div class="expire-opt glass-card" style="border-radius:12px">永久</div></div></div>
+    <div class="glass-section"><div class="form-label">时段粒度</div><div class="options" id="gran-opts"><div class="option glass-card" onclick="selectGran(this)"><div class="option-title">1小时</div><div class="option-desc">精确安排</div></div><div class="option active glass-card" onclick="selectGran(this)"><div class="option-title">2小时</div><div class="option-desc">推荐</div></div><div class="option glass-card" onclick="selectGran(this)"><div class="option-title">半天</div><div class="option-desc">快速选择</div></div></div></div>
+    <div class="glass-section"><div class="form-label">过期时间</div><div class="expire-row"><div class="expire-opt glass-card" style="border-radius:12px" onclick="selectExpire(this)">24小时</div><div class="expire-opt active glass-card" style="border-radius:12px" onclick="selectExpire(this)">3天</div><div class="expire-opt glass-card" style="border-radius:12px" onclick="selectExpire(this)">7天</div><div class="expire-opt glass-card" style="border-radius:12px" onclick="selectExpire(this)">永久</div></div></div>
     <div class="glass-section"><div class="form-label">备注说明<span style="font-size:12px;color:var(--text3);margin-left:8px">（可选）</span></div><textarea class="form-input" style="min-height:80px;resize:none" placeholder="添加说明...">地点：公司楼下火锅店 🍲</textarea></div>
     <div class="submit-area"><div class="border-beam submit-beam"><div class="beam-content"><div class="submit-btn" onclick="showModal()">创建聚会</div></div></div></div>
   </div>
@@ -253,7 +253,7 @@ body{background:#0a0a14;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',
     <div class="vote-meta"><span>📅 4月4日 ~ 4月6日</span><span>👥 5人已填</span></div>
     <div style="font-size:12px;color:var(--text3);padding:8px 12px;background:rgba(255,255,255,.03);border-radius:8px;border:1px solid rgba(251,191,36,.2)">💡 点击时段格子选择你有空的时间</div>
   </div>
-  <div class="date-tabs"><div class="date-tab"><div class="weekday">周五</div><div class="day">4日</div></div><div class="date-tab active"><div class="weekday">周六</div><div class="day">5日</div></div><div class="date-tab"><div class="weekday">周日</div><div class="day">6日</div></div></div>
+  <div class="date-tabs" id="date-tabs"><div class="date-tab" onclick="selectDate(this,0)"><div class="weekday">周五</div><div class="day">4日</div></div><div class="date-tab active" onclick="selectDate(this,1)"><div class="weekday">周六</div><div class="day">5日</div></div><div class="date-tab" onclick="selectDate(this,2)"><div class="weekday">周日</div><div class="day">6日</div></div></div>
   <div class="slots-section"><div class="slots-grid" id="slots-grid"></div></div>
   <div class="summary"><div class="summary-row"><span class="summary-label">已选择</span><span class="summary-num" id="sel-count">0</span><span class="summary-unit">个时段</span></div><div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div></div>
   <div class="vote-footer"><div class="vote-submit has" onclick="showModal()">✨ 提交我的时间</div></div>
@@ -314,7 +314,7 @@ body{background:#0a0a14;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',
     <div class="modal-check">✓</div>
     <div class="modal-title">提交成功！</div>
     <div class="modal-desc">感谢你的参与，已选择 <span id="modal-count">5</span> 个时段</div>
-    <div class="modal-btns"><div class="modal-btn sec">查看统计</div><div class="modal-btn pri" onclick="hideModal()">继续修改</div></div>
+    <div class="modal-btns"><div class="modal-btn sec" onclick="hideModal();switchTab('result')">查看统计</div><div class="modal-btn pri" onclick="hideModal()">继续修改</div></div>
   </div>
 </div>
 <div class="watermark">Hero UI / Aceternity Preview</div>
@@ -346,6 +346,9 @@ heatData.forEach((col,ci)=>{const cDiv=document.createElement('div');cDiv.classN
 // Animate number
 function animateNum(id,target,dur){const el=document.getElementById(id);if(!el)return;const start=parseInt(el.textContent)||0;const st=Date.now();function step(){const p=Math.min((Date.now()-st)/dur,1);const e=1-Math.pow(1-p,3);el.textContent=Math.round(start+(target-start)*e);if(p<1)requestAnimationFrame(step)}step()}
 // Modal
+function selectGran(el){document.querySelectorAll('#gran-opts .option').forEach(o=>o.classList.remove('active'));el.classList.add('active')}
+function selectExpire(el){el.parentElement.querySelectorAll('.expire-opt').forEach(o=>o.classList.remove('active'));el.classList.add('active')}
+function selectDate(el,i){document.querySelectorAll('#date-tabs .date-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active')}
 function showModal(){document.getElementById('modal-count').textContent=selCount;document.getElementById('success-modal').classList.add('show')}
 function hideModal(){document.getElementById('success-modal').classList.remove('show')}
 </script>
