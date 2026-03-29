@@ -315,9 +315,10 @@ Page({
         let level = 0
         if (totalUsers > 0 && count > 0) {
           const ratio = count / totalUsers
-          if (ratio <= 0.25) level = 1
-          else if (ratio <= 0.5) level = 2
-          else if (ratio <= 0.75) level = 3
+          if (ratio <= 0.2) level = 1
+          else if (ratio <= 0.4) level = 2
+          else if (ratio <= 0.6) level = 3
+          else if (ratio <= 0.8) level = 4
           else level = 4
         }
         slots.push({ timeSlot: i, count, level, slotId, date: dateStr })

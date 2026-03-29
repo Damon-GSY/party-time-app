@@ -523,10 +523,10 @@
   box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.3);
 }
 
-.heatmap-cell.level-0 { background: rgba(15, 52, 96, 0.3); }
-.heatmap-cell.level-1 { background: rgba(233, 69, 96, 0.25); }
-.heatmap-cell.level-2 { background: rgba(233, 69, 96, 0.45); }
-.heatmap-cell.level-3 { background: rgba(233, 69, 96, 0.7); }
+.heatmap-cell.level-0 { background: rgba(15, 52, 96, 0.2); }
+.heatmap-cell.level-1 { background: rgba(233, 69, 96, 0.35); }
+.heatmap-cell.level-2 { background: rgba(233, 69, 96, 0.55); }
+.heatmap-cell.level-3 { background: rgba(233, 69, 96, 0.75); }
 .heatmap-cell.level-4 {
   background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
   box-shadow: 0 4rpx 16rpx rgba(233, 69, 96, 0.4);
@@ -920,10 +920,10 @@
   overflow: hidden;
   /* 增强玻璃质感：微调原有 .heatmap-cell 背景的透明度 */
 }
-.glass-heatmap-cell.level-0 { background: rgba(15, 52, 96, 0.3); }
-.glass-heatmap-cell.level-1 { background: rgba(233, 69, 96, 0.25); }
-.glass-heatmap-cell.level-2 { background: rgba(233, 69, 96, 0.45); }
-.glass-heatmap-cell.level-3 { background: rgba(233, 69, 96, 0.7); }
+.glass-heatmap-cell.level-0 { background: rgba(15, 52, 96, 0.2); }
+.glass-heatmap-cell.level-1 { background: rgba(233, 69, 96, 0.35); }
+.glass-heatmap-cell.level-2 { background: rgba(233, 69, 96, 0.55); }
+.glass-heatmap-cell.level-3 { background: rgba(233, 69, 96, 0.75); }
 .glass-heatmap-cell.level-4 {
   background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
   box-shadow: 0 0 12rpx rgba(233, 69, 96, 0.3);
