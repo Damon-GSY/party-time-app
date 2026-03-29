@@ -195,8 +195,8 @@
           <!-- SVG 对号动画 -->
           <view class="checkmark-svg">
             <svg class="checkmark-svg-path" viewBox="0 0 52 52">
-              <circle class="checkmark-svg-circle" cx="26" cy="26" r="24" fill="none" stroke="#5357A9" stroke-width="2"/>
-              <path class="checkmark-svg-check" fill="none" stroke="#5357A9" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="M14 27l7 7 16-16"/>
+              <circle class="checkmark-svg-circle" cx="26" cy="26" r="24" fill="none" stroke="#e94560" stroke-width="2"/>
+              <path class="checkmark-svg-check" fill="none" stroke="#e94560" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="M14 27l7 7 16-16"/>
             </svg>
           </view>
         </view>

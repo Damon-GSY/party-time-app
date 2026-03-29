@@ -107,7 +107,7 @@ Page({
       title: '确认清空',
       content: '确定要清空所有通知记录吗？',
       confirmText: '清空',
-      confirmColor: '#5357A9'
+      confirmColor: '#e94560'
     })
 
     if (!res.confirm) return

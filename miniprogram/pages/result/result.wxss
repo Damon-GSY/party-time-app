@@ -304,7 +304,7 @@
 
 .recommend-label {
   font-size: 22rpx;
-  color: #FED81F;
+  color: #fbbf24;
   margin-bottom: 8rpx;
   font-weight: 500;
 }
@@ -328,7 +328,7 @@
 
 .recommend-count {
   font-size: 26rpx;
-  color: #FED81F;
+  color: #fbbf24;
   font-weight: 600;
 }
 
@@ -524,12 +524,12 @@
 }
 
 .heatmap-cell.level-0 { background: rgba(15, 52, 96, 0.2); }
-.heatmap-cell.level-1 { background: rgba(83, 87, 169, 0.35); }
-.heatmap-cell.level-2 { background: rgba(83, 87, 169, 0.55); }
-.heatmap-cell.level-3 { background: rgba(83, 87, 169, 0.75); }
+.heatmap-cell.level-1 { background: rgba(233, 69, 96, 0.35); }
+.heatmap-cell.level-2 { background: rgba(233, 69, 96, 0.55); }
+.heatmap-cell.level-3 { background: rgba(233, 69, 96, 0.75); }
 .heatmap-cell.level-4 {
   background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
-  box-shadow: 0 4rpx 16rpx rgba(83, 87, 169, 0.4);
+  box-shadow: 0 4rpx 16rpx rgba(233, 69, 96, 0.4);
 }
 
 .cell-count {
@@ -713,7 +713,7 @@
 
 .poster-btn {
   background: rgba(251, 191, 36, 0.15);
-  color: #FED81F;
+  color: #fbbf24;
   border: 2rpx solid rgba(251, 191, 36, 0.25);
 }
 
@@ -825,7 +825,7 @@
 .modal-count {
   font-size: 26rpx;
   color: var(--primary-light);
-  background: rgba(83, 87, 169, 0.15);
+  background: rgba(233, 69, 96, 0.15);
   padding: 8rpx 16rpx;
   border-radius: 10rpx;
 }
@@ -921,12 +921,12 @@
   /* 增强玻璃质感：微调原有 .heatmap-cell 背景的透明度 */
 }
 .glass-heatmap-cell.level-0 { background: rgba(15, 52, 96, 0.2); }
-.glass-heatmap-cell.level-1 { background: rgba(83, 87, 169, 0.35); }
-.glass-heatmap-cell.level-2 { background: rgba(83, 87, 169, 0.55); }
-.glass-heatmap-cell.level-3 { background: rgba(83, 87, 169, 0.75); }
+.glass-heatmap-cell.level-1 { background: rgba(233, 69, 96, 0.35); }
+.glass-heatmap-cell.level-2 { background: rgba(233, 69, 96, 0.55); }
+.glass-heatmap-cell.level-3 { background: rgba(233, 69, 96, 0.75); }
 .glass-heatmap-cell.level-4 {
   background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
-  box-shadow: 0 0 12rpx rgba(83, 87, 169, 0.3);
+  box-shadow: 0 0 12rpx rgba(233, 69, 96, 0.3);
 }
 .cell-outer-glow {
   position: absolute;
@@ -937,8 +937,8 @@
   pointer-events: none;
 }
 .heatmap-cell-hover .cell-outer-glow {
-  border-color: rgba(83, 87, 169, 0.5);
-  box-shadow: 0 0 24rpx rgba(83, 87, 169, 0.3);
+  border-color: rgba(233, 69, 96, 0.5);
+  box-shadow: 0 0 24rpx rgba(233, 69, 96, 0.3);
 }
 
 /* Glass 弹窗 */
@@ -959,7 +959,7 @@
   position: absolute;
   inset: -4rpx;
   border-radius: 50%;
-  background: conic-gradient(from 0deg, var(--primary-color), var(--primary-light), #FED81F, var(--primary-color));
+  background: conic-gradient(from 0deg, var(--primary-color), var(--primary-light), #fbbf24, var(--primary-color));
   z-index: -1;
   animation: avatar-ring-rotate 4s linear infinite;
   opacity: 0.6;

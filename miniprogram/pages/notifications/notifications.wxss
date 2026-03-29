@@ -56,7 +56,7 @@
 }
 
 .notification-item.unread {
-  border-left: 6rpx solid #5357A9;
+  border-left: 6rpx solid #e94560;
 }
 
 .notification-icon {
@@ -94,7 +94,7 @@
 .notification-badge {
   width: 16rpx;
   height: 16rpx;
-  background: #5357A9;
+  background: #e94560;
   border-radius: 50%;
   position: absolute;
   top: 28rpx;
