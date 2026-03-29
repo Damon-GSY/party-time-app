@@ -6,7 +6,7 @@
 <title>聚会时间 - UI Preview</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-:root{--primary:#e94560;--primary-light:#ff6b6b;--bg1:#1a1a2e;--bg2:#16213e;--bg3:#0f3460;--text1:#fff;--text2:#b8b8c8;--text3:#8888a0;--glass-bg:rgba(255,255,255,0.04);--glass-border:rgba(255,255,255,0.08);--glow:rgba(233,69,96,0.4)}
+:root{--primary:#5357A9;--primary-light:#7B7FCC;--bg1:#1a1a2e;--bg2:#16213e;--bg3:#0f3460;--text1:#fff;--text2:#b8b8c8;--text3:#8888a0;--glass-bg:rgba(255,255,255,0.04);--glass-border:rgba(255,255,255,0.08);--glow:rgba(233,69,96,0.4)}
 body{background:#0a0a14;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#fff;overflow:hidden;height:100vh}
 .phone{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:375px;height:812px;border-radius:44px;border:3px solid #333;overflow:hidden;box-shadow:0 0 60px rgba(233,69,96,.15),0 0 120px rgba(0,0,0,.5);background:var(--bg1)}
 .status-bar{height:44px;display:flex;align-items:center;justify-content:center;font-size:14px;position:relative;z-index:100;background:var(--bg1)}
@@ -23,7 +23,7 @@ body{background:#0a0a14;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',
 .beam{position:absolute;height:2px;left:-10%;width:120%;transform-origin:left center}
 .beam:nth-child(1){top:12%;background:linear-gradient(90deg,transparent,var(--primary),transparent);animation:beam-sweep 6s ease-in-out infinite}
 .beam:nth-child(2){top:55%;background:linear-gradient(90deg,transparent,var(--primary-light),transparent);animation:beam-sweep 8s ease-in-out infinite 2s}
-.beam:nth-child(3){top:85%;background:linear-gradient(90deg,transparent,#fbbf24,transparent);animation:beam-sweep 7s ease-in-out infinite 4s}
+.beam:nth-child(3){top:85%;background:linear-gradient(90deg,transparent,##FED81F,transparent);animation:beam-sweep 7s ease-in-out infinite 4s}
 @keyframes beam-sweep{0%,100%{transform:translateX(-20%) scaleX(.6);opacity:0}50%{transform:translateX(20%) scaleX(1);opacity:.12}}
 .meteor-container{position:absolute;top:0;left:0;right:0;bottom:0;overflow:hidden;pointer-events:none;z-index:0}
 .meteor{position:absolute;width:3px;height:80px;background:linear-gradient(to bottom,rgba(255,255,255,.6),transparent);border-radius:100px;animation:meteor-fall linear infinite}
@@ -141,9 +141,9 @@ body{background:#0a0a14;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',
 .rec-beam::after{background:linear-gradient(160deg,#1a1a2e,#16213e)}
 .rec-card{padding:20px;display:flex;align-items:center;gap:16px;position:relative;z-index:1;background:rgba(15,52,96,.6)}
 .rec-trophy{font-size:32px}
-.rec-label{font-size:11px;color:#fbbf24;margin-bottom:4px}
+.rec-label{font-size:11px;color:##FED81F;margin-bottom:4px}
 .rec-time{font-size:20px;font-weight:700;margin-bottom:4px}
-.rec-count{font-size:13px;color:#fbbf24;font-weight:600}
+.rec-count{font-size:13px;color:##FED81F;font-weight:600}
 .heatmap-section{padding:0 16px;margin-bottom:24px}
 .heatmap-title{font-size:15px;font-weight:600;margin-bottom:12px}
 .legend{display:flex;align-items:center;gap:8px;margin-bottom:14px;padding:10px 12px;background:rgba(255,255,255,.03);border-radius:10px}
@@ -178,8 +178,8 @@ body{background:#0a0a14;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',
 .user-card{padding:30px 20px 20px;display:flex;flex-direction:column;align-items:center;position:relative;z-index:1;background:rgba(15,52,96,.5);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.06)}
 .avatar-section{display:flex;flex-direction:column;align-items:center;margin-bottom:16px;position:relative}
 .lamp-avatar{position:absolute;top:-60px;left:50%;transform:translateX(-50%);width:200px;height:100px;background:radial-gradient(ellipse at center,rgba(233,69,96,.2) 0%,transparent 70%);pointer-events:none;animation:lamp-breathe 4s ease-in-out infinite;z-index:0}
-.avatar-ring{width:72px;height:72px;border-radius:50%;padding:3px;background:linear-gradient(135deg,var(--primary),var(--primary-light),#fbbf24);box-shadow:0 4px 16px rgba(233,69,96,.3);position:relative;z-index:1}
-.avatar-ring::after{content:'';position:absolute;inset:-5px;border-radius:50%;background:conic-gradient(from 0deg,var(--primary),var(--primary-light),#fbbf24,#4ade80,var(--primary));z-index:-1;animation:ring-rotate 3s linear infinite}
+.avatar-ring{width:72px;height:72px;border-radius:50%;padding:3px;background:linear-gradient(135deg,var(--primary),var(--primary-light),##FED81F);box-shadow:0 4px 16px rgba(233,69,96,.3);position:relative;z-index:1}
+.avatar-ring::after{content:'';position:absolute;inset:-5px;border-radius:50%;background:conic-gradient(from 0deg,var(--primary),var(--primary-light),##FED81F,#4ade80,var(--primary));z-index:-1;animation:ring-rotate 3s linear infinite}
 @keyframes ring-rotate{to{transform:rotate(360deg)}}
 .avatar-inner{width:100%;height:100%;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-light));display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:600}
 .nickname{width:100%;text-align:center;font-size:20px;font-weight:600;margin-bottom:16px;background:transparent;border:none;color:#fff;outline:none}
