@@ -918,21 +918,15 @@
 .glass-heatmap-cell {
   position: relative;
   overflow: hidden;
+  /* 增强玻璃质感：微调原有 .heatmap-cell 背景的透明度 */
 }
-.cell-inner-glow {
-  position: absolute;
-  inset: 0;
-  border-radius: 12rpx;
-  transition: all 0.5s ease;
-}
-.cell-inner-glow.level-0 { background: rgba(15, 52, 96, 0.2); border: 2rpx solid rgba(255, 255, 255, 0.03); }
-.cell-inner-glow.level-1 { background: rgba(233, 69, 96, 0.2); border: 2rpx solid rgba(233, 69, 96, 0.15); }
-.cell-inner-glow.level-2 { background: rgba(233, 69, 96, 0.4); border: 2rpx solid rgba(233, 69, 96, 0.25); }
-.cell-inner-glow.level-3 { background: rgba(233, 69, 96, 0.6); border: 2rpx solid rgba(233, 69, 96, 0.35); }
-.cell-inner-glow.level-4 {
-  background: linear-gradient(135deg, rgba(233, 69, 96, 0.8), rgba(255, 107, 107, 0.6));
-  border: 2rpx solid rgba(255, 255, 255, 0.2);
-  box-shadow: inset 0 0 20rpx rgba(255, 255, 255, 0.1);
+.glass-heatmap-cell.level-0 { background: rgba(15, 52, 96, 0.3); }
+.glass-heatmap-cell.level-1 { background: rgba(233, 69, 96, 0.25); }
+.glass-heatmap-cell.level-2 { background: rgba(233, 69, 96, 0.45); }
+.glass-heatmap-cell.level-3 { background: rgba(233, 69, 96, 0.7); }
+.glass-heatmap-cell.level-4 {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+  box-shadow: 0 0 12rpx rgba(233, 69, 96, 0.3);
 }
 .cell-outer-glow {
   position: absolute;

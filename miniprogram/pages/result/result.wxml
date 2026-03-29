@@ -122,9 +122,7 @@
               data-hour="{{item.timeSlot}}"
               hover-class="heatmap-cell-hover"
             >
-              <view class="cell-inner-glow level-{{item.level}}"></view>
               <text class="cell-count" wx:if="{{item.count > 0}}">{{item.count}}</text>
-              <view class="cell-outer-glow"></view>
             </view>
           </view>
         </view>
