@@ -349,10 +349,10 @@ Page({
     const steps = []
     const colors = [
       'rgba(15, 52, 96, 0.4)',
-      'rgba(233, 69, 96, 0.25)',
-      'rgba(233, 69, 96, 0.45)',
-      'rgba(233, 69, 96, 0.7)',
-      'linear-gradient(135deg, #e94560, #ff6b6b)'
+      'rgba(83, 87, 169, 0.25)',
+      'rgba(83, 87, 169, 0.45)',
+      'rgba(83, 87, 169, 0.7)',
+      'linear-gradient(135deg, #5357A9, #7B7FCC)'
     ]
 
     if (maxCount <= 1) {
@@ -393,15 +393,15 @@ Page({
     const count = slotCounts[slotId] || 0
 
     if (count === 0 || participantCount === 0) {
-      return 'rgba(233, 69, 96, 0.08)'
+      return 'rgba(83, 87, 169, 0.08)'
     }
 
     const intensity = count / participantCount
 
-    if (intensity < 0.25) return 'rgba(233, 69, 96, 0.25)'
-    if (intensity < 0.5) return 'rgba(233, 69, 96, 0.45)'
-    if (intensity < 0.75) return 'rgba(233, 69, 96, 0.65)'
-    return 'rgba(233, 69, 96, 0.85)'
+    if (intensity < 0.25) return 'rgba(83, 87, 169, 0.25)'
+    if (intensity < 0.5) return 'rgba(83, 87, 169, 0.45)'
+    if (intensity < 0.75) return 'rgba(83, 87, 169, 0.65)'
+    return 'rgba(83, 87, 169, 0.85)'
   },
 
   // 获取时段人数
@@ -499,7 +499,7 @@ Page({
       title: '通知参与者',
       content: `将通知 ${participants.length} 位参与者：最佳时间为 ${bestSlot.timeText}`,
       confirmText: '发送通知',
-      confirmColor: '#e94560'
+      confirmColor: '#5357A9'
     })
 
     if (!res.confirm) return

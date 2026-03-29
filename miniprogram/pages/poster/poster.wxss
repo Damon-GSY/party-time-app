@@ -96,12 +96,12 @@
 .save-btn {
   background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
   color: #fff;
-  box-shadow: 0 8rpx 24rpx rgba(233, 69, 96, 0.3);
+  box-shadow: 0 8rpx 24rpx rgba(83, 87, 169, 0.3);
 }
 
 .save-btn:active {
   transform: scale(0.96);
-  box-shadow: 0 4rpx 16rpx rgba(233, 69, 96, 0.2);
+  box-shadow: 0 4rpx 16rpx rgba(83, 87, 169, 0.2);
 }
 
 .share-btn {

@@ -218,7 +218,7 @@
 
 .tip-text {
   font-size: 26rpx;
-  color: #fbbf24;
+  color: #FED81F;
 }
 
 /* 日期切换 */
@@ -439,13 +439,13 @@
 
 .slot-cell-hover {
   transform: scale(0.95);
-  background: rgba(233, 69, 96, 0.2);
+  background: rgba(83, 87, 169, 0.2);
 }
 
 .slot-cell.selected {
   background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
   border-color: rgba(255, 255, 255, 0.2);
-  box-shadow: 0 8rpx 24rpx rgba(233, 69, 96, 0.5), inset 0 1rpx 0 rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8rpx 24rpx rgba(83, 87, 169, 0.5), inset 0 1rpx 0 rgba(255, 255, 255, 0.2);
   transform: scale(1.02);
   transition: all 0.3s ease;
 }
@@ -473,8 +473,8 @@
 }
 
 .slot-cell.partial {
-  background: linear-gradient(135deg, rgba(233, 69, 96, 0.3), rgba(255, 107, 107, 0.2));
-  border-color: rgba(233, 69, 96, 0.3);
+  background: linear-gradient(135deg, rgba(83, 87, 169, 0.3), rgba(123, 127, 204, 0.2));
+  border-color: rgba(83, 87, 169, 0.3);
 }
 
 .slot-check {
@@ -575,7 +575,7 @@
 
 .submit-btn.has-selection {
   background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
-  box-shadow: 0 12rpx 40rpx rgba(233, 69, 96, 0.4);
+  box-shadow: 0 12rpx 40rpx rgba(83, 87, 169, 0.4);
 }
 
 .submit-btn.has-selection:active {
@@ -682,26 +682,26 @@
   animation: confetti-fall 2s ease-out forwards;
 }
 
-.confetti.c1 { background: #ff6b6b; left: 10%; animation-delay: 0s; }
-.confetti.c2 { background: #fbbf24; left: 20%; animation-delay: 0.1s; }
+.confetti.c1 { background: #7B7FCC; left: 10%; animation-delay: 0s; }
+.confetti.c2 { background: #FED81F; left: 20%; animation-delay: 0.1s; }
 .confetti.c3 { background: #4ade80; left: 30%; animation-delay: 0.15s; }
 .confetti.c4 { background: #60a5fa; left: 40%; animation-delay: 0.05s; }
 .confetti.c5 { background: #f472b6; left: 50%; animation-delay: 0.2s; }
 .confetti.c6 { background: #a78bfa; left: 60%; animation-delay: 0.1s; }
 .confetti.c7 { background: #fb923c; left: 70%; animation-delay: 0.15s; }
 .confetti.c8 { background: #2dd4bf; left: 80%; animation-delay: 0.05s; }
-.confetti.c9 { background: #e94560; left: 15%; animation-delay: 0.25s; }
-.confetti.c10 { background: #fbbf24; left: 45%; animation-delay: 0.2s; }
+.confetti.c9 { background: #5357A9; left: 15%; animation-delay: 0.25s; }
+.confetti.c10 { background: #FED81F; left: 45%; animation-delay: 0.2s; }
 .confetti.c11 { background: #4ade80; left: 75%; animation-delay: 0.12s; }
 .confetti.c12 { background: #60a5fa; left: 90%; animation-delay: 0.18s; }
 
 /* 新增粒子 c13-c20：不同形状和轨迹 */
 .confetti.c13 { background: #f472b6; left: 5%; animation-delay: 0.08s; animation-duration: 2.5s; border-radius: 2rpx; width: 20rpx; height: 10rpx; }
-.confetti.c14 { background: #fbbf24; left: 25%; animation-delay: 0.22s; animation-duration: 1.8s; border-radius: 2rpx; width: 10rpx; height: 20rpx; }
+.confetti.c14 { background: #FED81F; left: 25%; animation-delay: 0.22s; animation-duration: 1.8s; border-radius: 2rpx; width: 10rpx; height: 20rpx; }
 .confetti.c15 { background: #a78bfa; left: 35%; animation-delay: 0.05s; animation-duration: 2.2s; }
 .confetti.c16 { background: #fb923c; left: 55%; animation-delay: 0.28s; animation-duration: 2.8s; border-radius: 2rpx; width: 18rpx; height: 12rpx; }
 .confetti.c17 { background: #2dd4bf; left: 65%; animation-delay: 0.15s; animation-duration: 1.6s; }
-.confetti.c18 { background: #e94560; left: 85%; animation-delay: 0.3s; animation-duration: 2.4s; border-radius: 2rpx; width: 14rpx; height: 14rpx; }
+.confetti.c18 { background: #5357A9; left: 85%; animation-delay: 0.3s; animation-duration: 2.4s; border-radius: 2rpx; width: 14rpx; height: 14rpx; }
 .confetti.c19 { background: #60a5fa; left: 12%; animation-delay: 0.2s; animation-duration: 2.1s; }
 .confetti.c20 { background: #4ade80; left: 48%; animation-delay: 0.1s; animation-duration: 1.9s; border-radius: 2rpx; width: 12rpx; height: 18rpx; }
 
@@ -878,7 +878,7 @@
 .glass-slot.selected {
   background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
   border: 2rpx solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 8rpx 24rpx rgba(233, 69, 96, 0.5), inset 0 1rpx 0 rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8rpx 24rpx rgba(83, 87, 169, 0.5), inset 0 1rpx 0 rgba(255, 255, 255, 0.2);
 }
 
 /* Ripple 波纹 */
@@ -917,7 +917,7 @@
   background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
   border-radius: 100rpx;
   transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-  box-shadow: 0 0 8rpx rgba(233, 69, 96, 0.4);
+  box-shadow: 0 0 8rpx rgba(83, 87, 169, 0.4);
 }
 
 /* 增强 Glass Modal */
@@ -934,7 +934,7 @@
   width: 100%;
   height: 2rpx;
   left: 0;
-  background: linear-gradient(90deg, transparent, rgba(233, 69, 96, 0.6), transparent);
+  background: linear-gradient(90deg, transparent, rgba(83, 87, 169, 0.6), transparent);
   animation: success-beam-flash 1.5s ease-out infinite;
   pointer-events: none;
   z-index: 0;

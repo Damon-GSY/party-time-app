@@ -169,15 +169,15 @@ const formatExpireTime = (expireAt) => {
  * 获取热力图颜色
  */
 const getHeatColor = (count, maxCount) => {
-  if (maxCount === 0) return 'rgba(233, 69, 96, 0.1)'
+  if (maxCount === 0) return 'rgba(83, 87, 169, 0.1)'
 
   const intensity = count / maxCount
 
-  if (intensity === 0) return 'rgba(233, 69, 96, 0.1)'
-  if (intensity < 0.25) return 'rgba(233, 69, 96, 0.3)'
-  if (intensity < 0.5) return 'rgba(233, 69, 96, 0.5)'
-  if (intensity < 0.75) return 'rgba(233, 69, 96, 0.7)'
-  return 'rgba(233, 69, 96, 0.9)'
+  if (intensity === 0) return 'rgba(83, 87, 169, 0.1)'
+  if (intensity < 0.25) return 'rgba(83, 87, 169, 0.3)'
+  if (intensity < 0.5) return 'rgba(83, 87, 169, 0.5)'
+  if (intensity < 0.75) return 'rgba(83, 87, 169, 0.7)'
+  return 'rgba(83, 87, 169, 0.9)'
 }
 
 /**
@@ -204,7 +204,7 @@ const getAvatarColor = (nickname) => {
 
   // 预设渐变色方案（8 种）
   const gradients = [
-    'linear-gradient(135deg, #e94560, #ff6b6b)',
+    'linear-gradient(135deg, #5357A9, #7B7FCC)',
     'linear-gradient(135deg, #4facfe, #00f2fe)',
     'linear-gradient(135deg, #43e97b, #38f9d7)',
     'linear-gradient(135deg, #fa709a, #fee140)',

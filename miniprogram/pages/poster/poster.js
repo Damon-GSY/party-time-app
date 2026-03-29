@@ -136,7 +136,7 @@ Page({
           this.drawSingleText(ctx, '聚会时间', POSTER_WIDTH - 20, 36, 14, 'rgba(255,255,255,0.6)', 'right')
 
           // 4. 顶部装饰线条
-          ctx.strokeStyle = 'rgba(233, 69, 96, 0.4)'
+          ctx.strokeStyle = 'rgba(83, 87, 169, 0.4)'
           ctx.lineWidth = 2
           ctx.beginPath()
           ctx.moveTo(32, 70)
@@ -150,7 +150,7 @@ Page({
           this.drawSingleText(ctx, `📅 ${event.dateRangeText}`, 32, 240, 16, '#b8b8c8', 'left')
 
           // 7. 分隔线
-          ctx.strokeStyle = 'rgba(233, 69, 96, 0.3)'
+          ctx.strokeStyle = 'rgba(83, 87, 169, 0.3)'
           ctx.lineWidth = 1
           ctx.beginPath()
           ctx.moveTo(32, 270)
@@ -201,25 +201,25 @@ Page({
   drawDecorations(ctx) {
     // 顶部渐变光晕
     const glow = ctx.createRadialGradient(POSTER_WIDTH * 0.7, 60, 10, POSTER_WIDTH * 0.7, 60, 160)
-    glow.addColorStop(0, 'rgba(233, 69, 96, 0.15)')
-    glow.addColorStop(1, 'rgba(233, 69, 96, 0)')
+    glow.addColorStop(0, 'rgba(83, 87, 169, 0.15)')
+    glow.addColorStop(1, 'rgba(83, 87, 169, 0)')
     ctx.fillStyle = glow
     ctx.fillRect(0, 0, POSTER_WIDTH, 200)
 
     // 底部渐变光晕
     const glow2 = ctx.createRadialGradient(POSTER_WIDTH * 0.3, POSTER_HEIGHT - 200, 10, POSTER_WIDTH * 0.3, POSTER_HEIGHT - 200, 180)
-    glow2.addColorStop(0, 'rgba(255, 107, 107, 0.1)')
-    glow2.addColorStop(1, 'rgba(255, 107, 107, 0)')
+    glow2.addColorStop(0, 'rgba(123, 127, 204, 0.1)')
+    glow2.addColorStop(1, 'rgba(123, 127, 204, 0)')
     ctx.fillStyle = glow2
     ctx.fillRect(0, POSTER_HEIGHT - 300, POSTER_WIDTH, 300)
 
     // 装饰圆点
-    ctx.fillStyle = 'rgba(233, 69, 96, 0.08)'
+    ctx.fillStyle = 'rgba(83, 87, 169, 0.08)'
     ctx.beginPath()
     ctx.arc(POSTER_WIDTH - 60, 120, 40, 0, Math.PI * 2)
     ctx.fill()
 
-    ctx.fillStyle = 'rgba(255, 107, 107, 0.06)'
+    ctx.fillStyle = 'rgba(123, 127, 204, 0.06)'
     ctx.beginPath()
     ctx.arc(40, POSTER_HEIGHT - 350, 50, 0, Math.PI * 2)
     ctx.fill()
@@ -250,14 +250,14 @@ Page({
 
     // 参与人数卡片
     this.roundRect(ctx, 32, y, cardWidth, cardHeight, 12)
-    ctx.fillStyle = 'rgba(233, 69, 96, 0.15)'
+    ctx.fillStyle = 'rgba(83, 87, 169, 0.15)'
     ctx.fill()
-    ctx.strokeStyle = 'rgba(233, 69, 96, 0.3)'
+    ctx.strokeStyle = 'rgba(83, 87, 169, 0.3)'
     ctx.lineWidth = 1
     ctx.stroke()
 
     ctx.font = 'bold 28px -apple-system, BlinkMacSystemFont, sans-serif'
-    ctx.fillStyle = '#e94560'
+    ctx.fillStyle = '#5357A9'
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
     ctx.fillText(String(participantCount), 32 + cardWidth / 2, y + 36)
@@ -296,13 +296,13 @@ Page({
 
     // 奖杯图标 + 标签
     ctx.font = '28px -apple-system, BlinkMacSystemFont, sans-serif'
-    ctx.fillStyle = '#fbbf24'
+    ctx.fillStyle = '#FED81F'
     ctx.textAlign = 'left'
     ctx.textBaseline = 'top'
     ctx.fillText('🏆', 52, y + 16)
 
     ctx.font = '12px -apple-system, BlinkMacSystemFont, sans-serif'
-    ctx.fillStyle = '#fbbf24'
+    ctx.fillStyle = '#FED81F'
     ctx.fillText('最佳推荐时段', 90, y + 20)
 
     // 时段文字

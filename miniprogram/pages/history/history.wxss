@@ -68,7 +68,7 @@
   height: 6rpx;
   background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
   border-radius: 3rpx;
-  box-shadow: 0 4rpx 12rpx rgba(233, 69, 96, 0.4);
+  box-shadow: 0 4rpx 12rpx rgba(83, 87, 169, 0.4);
 }
 
 /* 加载状态 */
@@ -250,7 +250,7 @@
   font-size: 30rpx;
   font-weight: 600;
   border: none;
-  box-shadow: 0 8rpx 24rpx rgba(233, 69, 96, 0.3);
+  box-shadow: 0 8rpx 24rpx rgba(83, 87, 169, 0.3);
 }
 
 .empty-btn::after {
