@@ -8,7 +8,7 @@
  * @param {Object} component - Page/Component 实例
  * @param {string} cardSelector - 卡片选择器
  */
-export function initSpotlight(component, cardSelector) {
+function initSpotlight(component, cardSelector) {
   return {
     onCardTouchMove(e) {
       const query = component.createSelectorQuery()
@@ -35,7 +35,7 @@ export function initSpotlight(component, cardSelector) {
  * @param {string} text - 要拆分的文字
  * @returns {Array} 字符数组，每项含 char 和 delay
  */
-export function textGenerate(text) {
+function textGenerate(text) {
   return text.split('').map((char, i) => ({
     char,
     delay: i * 0.05
@@ -49,7 +49,7 @@ export function textGenerate(text) {
  * @param {number} target - 目标数字
  * @param {number} duration - 动画时长(ms)
  */
-export function animateNumber(component, dataKey, target, duration = 800) {
+function animateNumber(component, dataKey, target, duration = 800) {
   const start = 0
   const startTime = Date.now()
   
@@ -69,7 +69,7 @@ export function animateNumber(component, dataKey, target, duration = 800) {
 /**
  * 性能等级检测
  */
-export function getPerformanceLevel() {
+function getPerformanceLevel() {
   try {
     const info = wx.getSystemInfoSync()
     const { pixelRatio } = info
@@ -84,7 +84,7 @@ export function getPerformanceLevel() {
 /**
  * 根据性能等级判断是否启用某个效果
  */
-export function shouldEnableEffect(effectName) {
+function shouldEnableEffect(effectName) {
   const level = getPerformanceLevel()
   const effectMap = {
     high: { blur: true, borderBeam: true, meteor: true, beam: true, spotlight: true, shimmer: true, ripple: true },
@@ -92,4 +92,12 @@ export function shouldEnableEffect(effectName) {
     low: { blur: false, borderBeam: false, meteor: false, beam: false, spotlight: false, shimmer: true, ripple: false }
   }
   return effectMap[level]?.[effectName] ?? false
+}
+
+module.exports = {
+  initSpotlight,
+  textGenerate,
+  animateNumber,
+  getPerformanceLevel,
+  shouldEnableEffect
 }

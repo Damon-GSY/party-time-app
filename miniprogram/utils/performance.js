@@ -1,10 +1,10 @@
-import { getPerformanceLevel, shouldEnableEffect } from './ui-effects'
+const { getPerformanceLevel, shouldEnableEffect } = require('./ui-effects')
 
 /**
  * 获取效果配置对象
  * 在 app.js 的 onLaunch 中调用，结果存入 globalData
  */
-export function getEffectsConfig() {
+function getEffectsConfig() {
   return {
     level: getPerformanceLevel(),
     blur: shouldEnableEffect('blur'),
@@ -15,4 +15,8 @@ export function getEffectsConfig() {
     shimmer: shouldEnableEffect('shimmer'),
     ripple: shouldEnableEffect('ripple'),
   }
+}
+
+module.exports = {
+  getEffectsConfig
 }
