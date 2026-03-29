@@ -1,5 +1,21 @@
 <!--首页 - 聚合时间统计-->
 <view class="page-container">
+  <!-- Background Beams -->
+  <view class="beams-container">
+    <view class="beam"></view>
+    <view class="beam"></view>
+    <view class="beam"></view>
+  </view>
+
+  <!-- Meteor 流星 -->
+  <view class="meteor-container">
+    <view class="meteor"></view>
+    <view class="meteor"></view>
+    <view class="meteor"></view>
+    <view class="meteor"></view>
+    <view class="meteor"></view>
+  </view>
+
   <!-- 装饰背景 -->
   <view class="bg-decoration">
     <view class="bg-circle c1"></view>
@@ -31,18 +47,25 @@
           </view>
         </view>
       </view>
+      <view class="lamp-glow"></view>
     </view>
-    <text class="header-title">聚会时间</text>
+    <view class="header-title text-generate">
+      <text class="char" wx:for="{{titleChars}}" wx:key="index" style="animation-delay: {{item.delay}}s;">{{item.char}}</text>
+    </view>
     <text class="header-subtitle">轻松找到大家都有空的时间</text>
   </view>
 
   <!-- 创建按钮 -->
   <view class="create-section fade-in" style="animation-delay: 0.1s;">
-    <button class="create-btn" bindtap="goToCreate" hover-class="create-btn-active">
-      <view class="btn-shimmer"></view>
-      <text class="btn-icon">✨</text>
-      <text class="btn-text">创建新聚会</text>
-    </button>
+    <view class="border-beam create-beam">
+      <view class="beam-content">
+        <button class="create-btn" bindtap="goToCreate" hover-class="create-btn-active">
+          <view class="btn-shimmer"></view>
+          <text class="btn-icon">✨</text>
+          <text class="btn-text">创建新聚会</text>
+        </button>
+      </view>
+    </view>
     <text class="create-hint">发起时间投票，邀请好友参与</text>
   </view>
 
@@ -83,7 +106,9 @@
           bindlongpress="onCardLongPress"
           style="transform: translateX({{item.translateX || 0}}rpx);"
         >
-          <view class="event-card {{cardPulse ? 'card-pulse' : ''}} {{cardPressedId === item._id ? 'card-pressed' : ''}}" data-id="{{item._id}}" hover-class="event-card-active" bindtouchstart="onCardTouchStart" catchtouchend="onCardTouchEnd">
+          <view class="event-card spotlight-card glass-card {{cardPulse ? 'card-pulse' : ''}} {{cardPressedId === item._id ? 'card-pressed' : ''}}" data-id="{{item._id}}" hover-class="event-card-active" bindtouchstart="onCardTouchStart" catchtouchend="onCardTouchEnd" bindtouchmove="onSpotlightMove" bindtouchend="onSpotlightEnd">
+            <view class="spotlight-overlay {{spotlightActive ? 'active' : ''}}" style="--spotlight-x: {{spotlightX}}; --spotlight-y: {{spotlightY}};"></view>
+            <view class="event-card-content">
             <view class="event-type-badge {{item.type}}">
               {{item.type === 'created' ? '创建' : '参与'}}
             </view>
@@ -102,6 +127,7 @@
             </view>
             <view class="event-status {{item.expired ? 'expired' : ''}}">
               <text>{{item.expired ? '已过期' : item.expireText}}</text>
+            </view>
             </view>
           </view>
         </view>

@@ -29,32 +29,40 @@
 
     <!-- 统计卡片 -->
     <view class="stats-cards fade-in" style="animation-delay: 0.1s;">
-      <view class="stat-card">
-        <view class="stat-value">
-          <text class="stat-number">{{displayParticipantCount}}</text>
+      <view class="stat-card-wrapper shimmer-border">
+        <view class="stat-card glass-stat-card">
+          <view class="stat-value">
+            <text class="stat-number">{{displayParticipantCount}}</text>
+          </view>
+          <text class="stat-label">参与人数</text>
         </view>
-        <text class="stat-label">参与人数</text>
       </view>
-      <view class="stat-card">
-        <view class="stat-value">
-          <text class="stat-number">{{displayBestCount}}</text>
+      <view class="stat-card-wrapper shimmer-border">
+        <view class="stat-card glass-stat-card">
+          <view class="stat-value">
+            <text class="stat-number">{{displayBestCount}}</text>
+          </view>
+          <text class="stat-label">最高票数</text>
         </view>
-        <text class="stat-label">最高票数</text>
       </view>
     </view>
 
     <!-- 最佳时段推荐 - 醒目卡片 -->
     <view class="recommend-section fade-in" style="animation-delay: 0.15s;">
-      <view class="recommend-card recommend-highlight recommend-bounce" wx:if="{{bestSlot.timeText}}">
-        <view class="recommend-icon-wrap">
-          <text class="recommend-trophy">🏆</text>
-        </view>
-        <view class="recommend-content">
-          <text class="recommend-label">最佳推荐时段</text>
-          <text class="recommend-time">{{bestSlot.timeText}}</text>
-          <view class="recommend-meta">
-            <text class="recommend-count">{{bestSlot.count}} 人有空</text>
-            <text class="recommend-percent" wx:if="{{bestSlot.percent > 0}}">({{bestSlot.percent}}%)</text>
+      <view class="recommend-beam-wrapper border-beam golden-beam" wx:if="{{bestSlot.timeText}}">
+        <view class="beam-content">
+          <view class="recommend-card recommend-highlight recommend-bounce">
+            <view class="recommend-icon-wrap">
+              <text class="recommend-trophy">🏆</text>
+            </view>
+            <view class="recommend-content">
+              <text class="recommend-label">最佳推荐时段</text>
+              <text class="recommend-time">{{bestSlot.timeText}}</text>
+              <view class="recommend-meta">
+                <text class="recommend-count">{{bestSlot.count}} 人有空</text>
+                <text class="recommend-percent" wx:if="{{bestSlot.percent > 0}}">({{bestSlot.percent}}%)</text>
+              </view>
+            </view>
           </view>
         </view>
       </view>
@@ -106,7 +114,7 @@
         <view class="heatmap-grid">
           <view class="heatmap-column" wx:for="{{dates}}" wx:key="date">
             <view
-              class="heatmap-cell level-{{item.level}}"
+              class="heatmap-cell level-{{item.level}} glass-heatmap-cell"
               wx:for="{{item.slots}}"
               wx:key="slotId"
               bindtap="showSlotDetail"
@@ -114,7 +122,9 @@
               data-hour="{{item.timeSlot}}"
               hover-class="heatmap-cell-hover"
             >
+              <view class="cell-inner-glow level-{{item.level}}"></view>
               <text class="cell-count" wx:if="{{item.count > 0}}">{{item.count}}</text>
+              <view class="cell-outer-glow"></view>
             </view>
           </view>
         </view>
@@ -196,7 +206,7 @@
     <!-- 时段详情弹窗 -->
     <view class="slot-modal {{showSlotModal ? 'show' : ''}}" catchtouchmove="preventMove">
       <view class="modal-backdrop" bindtap="closeSlotModal"></view>
-      <view class="modal-content">
+      <view class="modal-content glass-modal">
         <view class="modal-header">
           <text class="modal-title">{{selectedSlotInfo.dateText}} {{selectedSlotInfo.timeText}}</text>
           <view class="modal-header-right">

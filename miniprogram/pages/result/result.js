@@ -1,5 +1,6 @@
 const util = require('../../utils/util')
 const notificationUtil = require('../../utils/notification')
+const { animateNumber } = require('../../utils/ui-effects')
 const app = getApp()
 
 Page({
@@ -237,10 +238,12 @@ Page({
       loading: false
     })
 
-    // countUp animations
-    this.countUp(responses.length, 'displayParticipantCount')
+    // 数字递增动画
+    animateNumber(this, 'displayParticipantCount', responses.length, 1000)
     if (bestSlot.count > 0) {
-      this.countUp(bestSlot.count, 'displayBestCount')
+      setTimeout(() => {
+        animateNumber(this, 'displayBestCount', bestSlot.count, 800)
+      }, 300)
     }
 
     // 刚创建时引导订阅通知

@@ -1,8 +1,20 @@
 <!--创建聚会页面-->
 <view class="container">
+  <!-- Lamp Effect -->
+  <view class="lamp-container">
+    <view class="lamp-beam"></view>
+    <view class="lamp-glow create-lamp-glow"></view>
+  </view>
+
+  <!-- 微弱 Beams -->
+  <view class="form-beams">
+    <view class="form-beam"></view>
+    <view class="form-beam"></view>
+  </view>
+
   <form bindsubmit="handleSubmit">
     <!-- 聚会名称 -->
-    <view class="form-section">
+    <view class="form-section glass-form-section">
       <view class="form-label">
         <text class="label-text">聚会名称</text>
         <text class="label-required">*</text>
@@ -14,12 +26,15 @@
         value="{{name}}"
         bindinput="onNameInput"
         maxlength="30"
+        data-field="name"
+        bindfocus="onInputFocus"
+        bindblur="onInputBlur"
       />
       <view class="form-hint">{{name.length || 0}}/30</view>
     </view>
 
     <!-- 日期范围 -->
-    <view class="form-section">
+    <view class="form-section glass-form-section">
       <view class="form-label">
         <text class="label-text">日期范围</text>
         <text class="label-required">*</text>
@@ -53,77 +68,104 @@
     </view>
 
     <!-- 时段粒度 -->
-    <view class="form-section">
+    <view class="form-section glass-form-section">
       <view class="form-label">
         <text class="label-text">时段粒度</text>
       </view>
       <view class="granularity-options">
         <view
-          class="granularity-option {{granularity === 'hour' ? 'active' : ''}}"
+          class="granularity-option {{granularity === 'hour' ? 'active' : ''}} spotlight-card glass-card"
           bindtap="selectGranularity"
           data-value="hour"
+          bindtouchmove="onOptionSpotlight"
+          bindtouchend="onOptionSpotlightEnd"
         >
-          <view class="option-title">1小时</view>
-          <view class="option-desc">精确安排</view>
+          <view class="spotlight-overlay {{granSpotActive ? 'active' : ''}}" style="--spotlight-x: {{granSpotX}}; --spotlight-y: {{granSpotY}};"></view>
+          <view class="option-content">
+            <view class="option-title">1小时</view>
+            <view class="option-desc">精确安排</view>
+          </view>
         </view>
         <view
-          class="granularity-option {{granularity === 'twoHours' ? 'active' : ''}}"
+          class="granularity-option {{granularity === 'twoHours' ? 'active' : ''}} spotlight-card glass-card"
           bindtap="selectGranularity"
           data-value="twoHours"
+          bindtouchmove="onOptionSpotlight"
+          bindtouchend="onOptionSpotlightEnd"
         >
-          <view class="option-title">2小时</view>
-          <view class="option-desc">推荐</view>
+          <view class="spotlight-overlay {{granSpotActive ? 'active' : ''}}" style="--spotlight-x: {{granSpotX}}; --spotlight-y: {{granSpotY}};"></view>
+          <view class="option-content">
+            <view class="option-title">2小时</view>
+            <view class="option-desc">推荐</view>
+          </view>
         </view>
         <view
-          class="granularity-option {{granularity === 'halfDay' ? 'active' : ''}}"
+          class="granularity-option {{granularity === 'halfDay' ? 'active' : ''}} spotlight-card glass-card"
           bindtap="selectGranularity"
           data-value="halfDay"
+          bindtouchmove="onOptionSpotlight"
+          bindtouchend="onOptionSpotlightEnd"
         >
-          <view class="option-title">半天</view>
-          <view class="option-desc">快速选择</view>
+          <view class="spotlight-overlay {{granSpotActive ? 'active' : ''}}" style="--spotlight-x: {{granSpotX}}; --spotlight-y: {{granSpotY}};"></view>
+          <view class="option-content">
+            <view class="option-title">半天</view>
+            <view class="option-desc">快速选择</view>
+          </view>
         </view>
       </view>
     </view>
 
     <!-- 过期时间 -->
-    <view class="form-section">
+    <view class="form-section glass-form-section">
       <view class="form-label">
         <text class="label-text">过期时间</text>
       </view>
       <view class="expire-options">
         <view
-          class="expire-option {{expireType === '24h' ? 'active' : ''}}"
+          class="expire-option {{expireType === '24h' ? 'active' : ''}} spotlight-card glass-card"
           bindtap="selectExpire"
           data-value="24h"
+          bindtouchmove="onOptionSpotlight"
+          bindtouchend="onOptionSpotlightEnd"
         >
-          24小时
+          <view class="spotlight-overlay {{granSpotActive ? 'active' : ''}}" style="--spotlight-x: {{granSpotX}}; --spotlight-y: {{granSpotY}};"></view>
+          <view class="option-content">24小时</view>
         </view>
         <view
-          class="expire-option {{expireType === '3days' ? 'active' : ''}}"
+          class="expire-option {{expireType === '3days' ? 'active' : ''}} spotlight-card glass-card"
           bindtap="selectExpire"
           data-value="3days"
+          bindtouchmove="onOptionSpotlight"
+          bindtouchend="onOptionSpotlightEnd"
         >
-          3天
+          <view class="spotlight-overlay {{granSpotActive ? 'active' : ''}}" style="--spotlight-x: {{granSpotX}}; --spotlight-y: {{granSpotY}};"></view>
+          <view class="option-content">3天</view>
         </view>
         <view
-          class="expire-option {{expireType === '7days' ? 'active' : ''}}"
+          class="expire-option {{expireType === '7days' ? 'active' : ''}} spotlight-card glass-card"
           bindtap="selectExpire"
           data-value="7days"
+          bindtouchmove="onOptionSpotlight"
+          bindtouchend="onOptionSpotlightEnd"
         >
-          7天
+          <view class="spotlight-overlay {{granSpotActive ? 'active' : ''}}" style="--spotlight-x: {{granSpotX}}; --spotlight-y: {{granSpotY}};"></view>
+          <view class="option-content">7天</view>
         </view>
         <view
-          class="expire-option {{expireType === 'never' ? 'active' : ''}}"
+          class="expire-option {{expireType === 'never' ? 'active' : ''}} spotlight-card glass-card"
           bindtap="selectExpire"
           data-value="never"
+          bindtouchmove="onOptionSpotlight"
+          bindtouchend="onOptionSpotlightEnd"
         >
-          永久
+          <view class="spotlight-overlay {{granSpotActive ? 'active' : ''}}" style="--spotlight-x: {{granSpotX}}; --spotlight-y: {{granSpotY}};"></view>
+          <view class="option-content">永久</view>
         </view>
       </view>
     </view>
 
     <!-- 备注 -->
-    <view class="form-section">
+    <view class="form-section glass-form-section">
       <view class="form-label">
         <text class="label-text">备注说明</text>
         <text class="label-optional">（可选）</text>
@@ -141,13 +183,13 @@
 
     <!-- 提交按钮 -->
     <view class="form-actions">
-      <button
-        class="submit-btn {{canSubmit ? '' : 'disabled'}}"
-        form-type="submit"
-        disabled="{{!canSubmit || submitting}}"
-      >
-        {{submitting ? '创建中...' : '创建聚会'}}
-      </button>
+      <view class="border-beam submit-beam">
+        <view class="beam-content">
+          <button class="submit-btn glass-submit {{canSubmit ? '' : 'disabled'}}" form-type="submit" disabled="{{!canSubmit || submitting}}">
+            {{submitting ? '创建中...' : '创建聚会'}}
+          </button>
+        </view>
+      </view>
     </view>
   </form>
 </view>

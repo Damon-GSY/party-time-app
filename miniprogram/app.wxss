@@ -358,3 +358,244 @@ page {
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+/* ===== Hero UI / Aceternity 风格 — 新增设计 Token ===== */
+
+/* Glass morphism */
+page {
+  --glass-bg: rgba(255, 255, 255, 0.04);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-bg-hover: rgba(255, 255, 255, 0.08);
+  --glass-blur: 20rpx;
+  --glow-primary: rgba(233, 69, 96, 0.4);
+  --glow-warm: rgba(251, 191, 36, 0.3);
+  --glow-cool: rgba(96, 165, 250, 0.3);
+  --border-gradient-1: #e94560;
+  --border-gradient-2: #ff6b6b;
+  --border-gradient-3: #fbbf24;
+  --border-gradient-4: #e94560;
+  --spotlight-color: rgba(255, 255, 255, 0.12);
+  --timeline-gradient: linear-gradient(90deg, rgba(233, 69, 96, 0.0) 0%, rgba(233, 69, 96, 0.6) 50%, rgba(233, 69, 96, 0.0) 100%);
+}
+
+/* ===== 通用光效组件 ===== */
+
+/* Glass Morphism 卡片 */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 2rpx solid var(--glass-border);
+  border-radius: 24rpx;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Animated Border Beam */
+.border-beam {
+  position: relative;
+  overflow: hidden;
+  border-radius: 24rpx;
+}
+.border-beam::before {
+  content: '';
+  position: absolute;
+  width: 200%;
+  height: 200%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: conic-gradient(from 0deg, transparent 0%, var(--glow-primary) 10%, transparent 20%);
+  animation: border-beam-rotate 4s linear infinite;
+  border-radius: inherit;
+}
+.border-beam::after {
+  content: '';
+  position: absolute;
+  top: 3rpx;
+  left: 3rpx;
+  right: 3rpx;
+  bottom: 3rpx;
+  background: var(--bg-secondary);
+  border-radius: 22rpx;
+  z-index: 0;
+}
+.border-beam .beam-content {
+  position: relative;
+  z-index: 1;
+}
+@keyframes border-beam-rotate {
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Spotlight 追光 */
+.spotlight-card {
+  position: relative;
+  overflow: hidden;
+}
+.spotlight-card .spotlight-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  background: radial-gradient(400rpx circle at var(--spotlight-x, 50%) var(--spotlight-y, 50%), var(--spotlight-color), transparent 60%);
+}
+.spotlight-card .spotlight-overlay.active {
+  opacity: 1;
+}
+
+/* Meteor 流星 */
+.meteor-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.meteor {
+  position: absolute;
+  width: 4rpx;
+  height: 120rpx;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.6), transparent);
+  border-radius: 100rpx;
+  animation: meteor-fall linear infinite;
+}
+.meteor:nth-child(1) { left: 15%; animation-duration: 3s; animation-delay: 0s; }
+.meteor:nth-child(2) { left: 45%; animation-duration: 4s; animation-delay: 1s; }
+.meteor:nth-child(3) { left: 75%; animation-duration: 3.5s; animation-delay: 2s; }
+.meteor:nth-child(4) { left: 30%; animation-duration: 4.5s; animation-delay: 0.5s; }
+.meteor:nth-child(5) { left: 60%; animation-duration: 3.8s; animation-delay: 1.5s; }
+@keyframes meteor-fall {
+  0% { transform: translateY(-150rpx) rotate(-30deg); opacity: 0; }
+  10% { opacity: 1; }
+  70% { opacity: 0.6; }
+  100% { transform: translateY(calc(100vh + 150rpx)) rotate(-30deg); opacity: 0; }
+}
+
+/* Lamp Effect */
+.lamp-container {
+  position: relative;
+}
+.lamp-glow {
+  position: absolute;
+  top: -60rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 300rpx;
+  height: 200rpx;
+  background: radial-gradient(ellipse at center, rgba(251, 191, 36, 0.25) 0%, transparent 70%);
+  pointer-events: none;
+  animation: lamp-breathe 4s ease-in-out infinite;
+}
+@keyframes lamp-breathe {
+  0%, 100% { opacity: 0.6; transform: translateX(-50%) scale(1); }
+  50% { opacity: 1; transform: translateX(-50%) scale(1.15); }
+}
+.lamp-beam {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2rpx;
+  height: 60rpx;
+  background: linear-gradient(to bottom, rgba(251, 191, 36, 0.8), transparent);
+  pointer-events: none;
+}
+
+/* Text Generate Effect */
+.text-generate .char {
+  display: inline-block;
+  opacity: 0;
+  animation: char-reveal 0.5s ease forwards;
+}
+@keyframes char-reveal {
+  from { opacity: 0; filter: blur(8rpx); transform: translateY(8rpx); }
+  to { opacity: 1; filter: blur(0); transform: translateY(0); }
+}
+
+/* Background Beams */
+.beams-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+.beam {
+  position: absolute;
+  height: 2rpx;
+  left: -10%;
+  width: 120%;
+  transform-origin: left center;
+}
+.beam:nth-child(1) { top: 12%; background: linear-gradient(90deg, transparent, var(--primary-color), transparent); animation: beam-sweep 6s ease-in-out infinite; }
+.beam:nth-child(2) { top: 55%; background: linear-gradient(90deg, transparent, var(--primary-light), transparent); animation: beam-sweep 8s ease-in-out infinite 2s; }
+.beam:nth-child(3) { top: 85%; background: linear-gradient(90deg, transparent, #fbbf24, transparent); animation: beam-sweep 7s ease-in-out infinite 4s; }
+@keyframes beam-sweep {
+  0%, 100% { transform: translateX(-20%) scaleX(0.6); opacity: 0; }
+  50% { transform: translateX(20%) scaleX(1); opacity: 0.12; }
+}
+
+/* Shimmer Border */
+.shimmer-border {
+  position: relative;
+  border-radius: 24rpx;
+  overflow: hidden;
+}
+.shimmer-border::before {
+  content: '';
+  position: absolute;
+  top: -2rpx;
+  left: -2rpx;
+  right: -2rpx;
+  bottom: -2rpx;
+  background: linear-gradient(90deg, rgba(233,69,96,0) 0%, rgba(233,69,96,0.6) 25%, rgba(255,107,107,0.8) 50%, rgba(233,69,96,0.6) 75%, rgba(233,69,96,0) 100%);
+  background-size: 200% 100%;
+  animation: shimmer-border-move 3s linear infinite;
+  border-radius: inherit;
+  z-index: -1;
+}
+@keyframes shimmer-border-move {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Wavy Background */
+.wavy-bg {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 200rpx;
+  overflow: hidden;
+  pointer-events: none;
+}
+.wavy-bg::before {
+  content: '';
+  position: absolute;
+  width: 400%;
+  height: 100%;
+  bottom: 0;
+  background: repeating-linear-gradient(90deg, transparent, transparent 25%, rgba(255,255,255,0.02) 25%, rgba(255,255,255,0.02) 50%);
+  animation: wavy-move 8s linear infinite;
+}
+@keyframes wavy-move {
+  to { transform: translateX(-50%); }
+}
+
+/* 性能降级 */
+@media (prefers-reduced-motion: reduce) {
+  .glass-card { backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(15, 52, 96, 0.8); }
+  .border-beam::before { animation: none; }
+  .meteor-container, .beams-container { display: none; }
+  .text-generate .char { animation: none; opacity: 1; filter: none; transform: none; }
+}

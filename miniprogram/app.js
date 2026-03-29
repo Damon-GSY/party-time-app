@@ -1,3 +1,5 @@
+const { getEffectsConfig } = require('./utils/performance')
+
 App({
   onLaunch() {
     // 初始化云开发环境
@@ -13,11 +15,15 @@ App({
 
     // 获取用户信息（从缓存）
     this.initUserInfo()
+
+    // 初始化 UI 效果配置
+    this.globalData.effectsConfig = getEffectsConfig()
   },
 
   globalData: {
     openId: '',
-    userInfo: null
+    userInfo: null,
+    effectsConfig: null
   },
 
   // 初始化用户信息

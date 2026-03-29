@@ -1,6 +1,7 @@
 // 投票页面逻辑
 const util = require('../../utils/util')
 const userUtil = require('../../utils/user')
+const { animateNumber } = require('../../utils/ui-effects')
 const app = getApp()
 
 Page({
@@ -30,6 +31,7 @@ Page({
     slots: {}, // { '2024-03-23_0': true, ... }
     selectedCount: 0,
     displayCount: 0, // 数字动画用的显示值
+    counterPercent: 0,
 
     // 提交状态
     submitting: false,
@@ -320,10 +322,27 @@ Page({
       })
     }, 350)
 
-    // 数字动画
-    const oldCount = selectedCount
-    const newCount = selectedCount + (newSelected ? 1 : -1)
-    this.animateCount(oldCount, newCount)
+    // Ripple 效果
+    if (e.changedTouches || e.touches) {
+      const touch = e.changedTouches ? e.changedTouches[0] : e.touches[0]
+      this.setData({
+        [`currentSlots[${index}].rippleShow`]: true,
+        [`currentSlots[${index}].rippleX`]: touch ? 44 : 0,
+        [`currentSlots[${index}].rippleY`]: touch ? 44 : 0,
+      })
+      setTimeout(() => {
+        this.setData({ [`currentSlots[${index}].rippleShow`]: false })
+      }, 600)
+    }
+
+    // 数字递增动画
+    const finalCount = newSelected ? selectedCount + 1 : selectedCount - 1
+    animateNumber(this, 'displayCount', finalCount, 400)
+
+    // 进度条
+    const total = this.data.currentSlots.length
+    const percent = Math.round(finalCount / total * 100)
+    this.setData({ counterPercent: percent })
 
     // 触觉反馈
     try {

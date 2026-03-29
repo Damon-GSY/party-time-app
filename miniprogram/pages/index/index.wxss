@@ -830,3 +830,74 @@
   font-size: 24rpx;
   color: var(--text-muted);
 }
+
+/* ===== Hero UI / Aceternity 升级 ===== */
+
+/* Beams 在页面内的适配 */
+.page-container .beams-container { z-index: 0; }
+.page-container .meteor-container { z-index: 0; height: 100%; }
+
+/* Lamp Glow for header icon */
+.header-icon { position: relative; }
+.header-icon .lamp-glow {
+  position: absolute;
+  top: -80rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 360rpx;
+  height: 240rpx;
+  background: radial-gradient(ellipse at center, rgba(251, 191, 36, 0.2) 0%, transparent 70%);
+  pointer-events: none;
+  animation: lamp-breathe 4s ease-in-out infinite;
+}
+
+/* Text Generate 标题 */
+.header-title.text-generate {
+  display: flex;
+  justify-content: center;
+}
+
+/* Border Beam 创建按钮 */
+.create-beam { width: 100%; height: 104rpx; }
+.create-beam::after { background: linear-gradient(160deg, #1a1a2e 0%, #16213e 100%); }
+.create-beam .beam-content { width: 100%; height: 100%; }
+
+/* Spotlight Card 聚会卡片 */
+.event-card.spotlight-card {
+  background: rgba(15, 52, 96, 0.5);
+  backdrop-filter: blur(20rpx);
+  -webkit-backdrop-filter: blur(20rpx);
+  border: 2rpx solid rgba(255, 255, 255, 0.06);
+}
+.event-card .spotlight-overlay { z-index: 1; }
+.event-card-content { position: relative; z-index: 2; }
+
+/* 头像光环 - Shimmer */
+.profile-avatar-wrapper { position: relative; width: 80rpx; height: 80rpx; }
+.avatar-glow-ring {
+  position: absolute;
+  top: -4rpx; left: -4rpx; right: -4rpx; bottom: -4rpx;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, var(--primary-color), var(--primary-light), #fbbf24, var(--primary-color));
+  animation: avatar-ring-rotate 3s linear infinite;
+  z-index: -1;
+}
+@keyframes avatar-ring-rotate { to { transform: rotate(360deg); } }
+
+/* 空状态流星 */
+.empty-meteors { position: absolute; top: 0; left: 0; right: 0; height: 100%; overflow: hidden; pointer-events: none; }
+.meteor-sm {
+  position: absolute; width: 3rpx; height: 80rpx;
+  background: linear-gradient(to bottom, rgba(233, 69, 96, 0.5), transparent);
+  border-radius: 100rpx;
+  animation: meteor-sm-fall linear infinite;
+}
+.meteor-sm:nth-child(1) { left: 20%; animation-duration: 4s; animation-delay: 0s; }
+.meteor-sm:nth-child(2) { left: 60%; animation-duration: 5s; animation-delay: 1.5s; }
+.meteor-sm:nth-child(3) { left: 80%; animation-duration: 4.5s; animation-delay: 3s; }
+@keyframes meteor-sm-fall {
+  0% { transform: translateY(-100rpx) rotate(-25deg); opacity: 0; }
+  10% { opacity: 1; }
+  80% { opacity: 0.3; }
+  100% { transform: translateY(600rpx) rotate(-25deg); opacity: 0; }
+}

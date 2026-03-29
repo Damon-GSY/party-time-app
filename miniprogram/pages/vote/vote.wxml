@@ -100,7 +100,7 @@
       <!-- 时段格子 -->
       <view class="slots-grid slots-{{slotsPerDay}} {{gridVisible ? 'grid-visible' : 'grid-hidden'}}">
         <view
-          class="slot-cell {{item.selected ? 'selected' : ''}} {{item.partial ? 'partial' : ''}} {{animatingSlotIndex === index && animatingSlotAction === 'select' ? 'anim-select' : ''}} {{animatingSlotIndex === index && animatingSlotAction === 'deselect' ? 'anim-deselect' : ''}}"
+          class="slot-cell {{item.selected ? 'selected' : ''}} glass-slot {{item.partial ? 'partial' : ''}} {{animatingSlotIndex === index && animatingSlotAction === 'select' ? 'anim-select' : ''}} {{animatingSlotIndex === index && animatingSlotAction === 'deselect' ? 'anim-deselect' : ''}}"
           wx:for="{{currentSlots}}"
           wx:key="id"
           bindtap="toggleSlot"
@@ -108,6 +108,10 @@
           hover-class="slot-cell-hover"
           style="animation-delay: {{0.02 * index}}s;"
         >
+          <!-- Ripple -->
+          <view class="ripple-container" wx:if="{{item.rippleShow}}">
+            <view class="ripple-wave" style="left: {{item.rippleX}}px; top: {{item.rippleY}}px;"></view>
+          </view>
           <view class="slot-inner">
             <text class="slot-time">{{item.timeLabel}}</text>
             <view class="slot-check" wx:if="{{item.selected}}">
@@ -122,8 +126,13 @@
     <view class="selection-summary fade-in" style="animation-delay: 0.3s;">
       <view class="summary-left">
         <text class="summary-label">已选择</text>
-        <text class="summary-count {{countAnimated ? 'animated' : ''}}">{{displayCount || selectedCount}}</text>
+        <view class="counter-display">
+          <text class="summary-count {{countAnimated ? 'animated' : ''}}">{{displayCount || selectedCount}}</text>
+        </view>
         <text class="summary-unit">个时段</text>
+      </view>
+      <view class="counter-progress">
+        <view class="counter-progress-bar" style="width: {{counterPercent}}%;"></view>
       </view>
     </view>
 
@@ -172,7 +181,15 @@
         <view class="confetti c19"></view>
         <view class="confetti c20"></view>
       </view>
-      <view class="modal-content">
+      <view class="modal-content glass-modal">
+        <!-- Beam 光效 -->
+        <view class="success-beam" style="top: 30%;"></view>
+        <view class="success-beam" style="top: 70%;"></view>
+        <!-- 流星 -->
+        <view class="modal-meteor"></view>
+        <view class="modal-meteor"></view>
+        <view class="modal-meteor"></view>
+        <!-- 原有内容 -->
         <view class="success-animation">
           <view class="checkmark-circle"></view>
           <!-- SVG 对号动画 -->

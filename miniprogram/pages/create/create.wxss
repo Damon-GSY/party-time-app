@@ -331,3 +331,114 @@
 .submit-btn.loading::before {
   display: none;
 }
+
+/* ===== Hero UI / Aceternity 升级 ===== */
+
+/* Lamp Effect */
+.lamp-container {
+  position: fixed;
+  top: -40rpx;
+  left: 0; right: 0;
+  height: 120rpx;
+  pointer-events: none;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.create-lamp-glow {
+  width: 500rpx;
+  height: 300rpx;
+  background: radial-gradient(ellipse at center top, rgba(233, 69, 96, 0.15) 0%, transparent 70%);
+  animation: lamp-form-breathe 5s ease-in-out infinite;
+}
+@keyframes lamp-form-breathe {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+.lamp-beam {
+  width: 3rpx;
+  height: 80rpx;
+  background: linear-gradient(to bottom, rgba(233, 69, 96, 0.6), transparent);
+}
+
+/* 微弱 Beams */
+.form-beams {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+.form-beam {
+  position: absolute;
+  height: 1rpx;
+  left: -10%;
+  width: 120%;
+}
+.form-beam:nth-child(1) {
+  top: 30%;
+  background: linear-gradient(90deg, transparent, rgba(233, 69, 96, 0.08), transparent);
+  animation: beam-sweep 10s ease-in-out infinite;
+}
+.form-beam:nth-child(2) {
+  top: 70%;
+  background: linear-gradient(90deg, transparent, rgba(255, 107, 107, 0.06), transparent);
+  animation: beam-sweep 12s ease-in-out infinite 3s;
+}
+
+/* Glass Form Section */
+.glass-form-section {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 2rpx solid var(--glass-border);
+  border-radius: 28rpx;
+  padding: 36rpx 32rpx;
+  position: relative;
+  overflow: hidden;
+}
+.glass-form-section::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2rpx;
+  background: linear-gradient(90deg, transparent, rgba(233, 69, 96, 0.3), transparent);
+}
+
+/* Spotlight 选项卡片 */
+.granularity-option.spotlight-card {
+  position: relative;
+  overflow: hidden;
+  background: rgba(15, 52, 96, 0.35);
+  backdrop-filter: blur(12rpx);
+  -webkit-backdrop-filter: blur(12rpx);
+  border: 2rpx solid rgba(255, 255, 255, 0.06);
+}
+.granularity-option .spotlight-overlay { z-index: 1; }
+.option-content { position: relative; z-index: 2; }
+
+/* 过期选项 spotlight */
+.expire-option.spotlight-card {
+  position: relative;
+  overflow: hidden;
+  background: rgba(15, 52, 96, 0.35);
+  backdrop-filter: blur(12rpx);
+  -webkit-backdrop-filter: blur(12rpx);
+  border: 2rpx solid rgba(255, 255, 255, 0.06);
+}
+
+/* Border Beam 提交按钮 */
+.submit-beam { width: 100%; }
+.submit-beam::after { background: linear-gradient(160deg, #1a1a2e, #16213e); }
+.submit-beam .beam-content { width: 100%; }
+
+.glass-submit {
+  background: rgba(233, 69, 96, 0.15);
+  backdrop-filter: blur(20rpx);
+  -webkit-backdrop-filter: blur(20rpx);
+}
+.glass-submit.disabled {
+  background: rgba(107, 107, 107, 0.3);
+  backdrop-filter: none;
+}

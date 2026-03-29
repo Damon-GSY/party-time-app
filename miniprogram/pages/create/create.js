@@ -1,5 +1,6 @@
 const util = require('../../utils/util')
 const notificationUtil = require('../../utils/notification')
+const { initSpotlight } = require('../../utils/ui-effects')
 
 Page({
   data: {
@@ -15,7 +16,10 @@ Page({
     submitting: false,
     createdEventId: '', // 存储创建成功的活动ID，用于分享
     showForm: false,    // 控制入场动画
-    focusedField: ''    // 当前聚焦的输入字段
+    focusedField: '',    // 当前聚焦的输入字段
+    granSpotX: '50%',
+    granSpotY: '50%',
+    granSpotActive: false,
   },
 
   onLoad() {
@@ -103,6 +107,22 @@ Page({
   // 输入框失焦
   onInputBlur() {
     this.setData({ focusedField: '' })
+  },
+
+  // Spotlight 选项卡片追光
+  onOptionSpotlight(e) {
+    const touch = e.touches[0]
+    const query = this.createSelectorQuery()
+    query.select('.spotlight-card').boundingClientRect(rect => {
+      if (!rect) return
+      const x = ((touch.clientX - rect.left) / rect.width * 100).toFixed(1)
+      const y = ((touch.clientY - rect.top) / rect.height * 100).toFixed(1)
+      this.setData({ granSpotX: x + '%', granSpotY: y + '%', granSpotActive: true })
+    }).exec()
+  },
+
+  onOptionSpotlightEnd() {
+    this.setData({ granSpotActive: false })
   },
 
   // 检查是否可以提交

@@ -1,6 +1,7 @@
 const util = require('../../utils/util')
 const user = require('../../utils/user')
 const notificationUtil = require('../../utils/notification')
+const { textGenerate, initSpotlight } = require('../../utils/ui-effects')
 const app = getApp()
 
 Page({
@@ -15,11 +16,16 @@ Page({
     cardPulse: false, // 卡片脉冲动画状态
     cardPressedId: null, // 当前按下的卡片ID
     userAvatar: '', // 用户头像
-    unreadCount: 0 // 未读通知数
+    unreadCount: 0, // 未读通知数
+    titleChars: [],
+    spotlightX: '50%',
+    spotlightY: '50%',
+    spotlightActive: false
   },
 
   onLoad() {
     // onLoad 时加载一次
+    this.setData({ titleChars: textGenerate('聚会时间') })
     this.loadUserAvatar()
     this.loadEvents()
   },
@@ -360,6 +366,22 @@ Page({
         }
       }
     })
+  },
+
+  // Spotlight 追光
+  onSpotlightMove(e) {
+    const query = this.createSelectorQuery()
+    query.select('.event-card.spotlight-card').boundingClientRect(rect => {
+      if (!rect) return
+      const touch = e.touches[0]
+      const x = ((touch.clientX - rect.left) / rect.width * 100).toFixed(1)
+      const y = ((touch.clientY - rect.top) / rect.height * 100).toFixed(1)
+      this.setData({ spotlightX: x + '%', spotlightY: y + '%', spotlightActive: true })
+    }).exec()
+  },
+
+  onSpotlightEnd() {
+    this.setData({ spotlightActive: false })
   },
 
   // 分享

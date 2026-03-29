@@ -875,3 +875,99 @@
   color: var(--text-muted);
   font-size: 28rpx;
 }
+
+/* ===== Hero UI / Aceternity 升级 ===== */
+
+/* Shimmer Border 统计卡片 */
+.stat-card-wrapper {
+  flex: 1;
+  border-radius: 24rpx;
+  overflow: hidden;
+}
+.stat-card-wrapper::after {
+  background: rgba(15, 52, 96, 0.8);
+  border-radius: 22rpx;
+}
+.stat-card-wrapper .stat-card { position: relative; z-index: 1; border-radius: 22rpx; }
+.glass-stat-card {
+  background: rgba(15, 52, 96, 0.4);
+  backdrop-filter: blur(16rpx);
+  -webkit-backdrop-filter: blur(16rpx);
+  border: 2rpx solid rgba(255, 255, 255, 0.06);
+}
+
+/* 金色 Border Beam 推荐卡片 */
+.recommend-beam-wrapper { padding: 0 32rpx; margin-bottom: 24rpx; }
+.golden-beam::before {
+  background: conic-gradient(from 0deg, transparent 0%, rgba(251, 191, 36, 0.6) 8%, transparent 16%);
+  animation-duration: 3s;
+}
+.golden-beam::after {
+  background: linear-gradient(160deg, #1a1a2e, #16213e);
+  border-radius: 22rpx;
+}
+.recommend-card.recommend-highlight {
+  background: rgba(15, 52, 96, 0.6);
+  backdrop-filter: blur(16rpx);
+  -webkit-backdrop-filter: blur(16rpx);
+  position: relative;
+  z-index: 1;
+}
+
+/* Glass 热力格子 */
+.glass-heatmap-cell {
+  position: relative;
+  overflow: hidden;
+}
+.cell-inner-glow {
+  position: absolute;
+  inset: 0;
+  border-radius: 12rpx;
+  transition: all 0.5s ease;
+}
+.cell-inner-glow.level-0 { background: rgba(15, 52, 96, 0.2); border: 2rpx solid rgba(255, 255, 255, 0.03); }
+.cell-inner-glow.level-1 { background: rgba(233, 69, 96, 0.2); border: 2rpx solid rgba(233, 69, 96, 0.15); }
+.cell-inner-glow.level-2 { background: rgba(233, 69, 96, 0.4); border: 2rpx solid rgba(233, 69, 96, 0.25); }
+.cell-inner-glow.level-3 { background: rgba(233, 69, 96, 0.6); border: 2rpx solid rgba(233, 69, 96, 0.35); }
+.cell-inner-glow.level-4 {
+  background: linear-gradient(135deg, rgba(233, 69, 96, 0.8), rgba(255, 107, 107, 0.6));
+  border: 2rpx solid rgba(255, 255, 255, 0.2);
+  box-shadow: inset 0 0 20rpx rgba(255, 255, 255, 0.1);
+}
+.cell-outer-glow {
+  position: absolute;
+  inset: -2rpx;
+  border-radius: 14rpx;
+  border: 2rpx solid transparent;
+  transition: all 0.3s ease;
+  pointer-events: none;
+}
+.heatmap-cell-hover .cell-outer-glow {
+  border-color: rgba(233, 69, 96, 0.5);
+  box-shadow: 0 0 24rpx rgba(233, 69, 96, 0.3);
+}
+
+/* Glass 弹窗 */
+.glass-modal {
+  background: rgba(15, 52, 96, 0.7);
+  backdrop-filter: blur(40rpx);
+  -webkit-backdrop-filter: blur(40rpx);
+  border: 2rpx solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 -8rpx 40rpx rgba(0, 0, 0, 0.3);
+}
+
+/* 参与者头像彩色光环 */
+.participant-avatar {
+  position: relative;
+}
+.participant-avatar::after {
+  content: '';
+  position: absolute;
+  inset: -4rpx;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, var(--primary-color), var(--primary-light), #fbbf24, var(--primary-color));
+  z-index: -1;
+  animation: avatar-ring-rotate 4s linear infinite;
+  opacity: 0.6;
+}
+@keyframes avatar-ring-rotate { to { transform: rotate(360deg); } }

@@ -867,3 +867,101 @@
 .subscribe-text {
   color: var(--text-secondary);
 }
+
+/* ===== Hero UI / Aceternity 升级 ===== */
+
+/* Glass Slot 格子 */
+.glass-slot {
+  background: rgba(15, 52, 96, 0.35);
+  border: 2rpx solid rgba(255, 255, 255, 0.08);
+}
+.glass-slot.selected {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+  border: 2rpx solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8rpx 24rpx rgba(233, 69, 96, 0.5), inset 0 1rpx 0 rgba(255, 255, 255, 0.2);
+}
+
+/* Ripple 波纹 */
+.ripple-container {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  overflow: hidden;
+  border-radius: 16rpx;
+  z-index: 5;
+}
+.ripple-wave {
+  position: absolute;
+  width: 20rpx;
+  height: 20rpx;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,0.4), transparent 70%);
+  transform: translate(-50%, -50%) scale(0);
+  animation: ripple-expand 0.6s ease-out forwards;
+}
+@keyframes ripple-expand {
+  to { transform: translate(-50%, -50%) scale(12); opacity: 0; }
+}
+
+/* 进度条 */
+.counter-progress {
+  width: 100%;
+  height: 4rpx;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 100rpx;
+  margin-top: 12rpx;
+  overflow: hidden;
+}
+.counter-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
+  border-radius: 100rpx;
+  transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 0 8rpx rgba(233, 69, 96, 0.4);
+}
+
+/* 增强 Glass Modal */
+.glass-modal {
+  background: rgba(15, 52, 96, 0.6);
+  backdrop-filter: blur(30rpx);
+  -webkit-backdrop-filter: blur(30rpx);
+  border: 2rpx solid rgba(255, 255, 255, 0.1);
+}
+
+/* Success Beam */
+.success-beam {
+  position: absolute;
+  width: 100%;
+  height: 2rpx;
+  left: 0;
+  background: linear-gradient(90deg, transparent, rgba(233, 69, 96, 0.6), transparent);
+  animation: success-beam-flash 1.5s ease-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+@keyframes success-beam-flash {
+  0% { transform: scaleX(0); opacity: 0; }
+  50% { transform: scaleX(1); opacity: 1; }
+  100% { transform: scaleX(1.5); opacity: 0; }
+}
+
+/* Modal Meteor */
+.modal-meteor {
+  position: absolute;
+  width: 3rpx;
+  height: 100rpx;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.6), transparent);
+  border-radius: 100rpx;
+  animation: modal-meteor-fall linear infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+.modal-meteor:nth-child(4) { left: 10%; animation-duration: 2s; animation-delay: 0s; }
+.modal-meteor:nth-child(5) { left: 50%; animation-duration: 2.5s; animation-delay: 0.5s; }
+.modal-meteor:nth-child(6) { left: 85%; animation-duration: 2.2s; animation-delay: 1s; }
+@keyframes modal-meteor-fall {
+  0% { transform: translateY(-120rpx) rotate(-30deg); opacity: 0; }
+  10% { opacity: 1; }
+  80% { opacity: 0.4; }
+  100% { transform: translateY(800rpx) rotate(-30deg); opacity: 0; }
+}

@@ -1,11 +1,17 @@
 const user = require('../../utils/user')
 const util = require('../../utils/util')
+const { animateNumber } = require('../../utils/ui-effects')
 const app = getApp()
 
 Page({
   data: {
     userInfo: {},
     stats: { createdCount: 0, joinedCount: 0 },
+    displayCreatedCount: 0,
+    displayJoinedCount: 0,
+    menuSpotX: '50%',
+    menuSpotY: '50%',
+    menuSpotActive: false,
     showOpenId: false,
     openIdText: '',
     showAboutModal: false
@@ -32,6 +38,10 @@ Page({
   async loadStats() {
     const stats = await user.getUserStats()
     this.setData({ stats })
+    animateNumber(this, 'displayCreatedCount', this.data.stats.createdCount, 800)
+    setTimeout(() => {
+      animateNumber(this, 'displayJoinedCount', this.data.stats.joinedCount, 800)
+    }, 200)
   },
 
   // 昵称输入
@@ -101,6 +111,22 @@ Page({
 
   // 阻止滚动穿透
   preventMove() {},
+
+  // Spotlight 菜单追光效果
+  onMenuSpotlight(e) {
+    const touch = e.touches[0]
+    const query = this.createSelectorQuery()
+    query.select('.menu-item.spotlight-card').boundingClientRect(rect => {
+      if (!rect) return
+      const x = ((touch.clientX - rect.left) / rect.width * 100).toFixed(1)
+      const y = ((touch.clientY - rect.top) / rect.height * 100).toFixed(1)
+      this.setData({ menuSpotX: x + '%', menuSpotY: y + '%', menuSpotActive: true })
+    }).exec()
+  },
+
+  onMenuSpotlightEnd() {
+    this.setData({ menuSpotActive: false })
+  },
 
   // 分享
   onShareAppMessage() {
