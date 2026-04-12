@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>聚会时间 - UI Preview</title>
+<title>聚会时间 - 偏好加权投票预览</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-:root{--primary:#e94560;--primary-light:#ff6b6b;--bg1:#1a1a2e;--bg2:#16213e;--bg3:#0f3460;--text1:#fff;--text2:#b8b8c8;--text3:#8888a0;--glass-bg:rgba(255,255,255,0.04);--glass-border:rgba(255,255,255,0.08);--glow:rgba(233,69,96,0.4)}
+:root{--primary:#e94560;--primary-light:#ff6b6b;--bg1:#1a1a2e;--bg2:#16213e;--bg3:#0f3460;--text1:#fff;--text2:#b8b8c8;--text3:#8888a0;--glass-bg:rgba(255,255,255,0.04);--glass-border:rgba(255,255,255,0.08);--green:#4ade80;--green-bg:rgba(74,222,128,0.15);--green-border:rgba(74,222,128,0.5);--yellow:#fbbf24;--yellow-bg:rgba(251,191,36,0.15);--yellow-border:rgba(251,191,36,0.5);--pareto:#fbbf24}
 body{background:#0a0a14;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#fff;overflow:hidden;height:100vh}
 .phone{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:375px;height:812px;border-radius:44px;border:3px solid #333;overflow:hidden;box-shadow:0 0 60px rgba(233,69,96,.15),0 0 120px rgba(0,0,0,.5);background:var(--bg1)}
 .status-bar{height:44px;display:flex;align-items:center;justify-content:center;font-size:14px;position:relative;z-index:100;background:var(--bg1)}
@@ -19,90 +19,13 @@ body{background:#0a0a14;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',
 .page{position:absolute;top:44px;left:0;right:0;bottom:70px;overflow-y:auto;overflow-x:hidden;display:none;background:linear-gradient(160deg,var(--bg1) 0%,var(--bg2) 40%,var(--bg3) 100%)}
 .page.active{display:block}
 .page::-webkit-scrollbar{display:none}
-.beams-container{position:absolute;top:0;left:0;right:0;bottom:0;overflow:hidden;pointer-events:none;z-index:0}
-.beam{position:absolute;height:2px;left:-10%;width:120%;transform-origin:left center}
-.beam:nth-child(1){top:12%;background:linear-gradient(90deg,transparent,var(--primary),transparent);animation:beam-sweep 6s ease-in-out infinite}
-.beam:nth-child(2){top:55%;background:linear-gradient(90deg,transparent,var(--primary-light),transparent);animation:beam-sweep 8s ease-in-out infinite 2s}
-.beam:nth-child(3){top:85%;background:linear-gradient(90deg,transparent,#fbbf24,transparent);animation:beam-sweep 7s ease-in-out infinite 4s}
-@keyframes beam-sweep{0%,100%{transform:translateX(-20%) scaleX(.6);opacity:0}50%{transform:translateX(20%) scaleX(1);opacity:.12}}
-.meteor-container{position:absolute;top:0;left:0;right:0;bottom:0;overflow:hidden;pointer-events:none;z-index:0}
-.meteor{position:absolute;width:3px;height:80px;background:linear-gradient(to bottom,rgba(255,255,255,.6),transparent);border-radius:100px;animation:meteor-fall linear infinite}
-.meteor:nth-child(1){left:15%;animation-duration:3s}.meteor:nth-child(2){left:45%;animation-duration:4s;animation-delay:1s}.meteor:nth-child(3){left:75%;animation-duration:3.5s;animation-delay:2s}.meteor:nth-child(4){left:30%;animation-duration:4.5s;animation-delay:.5s}.meteor:nth-child(5){left:60%;animation-duration:3.8s;animation-delay:1.5s}
-@keyframes meteor-fall{0%{transform:translateY(-100px) rotate(-25deg);opacity:0}10%{opacity:1}80%{opacity:.3}100%{transform:translateY(812px) rotate(-25deg);opacity:0}}
-.border-beam{position:relative;overflow:hidden;border-radius:24px}
-.border-beam::before{content:'';position:absolute;width:200%;height:200%;top:50%;left:50%;transform:translate(-50%,-50%);background:conic-gradient(from 0deg,transparent 0%,var(--glow) 10%,transparent 20%);animation:border-rotate 4s linear infinite;border-radius:inherit;pointer-events:none;z-index:0}
-.border-beam::after{content:'';position:absolute;top:3px;left:3px;right:3px;bottom:3px;background:var(--bg2);border-radius:22px;pointer-events:none;z-index:1}
-.border-beam .beam-content{position:relative;z-index:2}
-@keyframes border-rotate{to{transform:translate(-50%,-50%) rotate(360deg)}}
-.glass-card{background:var(--glass-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid var(--glass-border);border-radius:20px;position:relative;overflow:hidden}
-.spotlight-card{position:relative;overflow:hidden}
-.spotlight-overlay{position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none;opacity:0;transition:opacity .3s;background:radial-gradient(250px circle at var(--sx,50%) var(--sy,50%),rgba(255,255,255,.1),transparent 60%);z-index:1}
-.spotlight-overlay.active{opacity:1}
-.shimmer-border{position:relative;overflow:hidden;border-radius:20px}
-.shimmer-border::before{content:'';position:absolute;top:-2px;left:-2px;right:-2px;bottom:-2px;background:linear-gradient(90deg,rgba(233,69,96,0) 0%,rgba(233,69,96,.6) 25%,rgba(255,107,107,.8) 50%,rgba(233,69,96,.6) 75%,rgba(233,69,96,0) 100%);background-size:200% 100%;animation:shimmer-move 3s linear infinite;z-index:-1}
-@keyframes shimmer-move{0%{background-position:200% 0}100%{background-position:-200% 0}}
-.text-generate .char{display:inline-block;opacity:0;animation:char-in .5s ease forwards}
-@keyframes char-in{from{opacity:0;filter:blur(6px);transform:translateY(8px)}to{opacity:1;filter:blur(0);transform:translateY(0)}}
-.lamp-glow{position:absolute;top:-60rpx;left:50%;transform:translateX(-50%);width:180px;height:120px;background:radial-gradient(ellipse at center,rgba(251,191,36,.2) 0%,transparent 70%);pointer-events:none;animation:lamp-breathe 4s ease-in-out infinite}
-@keyframes lamp-breathe{0%,100%{opacity:.6;transform:translateX(-50%) scale(1)}50%{opacity:1;transform:translateX(-50%) scale(1.15)}}
-.index-header{display:flex;flex-direction:column;align-items:center;padding:50px 20px 20px;position:relative;z-index:1}
-.icon-box{width:70px;height:70px;background:linear-gradient(135deg,var(--primary),var(--primary-light));border-radius:18px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;box-shadow:0 12px 40px rgba(233,69,96,.35);position:relative}
-.icon-box .lamp-glow{top:-50px;width:180px;height:120px}
-.header-title{font-size:28px;font-weight:700;letter-spacing:2px;margin-bottom:6px}
-.header-sub{font-size:13px;color:var(--text2)}
-.create-section{padding:0 16px 16px;display:flex;flex-direction:column;align-items:center;position:relative;z-index:1}
-.create-beam{width:100%;height:52px}
-.create-beam::after{background:linear-gradient(160deg,#1a1a2e,#16213e);border-radius:20px}
-.create-beam .beam-content{width:100%;height:100%}
-.create-btn{width:100%;height:52px;background:rgba(233,69,96,.15);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.06);border-radius:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--primary-light);font-size:17px;font-weight:600;transition:all .2s;position:relative;overflow:hidden}
-.create-btn::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.15),transparent);animation:shimmer-btn 2.5s ease-in-out infinite}
-@keyframes shimmer-btn{0%{left:-100%}50%,100%{left:100%}}
-.create-btn:active{transform:scale(.97)}
-.create-hint{font-size:12px;color:var(--text3);margin-top:8px}
-.section{padding:0 16px 16px;position:relative;z-index:1}
-.section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-.section-title{font-size:16px;font-weight:600}
-.event-card{padding:14px 12px;margin-bottom:10px;cursor:pointer;transition:all .2s}
-.event-card:active{transform:scale(.98)}
-.event-badge{position:absolute;top:0;right:0;font-size:10px;padding:3px 8px;border-radius:0 18px 0 12px}
-.event-badge.created{background:rgba(233,69,96,.25);color:var(--primary-light)}
-.event-badge.joined{background:rgba(74,222,128,.2);color:#4ade80}
-.event-name{font-size:16px;font-weight:600;margin-bottom:8px}
-.event-meta{display:flex;gap:12px}
-.event-meta span{font-size:12px;color:var(--text2)}
-.event-status{font-size:11px;padding:4px 10px;border-radius:8px;background:rgba(74,222,128,.15);color:#4ade80}
-.event-status.expired{background:rgba(239,68,68,.15);color:#ef4444}
-.guide{margin:0 16px 24px;padding:14px 16px;background:rgba(255,255,255,.03);border-radius:16px;border:1px solid rgba(255,255,255,.06);position:relative;z-index:1}
-.guide-title{font-size:14px;font-weight:600;margin-bottom:10px}
-.guide-step{display:flex;align-items:center;gap:10px;padding:8px;background:rgba(255,255,255,.02);border-radius:10px;margin-bottom:6px}
-.guide-icon{width:28px;height:28px;background:rgba(233,69,96,.15);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
-.glass-section{background:var(--glass-bg);backdrop-filter:blur(20px);border:1px solid var(--glass-border);border-radius:20px;padding:20px;margin-bottom:20px;position:relative;overflow:hidden}
-.glass-section::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(233,69,96,.3),transparent)}
-.form-label{font-size:15px;font-weight:600;margin-bottom:12px}
-.form-required{color:var(--primary);margin-left:4px}
-.form-input{width:100%;padding:14px 16px;background:rgba(15,52,96,.6);border:1px solid rgba(255,255,255,.1);border-radius:16px;font-size:15px;color:#fff;outline:none;transition:all .3s}
-.form-input::placeholder{color:var(--text3)}
-.form-hint{font-size:12px;color:var(--text3);margin-top:8px;text-align:right}
-.date-row{display:flex;gap:10px;align-items:center}
-.date-row .form-input{flex:1;text-align:center;cursor:pointer}
-.date-sep{color:var(--text3);font-size:13px}
-.options{display:flex;gap:8px}
-.option{flex:1;padding:14px 8px;text-align:center;cursor:pointer;transition:all .25s;background:rgba(15,52,96,.4);border:1px solid rgba(255,255,255,.08);border-radius:16px}
-.option-title{font-size:14px;font-weight:600;margin-bottom:4px}
-.option-desc{font-size:11px;color:var(--text3)}
-.option.active{background:rgba(233,69,96,.2);border-color:var(--primary);transform:scale(1.03);box-shadow:0 4px 16px rgba(233,69,96,.2)}
-.expire-row{display:flex;flex-wrap:wrap;gap:8px}
-.expire-opt{padding:10px 18px;border-radius:12px;font-size:13px;cursor:pointer;transition:all .25s;background:rgba(15,52,96,.4);border:1px solid rgba(255,255,255,.08)}
-.expire-opt.active{background:rgba(233,69,96,.2);border-color:var(--primary);color:var(--primary-light);transform:scale(1.03)}
-.submit-area{margin-top:24px}
-.submit-beam{width:100%;height:54px}
-.submit-beam::after{background:linear-gradient(160deg,#1a1a2e,#16213e);border-radius:20px}
-.submit-btn{width:100%;height:54px;background:linear-gradient(135deg,var(--primary),var(--primary-light));border-radius:20px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:17px;font-weight:600;border:none;cursor:pointer;transition:all .2s}
-.submit-btn:active{transform:scale(.97)}
+
+/* ======= VOTE PAGE ======= */
 .vote-header{padding:20px 16px}
 .vote-name{font-size:24px;font-weight:700;margin-bottom:8px}
 .vote-meta{display:flex;gap:16px;margin-bottom:8px}
 .vote-meta span{font-size:13px;color:var(--text2)}
+.vote-hint{font-size:12px;color:var(--text3);padding:8px 12px;background:rgba(255,255,255,.03);border-radius:8px;border:1px solid rgba(251,191,36,.2)}
 .date-tabs{display:flex;gap:8px;padding:0 16px;margin-bottom:12px;overflow-x:auto}
 .date-tab{padding:10px 14px;border-radius:12px;text-align:center;cursor:pointer;transition:all .25s;flex-shrink:0;background:rgba(15,52,96,.4);border:1px solid rgba(255,255,255,.08)}
 .date-tab .weekday{font-size:11px;color:var(--text2);margin-bottom:2px}
@@ -110,45 +33,81 @@ body{background:#0a0a14;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',
 .date-tab.active{background:linear-gradient(135deg,var(--primary),var(--primary-light));color:#fff;border-color:transparent;transform:scale(1.03)}
 .slots-section{padding:0 16px;margin-bottom:16px}
 .slots-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
-.slot{height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:10px;cursor:pointer;transition:all .25s;background:rgba(15,52,96,.35);border:1px solid rgba(255,255,255,.06)}
+.slot{height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:10px;cursor:pointer;transition:all .2s;position:relative;background:rgba(15,52,96,.35);border:1px solid rgba(255,255,255,.06)}
 .slot:active{transform:scale(.95)}
-.slot.selected{background:linear-gradient(135deg,var(--primary),var(--primary-light));border-color:rgba(255,255,255,.2);box-shadow:0 4px 16px rgba(233,69,96,.4)}
-.slot .time{font-size:10px;color:var(--text2)}
-.slot.selected .time{color:#fff}
-.slot .check{font-size:11px;color:#fff}
+.slot .time{font-size:10px;color:var(--text2);transition:color .2s}
+.slot .icon{font-size:14px;margin-bottom:2px;opacity:0;transition:all .2s}
+.slot .float-text{position:absolute;top:-8px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:600;opacity:0;transition:all .3s;white-space:nowrap;pointer-events:none}
+
+/* State 0: unselected */
+.slot.s0{background:rgba(15,52,96,.35);border:1px solid rgba(255,255,255,.06)}
+.slot.s0 .time{color:var(--text3)}
+
+/* State 2: available (green) */
+.slot.s2{background:var(--green-bg);border:1px solid var(--green-border);box-shadow:0 4px 16px rgba(74,222,128,.2)}
+.slot.s2 .time{color:var(--green)}
+.slot.s2 .icon{opacity:1;color:var(--green)}
+
+/* State 1: reluctant (yellow) */
+.slot.s1{background:var(--yellow-bg);border:1px dashed var(--yellow-border);box-shadow:0 4px 16px rgba(251,191,36,.15)}
+.slot.s1 .time{color:var(--yellow)}
+.slot.s1 .icon{opacity:1;color:var(--yellow)}
+
+.float-text.show-green{opacity:1;top:-12px;color:var(--green)}
+.float-text.show-yellow{opacity:1;top:-12px;color:var(--yellow)}
+
 .summary{padding:12px 16px;display:flex;flex-direction:column;align-items:center}
 .summary-row{display:flex;align-items:baseline;gap:6px}
 .summary-num{font-size:28px;font-weight:700;color:var(--primary-light)}
 .summary-label{font-size:13px;color:var(--text2)}
 .summary-unit{font-size:12px;color:var(--text3)}
-.progress-bar{width:100%;height:3px;background:rgba(255,255,255,.06);border-radius:100px;margin-top:8px;overflow:hidden}
-.progress-fill{height:100%;background:linear-gradient(90deg,var(--primary),var(--primary-light));border-radius:100px;transition:width .4s cubic-bezier(.34,1.56,.64,1)}
+.summary-detail{font-size:12px;color:var(--yellow);margin-top:2px}
+.progress-bar{width:100%;height:6px;background:rgba(255,255,255,.06);border-radius:100px;margin-top:8px;overflow:hidden;display:flex}
+.progress-green{height:100%;background:var(--green);border-radius:100px;transition:width .4s cubic-bezier(.34,1.56,.64,1)}
+.progress-yellow{height:100%;background:var(--yellow);border-radius:100px;transition:width .4s cubic-bezier(.34,1.56,.64,1)}
 .vote-footer{position:absolute;bottom:70px;left:0;right:0;padding:16px;background:linear-gradient(to top,rgba(26,26,46,.98),transparent)}
 .vote-submit{width:100%;height:54px;border-radius:20px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:17px;font-weight:600;border:none;cursor:pointer;transition:all .2s}
 .vote-submit.has{background:linear-gradient(135deg,var(--primary),var(--primary-light));box-shadow:0 8px 32px rgba(233,69,96,.4)}
 .vote-submit:active{transform:scale(.97)}
+
+/* ======= RESULT PAGE ======= */
 .result-header{padding:20px 16px}
 .result-name{font-size:24px;font-weight:700;margin-bottom:8px;display:inline}
 .result-badge{font-size:11px;padding:4px 10px;border-radius:8px;background:rgba(74,222,128,.15);color:#4ade80;display:inline-block;vertical-align:middle;margin-left:8px}
-.stats-row{display:flex;gap:12px;padding:0 16px;margin-bottom:16px}
-.stat-wrap{flex:1;border-radius:20px;overflow:hidden}
-.stat-card{padding:16px;text-align:center;position:relative;z-index:1;border-radius:20px;background:rgba(15,52,96,.4);border:1px solid rgba(255,255,255,.06)}
+.stats-row{display:flex;gap:10px;padding:0 16px;margin-bottom:16px}
+.stat-card{flex:1;padding:16px;text-align:center;border-radius:20px;background:rgba(15,52,96,.4);border:1px solid rgba(255,255,255,.06)}
 .stat-num{font-size:32px;font-weight:700;background:linear-gradient(135deg,var(--primary),var(--primary-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.stat-label{font-size:12px;color:var(--text2)}
-.recommend-wrap{padding:0 16px;margin-bottom:16px}
-.rec-beam{border-radius:20px;overflow:hidden}
-.rec-beam::before{background:conic-gradient(from 0deg,transparent 0%,rgba(251,191,36,.6) 8%,transparent 16%);animation-duration:3s}
-.rec-beam::after{background:linear-gradient(160deg,#1a1a2e,#16213e)}
-.rec-card{padding:20px;display:flex;align-items:center;gap:16px;position:relative;z-index:1;background:rgba(15,52,96,.6)}
-.rec-trophy{font-size:32px}
-.rec-label{font-size:11px;color:#fbbf24;margin-bottom:4px}
-.rec-time{font-size:20px;font-weight:700;margin-bottom:4px}
-.rec-count{font-size:13px;color:#fbbf24;font-weight:600}
+.stat-label{font-size:12px;color:var(--text2);margin-top:2px}
+
+/* Consensus */
+.consensus-high{color:var(--green) !important;background:linear-gradient(135deg,var(--green),#34d399) !important;-webkit-background-clip:text !important;-webkit-text-fill-color:transparent !important}
+
+/* Top 3 Recommendations */
+.recommend-section{padding:0 16px;margin-bottom:20px}
+.recommend-section .title{font-size:15px;font-weight:600;margin-bottom:12px}
+.rec-card{padding:16px;margin-bottom:10px;border-radius:20px;background:rgba(15,52,96,.5);border:1px solid rgba(255,255,255,.06);position:relative;overflow:hidden}
+.rec-card.rank1{border-color:rgba(251,191,36,.3)}
+.rec-rank{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;font-size:14px;font-weight:700;margin-right:10px;flex-shrink:0}
+.rec-card.rank1 .rec-rank{background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#000}
+.rec-card.rank2 .rec-rank{background:rgba(192,192,192,.3);color:#ccc}
+.rec-card.rank3 .rec-rank{background:rgba(205,127,50,.3);color:#cd7f32}
+.rec-info{display:flex;align-items:center;margin-bottom:10px}
+.rec-time{font-size:17px;font-weight:700}
+.rec-score{font-size:13px;color:var(--yellow);font-weight:600;margin-left:10px}
+.pareto-badge{display:inline-block;font-size:10px;padding:2px 8px;border-radius:6px;background:rgba(251,191,36,.2);color:var(--pareto);border:1px solid rgba(251,191,36,.3);margin-left:8px}
+.rec-bar{height:8px;background:rgba(255,255,255,.06);border-radius:100px;overflow:hidden;display:flex;margin-bottom:4px}
+.rec-bar-green{height:100%;background:var(--green);transition:width .6s}
+.rec-bar-yellow{height:100%;background:var(--yellow);transition:width .6s}
+.rec-bar-gray{height:100%;background:rgba(255,255,255,.06)}
+.rec-bar-labels{display:flex;gap:12px;font-size:11px}
+.rec-bar-labels .g{color:var(--green)}.rec-bar-labels .y{color:var(--yellow)}.rec-bar-labels .gy{color:var(--text3)}
+
+/* Heatmap */
 .heatmap-section{padding:0 16px;margin-bottom:24px}
 .heatmap-title{font-size:15px;font-weight:600;margin-bottom:12px}
 .legend{display:flex;align-items:center;gap:8px;margin-bottom:14px;padding:10px 12px;background:rgba(255,255,255,.03);border-radius:10px}
 .legend-label{font-size:11px;color:var(--text2)}
-.legend-bar{display:flex;flex:1;gap:3px}
+.legend-bar{display:flex;flex:1;gap:2px}
 .legend-step{flex:1;height:20px;display:flex;align-items:center;justify-content:center;border-radius:4px}
 .legend-val{font-size:9px;font-weight:600;color:#fff}
 .date-row-hm{display:flex;gap:5px;margin-bottom:8px;padding-left:40px}
@@ -157,52 +116,41 @@ body{background:#0a0a14;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',
 .date-col-hm .dd{font-size:13px;font-weight:600}
 .heatmap-wrapper{display:flex;gap:6px}
 .time-col-hm{display:flex;flex-direction:column;gap:5px;width:34px;flex-shrink:0}
-.time-label-hm{height:34px;display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--text3)}
+.time-label-hm{height:38px;display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--text3)}
 .heatmap-grid-hm{display:flex;gap:5px;flex:1}
 .heatmap-col-hm{flex:1;display:flex;flex-direction:column;gap:5px}
-.heat-cell{height:34px;display:flex;align-items:center;justify-content:center;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;transition:all .3s}
+.heat-cell{height:38px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:7px;font-size:10px;font-weight:700;cursor:pointer;transition:all .3s;position:relative;border:1px solid transparent}
 .heat-cell:hover{transform:scale(1.08);z-index:10}
-.heat-cell.l0{background:rgba(15,52,96,.2);border:1px solid rgba(255,255,255,.03)}
-.heat-cell.l1{background:rgba(233,69,96,.35);border:1px solid rgba(233,69,96,.2)}
-.heat-cell.l2{background:rgba(233,69,96,.55);border:1px solid rgba(233,69,96,.3)}
-.heat-cell.l3{background:rgba(233,69,96,.75);border:1px solid rgba(233,69,96,.4)}
-.heat-cell.l4{background:linear-gradient(135deg,rgba(233,69,96,.9),rgba(255,107,107,.7));border:1px solid rgba(255,255,255,.2);box-shadow:0 0 12px rgba(233,69,96,.4)}
-.profile-header-bg{position:absolute;top:0;left:0;right:0;height:300px;overflow:hidden;pointer-events:none}
-.profile-orb{position:absolute;border-radius:50%;filter:blur(40px)}
-.profile-orb.o1{width:200px;height:200px;background:rgba(233,69,96,.2);top:-80px;right:-30px;animation:float-orb 8s ease-in-out infinite}
-.profile-orb.o2{width:140px;height:140px;background:rgba(255,107,107,.15);top:40px;left:-40px;animation:float-orb 6s ease-in-out infinite reverse}
-@keyframes float-orb{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(15px,-12px) scale(1.05)}66%{transform:translate(-12px,8px) scale(.95)}}
-.user-card-wrap{margin:50px 16px 16px;border-radius:20px;overflow:hidden}
-.user-beam::before{background:conic-gradient(from 0deg,transparent 0%,rgba(233,69,96,.5) 8%,rgba(255,107,107,.4) 12%,transparent 20%);animation-duration:4s}
-.user-beam::after{background:linear-gradient(160deg,#1a1a2e,#16213e);border-radius:18px}
-.user-card{padding:30px 20px 20px;display:flex;flex-direction:column;align-items:center;position:relative;z-index:1;background:rgba(15,52,96,.5);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.06)}
-.avatar-section{display:flex;flex-direction:column;align-items:center;margin-bottom:16px;position:relative}
-.lamp-avatar{position:absolute;top:-60px;left:50%;transform:translateX(-50%);width:200px;height:100px;background:radial-gradient(ellipse at center,rgba(233,69,96,.2) 0%,transparent 70%);pointer-events:none;animation:lamp-breathe 4s ease-in-out infinite;z-index:0}
-.avatar-ring{width:72px;height:72px;border-radius:50%;padding:3px;background:linear-gradient(135deg,var(--primary),var(--primary-light),#fbbf24);box-shadow:0 4px 16px rgba(233,69,96,.3);position:relative;z-index:1}
-.avatar-ring::after{content:'';position:absolute;inset:-5px;border-radius:50%;background:conic-gradient(from 0deg,var(--primary),var(--primary-light),#fbbf24,#4ade80,var(--primary));z-index:-1;animation:ring-rotate 3s linear infinite}
-@keyframes ring-rotate{to{transform:rotate(360deg)}}
-.avatar-inner{width:100%;height:100%;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-light));display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:600}
-.nickname{width:100%;text-align:center;font-size:20px;font-weight:600;margin-bottom:16px;background:transparent;border:none;color:#fff;outline:none}
-.user-stats{display:flex;width:100%;padding-top:16px;border-top:1px solid rgba(255,255,255,.08)}
-.stat-item{flex:1;text-align:center}
-.stat-item .num{font-size:28px;font-weight:700;background:linear-gradient(135deg,var(--primary),var(--primary-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.stat-item .lbl{font-size:12px;color:var(--text2);margin-top:2px}
-.stat-div{width:1px;background:rgba(255,255,255,.1)}
-.menu-section{padding:0 16px;margin-top:8px}
-.menu-group{background:rgba(15,52,96,.3);border-radius:16px;margin-bottom:12px;overflow:hidden;border:1px solid rgba(255,255,255,.05);backdrop-filter:blur(16px)}
-.menu-item{display:flex;align-items:center;padding:14px 16px;position:relative;overflow:hidden;cursor:pointer;transition:background .2s}
-.menu-item:active{background:rgba(255,255,255,.05)}
-.menu-item+.menu-item::before{content:'';position:absolute;top:0;left:50px;right:16px;height:1px;background:rgba(255,255,255,.05)}
-.menu-icon{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;margin-right:12px;flex-shrink:0}
-.menu-icon.c{background:rgba(233,69,96,.15)}.menu-icon.j{background:rgba(74,222,128,.15)}.menu-icon.n{background:rgba(251,191,36,.15)}.menu-icon.a{background:rgba(167,139,250,.15)}
-.menu-text{flex:1;font-size:15px}
-.menu-arrow{color:var(--text3);font-size:20px}
+.heat-cell .cell-score{font-size:11px;font-weight:700}
+.heat-cell .cell-detail{font-size:8px;color:rgba(255,255,255,.7);margin-top:1px}
+.heat-cell .cell-pareto{position:absolute;top:2px;right:3px;font-size:8px;color:var(--pareto)}
+/* 5-level heatmap colors */
+.heat-cell.hl0{background:rgba(15,52,96,.2);border-color:rgba(255,255,255,.03)}
+.heat-cell.hl1{background:rgba(30,58,95,.6);border-color:rgba(30,58,95,.4)}
+.heat-cell.hl2{background:rgba(45,106,79,.5);border-color:rgba(45,106,79,.3)}
+.heat-cell.hl3{background:rgba(251,191,36,.3);border-color:rgba(251,191,36,.2)}
+.heat-cell.hl4{background:linear-gradient(135deg,rgba(233,69,96,.7),rgba(255,107,107,.5));border-color:rgba(233,69,96,.3);box-shadow:0 0 8px rgba(233,69,96,.3)}
+
+/* Heatmap detail modal */
+.heat-modal-bg{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:300}
+.heat-modal-bg.show{display:flex}
+.heat-modal{width:300px;padding:24px;border-radius:20px;background:rgba(15,52,96,.9);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.1);position:relative}
+.heat-modal-title{font-size:16px;font-weight:700;margin-bottom:4px}
+.heat-modal-score{font-size:13px;color:var(--yellow);margin-bottom:14px}
+.heat-modal-group{margin-bottom:10px}
+.heat-modal-group-label{font-size:12px;font-weight:600;margin-bottom:4px}
+.heat-modal-group-label.g{color:var(--green)}
+.heat-modal-group-label.y{color:var(--yellow)}
+.heat-modal-group-label.n{color:var(--text3)}
+.heat-modal-users{font-size:13px;color:var(--text2);line-height:1.6}
+.heat-modal-close{position:absolute;top:12px;right:14px;font-size:20px;color:var(--text3);cursor:pointer}
+
+/* Modal */
 .modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:200}
 .modal-overlay.show{display:flex}
-.modal-box{width:280px;padding:40px 28px;border-radius:24px;position:relative;overflow:hidden;background:rgba(15,52,96,.7);backdrop-filter:blur(30px);border:1px solid rgba(255,255,255,.1);text-align:center;transform:scale(.9);opacity:0;transition:all .4s cubic-bezier(.34,1.56,.64,1)}
+.modal-box{width:280px;padding:40px 28px;border-radius:24px;background:rgba(15,52,96,.7);backdrop-filter:blur(30px);border:1px solid rgba(255,255,255,.1);text-align:center;transform:scale(.9);opacity:0;transition:all .4s cubic-bezier(.34,1.56,.64,1)}
 .modal-overlay.show .modal-box{transform:scale(1);opacity:1}
-.modal-check{width:60px;height:60px;border-radius:50%;border:3px solid var(--primary);margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:28px;color:var(--primary);animation:pop .5s ease}
-@keyframes pop{0%{transform:scale(0)}60%{transform:scale(1.15)}100%{transform:scale(1)}}
+.modal-check{width:60px;height:60px;border-radius:50%;border:3px solid var(--primary);margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:28px;color:var(--primary)}
 .modal-title{font-size:20px;font-weight:600;margin-bottom:8px}
 .modal-desc{font-size:14px;color:var(--text2);margin-bottom:24px}
 .modal-btns{display:flex;gap:12px}
@@ -210,147 +158,281 @@ body{background:#0a0a14;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',
 .modal-btn.sec{background:rgba(255,255,255,.1);color:#fff}
 .modal-btn.pri{background:linear-gradient(135deg,var(--primary),var(--primary-light));color:#fff}
 .modal-btn:active{transform:scale(.97)}
-.modal-close{position:absolute;top:12px;right:12px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:50%;cursor:pointer;font-size:18px;color:var(--text2)}
 .watermark{position:fixed;bottom:8px;right:12px;font-size:11px;color:rgba(255,255,255,.15);z-index:999;pointer-events:none}
 </style>
 </head>
 <body>
 <div class="phone">
 <div class="status-bar">聚会时间</div>
-<!-- INDEX -->
-<div class="page active" id="page-index">
-  <div class="beams-container"><div class="beam"></div><div class="beam"></div><div class="beam"></div></div>
-  <div class="meteor-container"><div class="meteor"></div><div class="meteor"></div><div class="meteor"></div><div class="meteor"></div><div class="meteor"></div></div>
-  <div class="index-header">
-    <div class="icon-box"><div style="display:flex;flex-direction:column;gap:2px"><div style="width:36px;height:8px;background:rgba(255,255,255,.3);border-radius:3px 3px 0 0"></div><div style="width:36px;height:28px;background:rgba(255,255,255,.9);border-radius:0 0 3px 3px;display:flex;align-items:center;justify-content:center"><div style="width:14px;height:7px;border-left:3px solid var(--primary);border-bottom:3px solid var(--primary);transform:rotate(-45deg)"></div></div></div><div class="lamp-glow"></div></div>
-    <div class="header-title text-generate" id="title-text"></div>
-    <div class="header-sub">轻松找到大家都有空的时间</div>
-  </div>
-  <div class="create-section"><div class="border-beam create-beam"><div class="beam-content"><div class="create-btn">✨ 创建新聚会</div></div></div><div class="create-hint">发起时间投票，邀请好友参与</div></div>
-  <div class="section">
-    <div class="section-header"><span class="section-title">我的聚会</span><span style="font-size:18px;cursor:pointer">↻</span></div>
-    <div class="event-card glass-card spotlight-card" data-spotlight><div class="spotlight-overlay"></div><div class="event-badge created">创建</div><div class="event-name">周末聚餐</div><div class="event-meta"><span>📅 3月29日 周六</span><span>👥 5人</span></div><div style="position:absolute;right:12px;top:50%;transform:translateY(-50%)"><span class="event-status">2天后过期</span></div></div>
-    <div class="event-card glass-card spotlight-card" data-spotlight><div class="spotlight-overlay"></div><div class="event-badge joined">参与</div><div class="event-name">生日派对</div><div class="event-meta"><span>📅 3月30日 周日</span><span>👥 8人</span></div><div style="position:absolute;right:12px;top:50%;transform:translateY(-50%)"><span class="event-status">3天后过期</span></div></div>
-    <div class="event-card glass-card spotlight-card" data-spotlight><div class="spotlight-overlay"></div><div class="event-badge created">创建</div><div class="event-name">团建活动</div><div class="event-meta"><span>📅 4月1日 周二</span><span>👥 3人</span></div><div style="position:absolute;right:12px;top:50%;transform:translateY(-50%)"><span class="event-status expired">已过期</span></div></div>
-  </div>
-  <div class="guide"><div class="guide-title">如何使用</div><div class="guide-step"><div class="guide-icon">📅</div><div><div style="font-size:14px;font-weight:500">创建聚会</div><div style="font-size:12px;color:var(--text3)">设置名称和时间范围</div></div></div><div class="guide-step"><div class="guide-icon">📤</div><div><div style="font-size:14px;font-weight:500">分享好友</div><div style="font-size:12px;color:var(--text3)">转发让好友填写时间</div></div></div><div class="guide-step"><div class="guide-icon">📊</div><div><div style="font-size:14px;font-weight:500">查看统计</div><div style="font-size:12px;color:var(--text3)">找出最佳聚会时间</div></div></div></div>
-</div>
-<!-- CREATE -->
-<div class="page" id="page-create">
-  <div class="create-page" style="padding:16px">
-    <div class="glass-section"><div class="form-label">聚会名称<span class="form-required">*</span></div><input class="form-input" placeholder="例如：周末聚餐、生日派对..." value="周五团建聚餐"></div>
-    <div class="glass-section"><div class="form-label">日期范围<span class="form-required">*</span></div><div class="date-row"><input class="form-input" value="2026-04-04" readonly><span class="date-sep">至</span><input class="form-input" value="2026-04-06" readonly></div><div class="form-hint">共 3 天</div></div>
-    <div class="glass-section"><div class="form-label">时段粒度</div><div class="options" id="gran-opts"><div class="option glass-card" onclick="selectGran(this)"><div class="option-title">1小时</div><div class="option-desc">精确安排</div></div><div class="option active glass-card" onclick="selectGran(this)"><div class="option-title">2小时</div><div class="option-desc">推荐</div></div><div class="option glass-card" onclick="selectGran(this)"><div class="option-title">半天</div><div class="option-desc">快速选择</div></div></div></div>
-    <div class="glass-section"><div class="form-label">过期时间</div><div class="expire-row"><div class="expire-opt glass-card" style="border-radius:12px" onclick="selectExpire(this)">24小时</div><div class="expire-opt active glass-card" style="border-radius:12px" onclick="selectExpire(this)">3天</div><div class="expire-opt glass-card" style="border-radius:12px" onclick="selectExpire(this)">7天</div><div class="expire-opt glass-card" style="border-radius:12px" onclick="selectExpire(this)">永久</div></div></div>
-    <div class="glass-section"><div class="form-label">备注说明<span style="font-size:12px;color:var(--text3);margin-left:8px">（可选）</span></div><textarea class="form-input" style="min-height:80px;resize:none" placeholder="添加说明...">地点：公司楼下火锅店 🍲</textarea></div>
-    <div class="submit-area"><div class="border-beam submit-beam"><div class="beam-content"><div class="submit-btn" onclick="showModal()">创建聚会</div></div></div></div>
-  </div>
-</div>
-<!-- VOTE -->
-<div class="page" id="page-vote">
+
+<!-- ======= VOTE PAGE ======= -->
+<div class="page active" id="page-vote">
   <div class="vote-header">
-    <div class="vote-name">周五团建聚餐</div>
+    <div class="vote-name">周五团建聚餐 🍲</div>
     <div class="vote-meta"><span>📅 4月4日 ~ 4月6日</span><span>👥 5人已填</span></div>
-    <div style="font-size:12px;color:var(--text3);padding:8px 12px;background:rgba(255,255,255,.03);border-radius:8px;border:1px solid rgba(251,191,36,.2)">💡 点击时段格子选择你有空的时间</div>
+    <div class="vote-hint">💡 点击选择有空时间，再点切换为勉强，再点取消</div>
   </div>
-  <div class="date-tabs" id="date-tabs"><div class="date-tab" onclick="selectDate(this,0)"><div class="weekday">周五</div><div class="day">4日</div></div><div class="date-tab active" onclick="selectDate(this,1)"><div class="weekday">周六</div><div class="day">5日</div></div><div class="date-tab" onclick="selectDate(this,2)"><div class="weekday">周日</div><div class="day">6日</div></div></div>
+  <div class="date-tabs" id="date-tabs">
+    <div class="date-tab" onclick="selectDate(this,0)"><div class="weekday">周五</div><div class="day">4日</div></div>
+    <div class="date-tab active" onclick="selectDate(this,1)"><div class="weekday">周六</div><div class="day">5日</div></div>
+    <div class="date-tab" onclick="selectDate(this,2)"><div class="weekday">周日</div><div class="day">6日</div></div>
+  </div>
   <div class="slots-section"><div class="slots-grid" id="slots-grid"></div></div>
-  <div class="summary"><div class="summary-row"><span class="summary-label">已选择</span><span class="summary-num" id="sel-count">0</span><span class="summary-unit">个时段</span></div><div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div></div>
-  <div class="vote-footer"><div class="vote-submit has" onclick="showModal()">✨ 提交我的时间</div></div>
+  <div class="summary">
+    <div class="summary-row"><span class="summary-label">已选择</span><span class="summary-num" id="sel-count">0</span><span class="summary-unit">个时段</span></div>
+    <div class="summary-detail" id="sel-detail"></div>
+    <div class="progress-bar"><div class="progress-green" id="prog-green" style="width:0%"></div><div class="progress-yellow" id="prog-yellow" style="width:0%"></div></div>
+  </div>
+  <div class="vote-footer"><div class="vote-submit has" onclick="showSubmitModal()">✨ 提交我的时间</div></div>
 </div>
-<!-- RESULT -->
+
+<!-- ======= RESULT PAGE ======= -->
 <div class="page" id="page-result">
   <div class="result-header">
     <div class="result-name">周五团建聚餐<span class="result-badge">3天后过期</span></div>
     <div style="font-size:13px;color:var(--text2);margin-top:6px">📅 4月4日 ~ 4月6日 · 2小时粒度</div>
   </div>
+
+  <!-- Stats: 3 cards -->
   <div class="stats-row">
-    <div class="stat-wrap shimmer-border"><div class="stat-card"><div class="stat-num" id="stat-p">0</div><div class="stat-label">参与人数</div></div></div>
-    <div class="stat-wrap shimmer-border"><div class="stat-card"><div class="stat-num" id="stat-b">0</div><div class="stat-label">最高票数</div></div></div>
+    <div class="stat-card"><div class="stat-num" id="stat-p">5</div><div class="stat-label">参与人数</div></div>
+    <div class="stat-card"><div class="stat-num">3</div><div class="stat-label">候选时段</div></div>
+    <div class="stat-card"><div class="stat-num consensus-high">87%</div><div class="stat-label">共识度</div></div>
   </div>
-  <div class="recommend-wrap"><div class="rec-beam border-beam"><div class="beam-content"><div class="rec-card"><div class="rec-trophy">🏆</div><div><div class="rec-label">最佳推荐时段</div><div class="rec-time">周六 14:00-16:00</div><div class="rec-count">5 人有空 (100%)</div></div></div></div></div></div>
+
+  <!-- Top 3 Recommendations -->
+  <div class="recommend-section">
+    <div class="title">🏆 推荐时段</div>
+
+    <div class="rec-card rank1">
+      <div class="rec-info"><div class="rec-rank">1</div><div class="rec-time">周六 14:00-16:00</div><div class="rec-score">满意度 87%</div><span class="pareto-badge">★ 帕累托最优</span></div>
+      <div class="rec-bar"><div class="rec-bar-green" style="width:56%"></div><div class="rec-bar-yellow" style="width:11%"></div><div class="rec-bar-gray" style="width:33%"></div></div>
+      <div class="rec-bar-labels"><span class="g">5人方便</span><span class="y">1人勉强</span><span class="gy">3人不行</span></div>
+    </div>
+
+    <div class="rec-card rank2">
+      <div class="rec-info"><div class="rec-rank">2</div><div class="rec-time">周六 16:00-18:00</div><div class="rec-score">满意度 80%</div><span class="pareto-badge">★ 帕累托最优</span></div>
+      <div class="rec-bar"><div class="rec-bar-green" style="width:56%"></div><div class="rec-bar-yellow" style="width:22%"></div><div class="rec-bar-gray" style="width:22%"></div></div>
+      <div class="rec-bar-labels"><span class="g">5人方便</span><span class="y">2人勉强</span><span class="gy">2人不行</span></div>
+    </div>
+
+    <div class="rec-card rank3">
+      <div class="rec-info"><div class="rec-rank">3</div><div class="rec-time">周日 14:00-16:00</div><div class="rec-score">满意度 73%</div></div>
+      <div class="rec-bar"><div class="rec-bar-green" style="width:44%"></div><div class="rec-bar-yellow" style="width:11%"></div><div class="rec-bar-gray" style="width:44%"></div></div>
+      <div class="rec-bar-labels"><span class="g">4人方便</span><span class="y">1人勉强</span><span class="gy">4人不行</span></div>
+    </div>
+  </div>
+
+  <!-- Heatmap -->
   <div class="heatmap-section">
-    <div class="heatmap-title">时段热力图</div>
-    <div class="legend"><div class="legend-label">人数：</div><div class="legend-bar"><div class="legend-step" style="background:rgba(15,52,96,.3)"><span class="legend-val">0</span></div><div class="legend-step" style="background:rgba(233,69,96,.25)"><span class="legend-val">1</span></div><div class="legend-step" style="background:rgba(233,69,96,.45)"><span class="legend-val">2</span></div><div class="legend-step" style="background:rgba(233,69,96,.65)"><span class="legend-val">3</span></div><div class="legend-step" style="background:linear-gradient(135deg,rgba(233,69,96,.8),rgba(255,107,107,.6))"><span class="legend-val">4</span></div><div class="legend-step" style="background:linear-gradient(135deg,var(--primary),var(--primary-light))"><span class="legend-val">5</span></div></div><div class="legend-label" style="font-size:10px;color:var(--text3);margin-left:4px">点击查看详情</div></div>
-    <div class="date-row-hm"><div class="date-col-hm"><div class="dw">周五</div><div class="dd">4日</div></div><div class="date-col-hm"><div class="dw">周六</div><div class="dd">5日</div></div><div class="date-col-hm"><div class="dw">周日</div><div class="dd">6日</div></div></div>
+    <div class="heatmap-title">偏好热力图</div>
+    <div class="legend">
+      <div class="legend-label">偏好得分：</div>
+      <div class="legend-bar">
+        <div class="legend-step" style="background:rgba(15,52,96,.4)"><span class="legend-val">0%</span></div>
+        <div class="legend-step" style="background:rgba(30,58,95,.7)"><span class="legend-val">25%</span></div>
+        <div class="legend-step" style="background:rgba(45,106,79,.6)"><span class="legend-val">50%</span></div>
+        <div class="legend-step" style="background:rgba(251,191,36,.4)"><span class="legend-val">75%</span></div>
+        <div class="legend-step" style="background:linear-gradient(135deg,rgba(233,69,96,.7),rgba(255,107,107,.5))"><span class="legend-val">100%</span></div>
+      </div>
+      <div class="legend-label" style="font-size:9px;color:var(--text3)">点击查看详情</div>
+    </div>
+    <div class="date-row-hm">
+      <div class="date-col-hm"><div class="dw">周五</div><div class="dd">4日</div></div>
+      <div class="date-col-hm"><div class="dw">周六</div><div class="dd">5日</div></div>
+      <div class="date-col-hm"><div class="dw">周日</div><div class="dd">6日</div></div>
+    </div>
     <div class="heatmap-wrapper">
       <div class="time-col-hm" id="time-col"></div>
       <div class="heatmap-grid-hm" id="heatmap"></div>
     </div>
   </div>
 </div>
-<!-- PROFILE -->
-<div class="page" id="page-profile">
-  <div class="profile-header-bg"><div class="profile-orb o1"></div><div class="profile-orb o2"></div></div>
-  <div class="user-card-wrap border-beam user-beam"><div class="beam-content"><div class="user-card">
-    <div class="avatar-section"><div class="lamp-avatar"></div><div class="avatar-ring"><div class="avatar-inner">D</div></div></div>
-    <input class="nickname" value="Damon" readonly>
-    <div class="user-stats"><div class="stat-item"><div class="num" id="prof-c">0</div><div class="lbl">创建聚会</div></div><div class="stat-div"></div><div class="stat-item"><div class="num" id="prof-j">0</div><div class="lbl">参与聚会</div></div></div>
-  </div></div></div>
-  <div class="menu-section">
-    <div class="menu-group glass-card">
-      <div class="menu-item spotlight-card" data-spotlight><div class="spotlight-overlay"></div><div class="menu-icon c">📝</div><div class="menu-text">我的创建</div><div class="menu-arrow">›</div></div>
-      <div class="menu-item spotlight-card" data-spotlight><div class="spotlight-overlay"></div><div class="menu-icon j">🎯</div><div class="menu-text">我的参与</div><div class="menu-arrow">›</div></div>
-    </div>
-    <div class="menu-group glass-card">
-      <div class="menu-item spotlight-card" data-spotlight><div class="spotlight-overlay"></div><div class="menu-icon n">🔔</div><div class="menu-text">通知设置</div><div style="font-size:12px;color:var(--text3);margin-right:8px">敬请期待</div><div class="menu-arrow">›</div></div>
-      <div class="menu-item spotlight-card" data-spotlight><div class="spotlight-overlay"></div><div class="menu-icon a">💡</div><div class="menu-text">关于</div><div class="menu-arrow">›</div></div>
-    </div>
-  </div>
-</div>
+
 <!-- TAB BAR -->
 <div class="tab-bar">
-  <div class="tab active" onclick="switchTab('index')"><div class="icon">🏠</div><div class="label">首页</div></div>
-  <div class="tab" onclick="switchTab('create')"><div class="icon">➕</div><div class="label">创建</div></div>
   <div class="tab" onclick="switchTab('vote')"><div class="icon">📊</div><div class="label">投票</div></div>
   <div class="tab" onclick="switchTab('result')"><div class="icon">📈</div><div class="label">结果</div></div>
-  <div class="tab" onclick="switchTab('profile')"><div class="icon">👤</div><div class="label">我的</div></div>
 </div>
 </div>
-<!-- MODAL -->
-<div class="modal-overlay" id="success-modal">
+
+<!-- Submit Modal -->
+<div class="modal-overlay" id="submit-modal">
   <div class="modal-box">
-    <div class="modal-close" onclick="hideModal()">×</div>
     <div class="modal-check">✓</div>
     <div class="modal-title">提交成功！</div>
-    <div class="modal-desc">感谢你的参与，已选择 <span id="modal-count">5</span> 个时段</div>
-    <div class="modal-btns"><div class="modal-btn sec" onclick="hideModal();switchTab('result')">查看统计</div><div class="modal-btn pri" onclick="hideModal()">继续修改</div></div>
+    <div class="modal-desc">已选择 <span id="modal-avail">0</span> 个有空 · <span id="modal-reluct">0</span> 个勉强</div>
+    <div class="modal-btns">
+      <div class="modal-btn pri" onclick="hideModal('submit-modal');switchTab('result')">查看结果</div>
+      <div class="modal-btn sec" onclick="hideModal('submit-modal')">继续修改</div>
+    </div>
   </div>
 </div>
-<div class="watermark">Hero UI / Aceternity Preview</div>
+
+<!-- Heatmap Detail Modal -->
+<div class="heat-modal-bg" id="heat-modal" onclick="hideModal('heat-modal')">
+  <div class="heat-modal" onclick="event.stopPropagation()">
+    <div class="heat-modal-close" onclick="hideModal('heat-modal')">×</div>
+    <div class="heat-modal-title" id="hm-title"></div>
+    <div class="heat-modal-score" id="hm-score"></div>
+    <div class="heat-modal-group"><div class="heat-modal-group-label g">🟢 方便（<span id="hm-avail-count">0</span>人）</div><div class="heat-modal-users" id="hm-avail-users"></div></div>
+    <div class="heat-modal-group"><div class="heat-modal-group-label y">🟡 勉强（<span id="hm-reluct-count">0</span>人）</div><div class="heat-modal-users" id="hm-reluct-users"></div></div>
+    <div class="heat-modal-group"><div class="heat-modal-group-label n">⬚ 不方便（<span id="hm-unavail-count">0</span>人）</div><div class="heat-modal-users" id="hm-unavail-users"></div></div>
+  </div>
+</div>
+
+<div class="watermark">偏好加权投票 Preview</div>
+
 <script>
-// Text Generate
-function textGenerate(t,el){el.innerHTML='';t.split('').forEach((c,i)=>{const s=document.createElement('span');s.className='char';s.textContent=c;s.style.animationDelay=i*.05+'s';el.appendChild(s)})}
-textGenerate('聚会时间',document.getElementById('title-text'));
-// Tabs
-function switchTab(n){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.getElementById('page-'+n).classList.add('active');document.querySelectorAll('.tab')[['index','create','vote','result','profile'].indexOf(n)].classList.add('active');if(n==='result'){animateNum('stat-p',5,1000);animateNum('stat-b',5,800)}if(n==='profile'){animateNum('prof-c',3,800);setTimeout(()=>animateNum('prof-j',7,800),200)}}
-// Spotlight
-document.querySelectorAll('[data-spotlight]').forEach(c=>{c.addEventListener('mousemove',e=>{const r=c.getBoundingClientRect();const x=((e.clientX-r.left)/r.width*100).toFixed(1);const y=((e.clientY-r.top)/r.height*100).toFixed(1);const o=c.querySelector('.spotlight-overlay');if(o){o.style.setProperty('--sx',x+'%');o.style.setProperty('--sy',y+'%');o.classList.add('active')}});c.addEventListener('mouseleave',()=>{const o=c.querySelector('.spotlight-overlay');if(o)o.classList.remove('active')})});
-// Vote Slots - 0:00~24:00 (2h granularity = 12 slots)
+// === TAB SWITCH ===
+function switchTab(n){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.getElementById('page-'+n).classList.add('active');document.querySelectorAll('.tab')[['vote','result'].indexOf(n)].classList.add('active')}
+
+// === VOTE PAGE: 3-state cycle ===
 const times=['0:00','2:00','4:00','6:00','8:00','10:00','12:00','14:00','16:00','18:00','20:00','22:00'];
-const selected=new Set([3,4,5,6,7]);
-const grid=document.getElementById('slots-grid');
-let selCount=selected.size;
-function renderSlots(){grid.innerHTML='';times.forEach((t,i)=>{const s=selected.has(i);const d=document.createElement('div');d.className='slot'+(s?' selected':'');d.innerHTML=`<span class="time">${t}</span>${s?'<span class="check">✓</span>':''}`;d.addEventListener('click',()=>toggleSlot(i));grid.appendChild(d)});updateSummary()}
-function toggleSlot(i){if(selected.has(i))selected.delete(i);else selected.add(i);selCount=selected.size;renderSlots()}
-function updateSummary(){animateNum('sel-count',selCount,300);document.getElementById('progress-fill').style.width=Math.round(selCount/times.length*100)+'%'}
+// slots[day][slot] = 0(unselected) | 1(reluctant) | 2(available)
+const slots = [
+  [0,0,0,2,2,2,2,1,0,0,0,0],  // 周五
+  [0,0,0,1,2,2,2,2,2,1,0,0],  // 周六
+  [0,0,0,0,0,1,2,2,1,0,0,0],  // 周日
+];
+const dateNames = ['周五 4日','周六 5日','周日 6日'];
+let currentDay = 1;
+
+function selectDate(el, dayIdx) {
+  currentDay = dayIdx;
+  document.querySelectorAll('#date-tabs .date-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  renderSlots();
+}
+
+function renderSlots() {
+  const grid = document.getElementById('slots-grid');
+  grid.innerHTML = '';
+  slots[currentDay].forEach((state, i) => {
+    const d = document.createElement('div');
+    d.className = 'slot s' + state;
+    d.innerHTML = `<span class="icon">${state===2?'✓':state===1?'~':''}</span><span class="time">${times[i]}</span><span class="float-text"></span>`;
+    d.addEventListener('click', () => toggleSlot(i));
+    grid.appendChild(d);
+  });
+  updateSummary();
+}
+
+function toggleSlot(i) {
+  const s = slots[currentDay][i];
+  slots[currentDay][i] = (s + 2) % 3; // 0→2→1→0
+  renderSlots();
+  // Float text
+  const grid = document.getElementById('slots-grid');
+  const cell = grid.children[i];
+  const ft = cell.querySelector('.float-text');
+  const ns = slots[currentDay][i];
+  if (ns === 2) { ft.textContent = '有空'; ft.className = 'float-text show-green'; }
+  else if (ns === 1) { ft.textContent = '勉强'; ft.className = 'float-text show-yellow'; }
+  else { ft.className = 'float-text'; }
+  setTimeout(() => { ft.className = 'float-text'; }, 800);
+  updateSummary();
+}
+
+function updateSummary() {
+  const daySlots = slots[currentDay];
+  let avail = 0, reluct = 0;
+  daySlots.forEach(s => { if(s===2) avail++; if(s===1) reluct++; });
+  const total = 12;
+  document.getElementById('sel-count').textContent = avail + reluct;
+  document.getElementById('sel-detail').textContent = reluct > 0 ? `其中 ${reluct} 个勉强` : '';
+  document.getElementById('prog-green').style.width = (avail/total*100) + '%';
+  document.getElementById('prog-yellow').style.width = (reluct/total*100) + '%';
+}
 renderSlots();
-// Heatmap with time labels and date labels
+
+// === RESULT PAGE: Heatmap ===
 const timeLabels=['0:00','2:00','4:00','6:00','8:00','10:00','12:00','14:00','16:00','18:00','20:00','22:00'];
-const heatData=[[0,0,2,3,4,5,5,4,3,0,0,0],[0,1,3,5,5,5,4,3,2,1,0,0],[0,0,2,4,4,5,4,3,1,0,0,0]];
-const tc=document.getElementById('time-col');const hm=document.getElementById('heatmap');
-timeLabels.forEach(t=>{const d=document.createElement('div');d.className='time-label-hm';d.textContent=t;tc.appendChild(d)});
-// level 根据值计算: 0人=l0, 1=l1, 2=l2, 3=l3, 4=l4, 5=l4
-function getLevel(v){return v===0?0:v<=1?1:v<=2?2:v<=3?3:4}
-heatData.forEach((col,ci)=>{const cDiv=document.createElement('div');cDiv.className='heatmap-col-hm';col.forEach(v=>{const cell=document.createElement('div');cell.className='heat-cell l'+getLevel(v);cell.textContent=v>0?v:'';cDiv.appendChild(cell)});hm.appendChild(cDiv)});
-// Animate number
-function animateNum(id,target,dur){const el=document.getElementById(id);if(!el)return;const start=parseInt(el.textContent)||0;const st=Date.now();function step(){const p=Math.min((Date.now()-st)/dur,1);const e=1-Math.pow(1-p,3);el.textContent=Math.round(start+(target-start)*e);if(p<1)requestAnimationFrame(step)}step()}
-// Modal
-function selectGran(el){document.querySelectorAll('#gran-opts .option').forEach(o=>o.classList.remove('active'));el.classList.add('active')}
-function selectExpire(el){el.parentElement.querySelectorAll('.expire-opt').forEach(o=>o.classList.remove('active'));el.classList.add('active')}
-function selectDate(el,i){document.querySelectorAll('#date-tabs .date-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active')}
-function showModal(){document.getElementById('modal-count').textContent=selCount;document.getElementById('success-modal').classList.add('show')}
-function hideModal(){document.getElementById('success-modal').classList.remove('show')}
+const users = ['小明','小红','小李','小张','小王'];
+// voteData[user][day][slot] = 0/1/2
+const voteData = [
+  [[0,0,0,2,2,2,2,0,0,0,0,0],[0,0,0,2,2,2,2,2,2,0,0,0],[0,0,0,0,0,0,2,2,0,0,0,0]], // 小明
+  [[0,0,0,2,2,2,1,1,0,0,0,0],[0,0,0,1,2,2,2,2,2,1,0,0],[0,0,0,0,1,2,2,2,1,0,0,0]], // 小红
+  [[0,0,0,0,1,2,2,2,0,0,0,0],[0,0,0,0,2,2,2,2,2,0,0,0],[0,0,0,0,0,1,2,2,0,0,0,0]], // 小李
+  [[0,0,0,2,2,2,2,2,1,0,0,0],[0,0,1,1,2,2,2,2,1,1,0,0],[0,0,0,0,0,0,2,2,1,0,0,0]], // 小张
+  [[0,0,0,0,0,2,2,0,0,0,0,0],[0,0,0,2,2,2,2,2,2,0,0,0],[0,0,0,0,0,1,2,1,0,0,0,0]], // 小王
+];
+
+// Compute heatmap data: prefScore, availableUsers, reluctantUsers per cell
+const heatmapData = [];
+for (let d = 0; d < 3; d++) {
+  const col = [];
+  for (let s = 0; s < 12; s++) {
+    const avail = [], reluct = [], unavail = [];
+    let weightedSum = 0;
+    users.forEach((u, ui) => {
+      const v = voteData[ui][d][s];
+      if (v === 2) { avail.push(u); weightedSum += 2; }
+      else if (v === 1) { reluct.push(u); weightedSum += 1; }
+      else { unavail.push(u); }
+    });
+    const maxScore = users.length * 2;
+    const prefScore = Math.round(weightedSum / maxScore * 100);
+    col.push({ prefScore, avail, reluct, unavail, weightedSum });
+  }
+  heatmapData.push(col);
+}
+
+function getHeatLevel(score) {
+  if (score === 0) return 'hl0';
+  if (score <= 25) return 'hl1';
+  if (score <= 50) return 'hl2';
+  if (score <= 75) return 'hl3';
+  return 'hl4';
+}
+
+// Pareto slots (hardcoded for demo)
+const paretoSlots = new Set(['1_6','1_7','1_5']);
+
+const tc = document.getElementById('time-col');
+timeLabels.forEach(t => { const d = document.createElement('div'); d.className='time-label-hm'; d.textContent=t; tc.appendChild(d); });
+
+const hm = document.getElementById('heatmap');
+heatmapData.forEach((col, d) => {
+  const cDiv = document.createElement('div');
+  cDiv.className = 'heatmap-col-hm';
+  col.forEach((cell, s) => {
+    const el = document.createElement('div');
+    const level = getHeatLevel(cell.prefScore);
+    const isPareto = paretoSlots.has(d+'_'+s);
+    el.className = 'heat-cell ' + level;
+    const availCount = cell.avail.length;
+    const reluctCount = cell.reluct.length;
+    el.innerHTML = `<span class="cell-score">${cell.prefScore > 0 ? cell.prefScore+'%' : ''}</span><span class="cell-detail">${availCount > 0 || reluctCount > 0 ? availCount+'✓'+(reluctCount>0?' '+reluctCount+'~':'') : ''}</span>${isPareto?'<span class="cell-pareto">★</span>':''}`;
+    el.addEventListener('click', () => showHeatDetail(d, s, cell));
+    cDiv.appendChild(el);
+  });
+  hm.appendChild(cDiv);
+});
+
+function showHeatDetail(d, s, cell) {
+  const dayNames = ['周五 4日','周六 5日','周日 6日'];
+  const h = parseInt(timeLabels[s]);
+  document.getElementById('hm-title').textContent = dayNames[d] + ' ' + String(h).padStart(2,'0') + ':00-' + String(h+2).padStart(2,'0') + ':00';
+  document.getElementById('hm-score').textContent = '偏好得分 ' + cell.prefScore + '%';
+  document.getElementById('hm-avail-count').textContent = cell.avail.length;
+  document.getElementById('hm-avail-users').textContent = cell.avail.join(' · ') || '无';
+  document.getElementById('hm-reluct-count').textContent = cell.reluct.length;
+  document.getElementById('hm-reluct-users').textContent = cell.reluct.join(' · ') || '无';
+  document.getElementById('hm-unavail-count').textContent = cell.unavail.length;
+  document.getElementById('hm-unavail-users').textContent = cell.unavail.join(' · ') || '无';
+  document.getElementById('heat-modal').classList.add('show');
+}
+
+function showModal(id) { document.getElementById(id).classList.add('show'); }
+function hideModal(id) { document.getElementById(id).classList.remove('show'); }
+function showSubmitModal() {
+  let avail=0, reluct=0;
+  slots.forEach(day => day.forEach(s => { if(s===2)avail++; if(s===1)reluct++; }));
+  document.getElementById('modal-avail').textContent = avail;
+  document.getElementById('modal-reluct').textContent = reluct;
+  showModal('submit-modal');
+}
 </script>
 </body>
 </html>
