@@ -1,8 +1,13 @@
-// 投票页面逻辑
+// 投票页面逻辑 - 三态偏好版本
 const util = require('../../utils/util')
 const userUtil = require('../../utils/user')
 const { animateNumber } = require('../../utils/ui-effects')
 const app = getApp()
+
+// 偏好分值常量
+const SCORE_NONE = 0    // 未选
+const SCORE_RELUCTANT = 1 // 勉强
+const SCORE_AVAILABLE = 2 // 有空
 
 Page({
   data: {
@@ -27,27 +32,35 @@ Page({
     // 每个日期的时段数量
     slotsPerDay: 12,
 
-    // 选择状态
-    slots: {}, // { '2024-03-23_0': true, ... }
-    selectedCount: 0,
-    displayCount: 0, // 数字动画用的显示值
+    // 选择状态 - 三态：0=未选, 1=勉强, 2=有空
+    slots: {},
+    availableCount: 0,   // 有空数量
+    reluctantCount: 0,   // 勉强数量
+    displayCount: 0,     // 数字动画用的显示值（总数）
     counterPercent: 0,
 
     // 提交状态
     submitting: false,
     showSuccess: false,
     countAnimated: false,
-    subscribeRequested: false,  // 是否已请求订阅
+    subscribeRequested: false,
 
     // 动画状态
-    gridVisible: true,        // 日期切换过渡
-    animatingSlotIndex: -1,   // 当前正在动画的格子索引
+    gridVisible: true,
+    animatingSlotIndex: -1,
     animatingSlotAction: '',  // 'select' | 'deselect'
+
+    // 浮现状态文字
+    floatingSlotIndex: -1,
+    floatingText: '',
+
+    // 首次使用引导
+    showGuide: false,
+    guideAnimStep: 0,
   },
 
   onLoad(options) {
     const { id } = options
-    // 参数验证
     if (!id || typeof id !== 'string' || id.length < 5) {
       wx.showToast({ title: '参数错误', icon: 'none' })
       setTimeout(() => {
@@ -68,7 +81,6 @@ Page({
   // 加载活动数据
   async loadEvent(eventId) {
     try {
-      // 尝试从云开发获取数据
       if (wx.cloud) {
         const db = wx.cloud.database()
         const eventRes = await db.collection('events').doc(eventId).get()
@@ -79,18 +91,15 @@ Page({
 
         const event = eventRes.data
 
-        // 检查是否过期
         if (util.isExpired(event.expireAt)) {
           this.setData({ loading: false, expired: true, event })
           return
         }
 
-        // 获取参与人数
         const countRes = await db.collection('responses')
           .where({ eventId })
           .count()
 
-        // 检查用户是否已填写
         const userRes = await db.collection('responses')
           .where({
             eventId,
@@ -104,25 +113,28 @@ Page({
         if (userRes.data && userRes.data.length > 0) {
           const userData = userRes.data[0]
           existingNickname = userData.nickname || ''
+          // 兼容旧格式：数组 → { slotId: 2 }
           if (userData.slots) {
-            userData.slots.forEach(slot => {
-              existingSlots[slot] = true
-            })
+            if (Array.isArray(userData.slots)) {
+              userData.slots.forEach(slot => {
+                existingSlots[slot] = SCORE_AVAILABLE
+              })
+            } else if (typeof userData.slots === 'object') {
+              // 新格式已经是 { slotId: score }
+              existingSlots = { ...userData.slots }
+            }
           }
         }
 
         this.initEventData(event, countRes.total, existingNickname, existingSlots)
       } else {
-        // 开发环境使用模拟数据
         this.initMockData()
       }
     } catch (err) {
-      // 使用模拟数据
       this.initMockData()
     }
   },
 
-  // 初始化模拟数据
   initMockData() {
     const today = new Date()
     const tomorrow = new Date(today)
@@ -137,29 +149,27 @@ Page({
 
     const event = {
       _id: 'demo123',
-      name: '周末聚餐 🍲',
+      name: '周末聚餐',
       startDate: formatDate(today),
       endDate: formatDate(tomorrow),
       granularity: 'twoHours',
-      note: '地点待定，选好时间后大家一起商量～'
+      note: '地点待定，选好时间后大家一起商量~'
     }
 
     this.initEventData(event, 5, '', {})
   },
 
-  // 初始化活动数据
   initEventData(event, participantCount, nickname, existingSlots) {
-    // 生成日期数组
     const dates = this.generateDates(event.startDate, event.endDate)
 
-    // 根据粒度计算时段数量和时间标签
     const granularity = event.granularity || 'twoHours'
     let slotsPerDay = 12
     let timeLabels = []
 
     if (granularity === 'hour') {
       slotsPerDay = 24
-      timeLabels = ['0', '2', '4', '6', '8', '10', '12', '14', '16', '18', '20', '22']
+      timeLabels = []
+      for (let i = 0; i < 24; i++) timeLabels.push(String(i))
     } else if (granularity === 'twoHours') {
       slotsPerDay = 12
       timeLabels = ['0', '2', '4', '6', '8', '10', '12', '14', '16', '18', '20', '22']
@@ -168,16 +178,11 @@ Page({
       timeLabels = ['上午', '下午', '晚上', '深夜']
     }
 
-    // 生成所有时段
-    const allSlots = this.generateAllSlots(dates, granularity)
-
-    // 合并已有选择
     const slots = { ...existingSlots }
 
-    // 计算已选数量
-    const selectedCount = Object.keys(slots).filter(k => slots[k]).length
+    // 统计有空和勉强数量
+    const counts = this._countSlots(slots)
 
-    // 日期范围文本
     const startDateText = util.formatDateShort(event.startDate)
     const endDateText = util.formatDateShort(event.endDate)
     const dateRangeText = startDateText === endDateText
@@ -191,8 +196,9 @@ Page({
       },
       dates,
       slots,
-      selectedCount,
-      displayCount: selectedCount, // 初始显示值
+      availableCount: counts.available,
+      reluctantCount: counts.reluctant,
+      displayCount: counts.available + counts.reluctant,
       participantCount,
       nickname,
       granularity,
@@ -201,7 +207,6 @@ Page({
       loading: false
     })
 
-    // 如果用户没有设置过昵称，自动填充缓存的昵称
     if (!nickname) {
       const cachedNickname = userUtil.getNickname()
       if (cachedNickname && cachedNickname !== '匿名用户') {
@@ -209,11 +214,63 @@ Page({
       }
     }
 
-    // 设置当前显示的时段
     this.setCurrentSlots(0)
+
+    // 首次使用引导
+    this._checkShowGuide()
   },
 
-  // 生成日期数组
+  // 统计 slots 中的有空/勉强数量
+  _countSlots(slots) {
+    let available = 0
+    let reluctant = 0
+    Object.values(slots).forEach(score => {
+      if (score === SCORE_AVAILABLE) available++
+      else if (score === SCORE_RELUCTANT) reluctant++
+    })
+    return { available, reluctant }
+  },
+
+  // 检查是否显示首次引导
+  _checkShowGuide() {
+    try {
+      const seen = wx.getStorageSync('vote_guide_seen')
+      if (!seen) {
+        this.setData({ showGuide: true, guideAnimStep: 0 })
+        // 启动引导动画序列
+        this._runGuideAnimation()
+      }
+    } catch (e) {}
+  },
+
+  // 引导动画序列
+  _runGuideAnimation() {
+    const steps = [1, 2, 3]
+    let i = 0
+    const run = () => {
+      if (i >= steps.length) {
+        // 循环演示
+        i = 0
+      }
+      this.setData({ guideAnimStep: steps[i] })
+      i++
+      this._guideTimer = setTimeout(run, 1200)
+    }
+    this._guideTimer = setTimeout(run, 600)
+  },
+
+  // 关闭引导
+  closeGuide() {
+    if (this._guideTimer) {
+      clearTimeout(this._guideTimer)
+      this._guideTimer = null
+    }
+    this.setData({ showGuide: false })
+    try {
+      wx.setStorageSync('vote_guide_seen', true)
+    } catch (e) {}
+  },
+
   generateDates(startDate, endDate) {
     const dates = []
     const start = new Date(startDate)
@@ -233,7 +290,6 @@ Page({
     return dates
   },
 
-  // 格式化日期
   formatDate(d) {
     const y = d.getFullYear()
     const m = String(d.getMonth() + 1).padStart(2, '0')
@@ -241,37 +297,35 @@ Page({
     return `${y}-${m}-${day}`
   },
 
-  // 生成所有时段
   generateAllSlots(dates, granularity) {
     const slots = {}
-    let slotCount = 12 // 默认2小时粒度，12个时段
+    let slotCount = 12
 
     if (granularity === 'hour') slotCount = 24
     else if (granularity === 'halfDay') slotCount = 4
-    else slotCount = 12 // twoHours
+    else slotCount = 12
 
     dates.forEach(date => {
       for (let i = 0; i < slotCount; i++) {
         const key = `${date.date}_${i}`
-        slots[key] = false
+        slots[key] = SCORE_NONE
       }
     })
 
     return slots
   },
 
-  // 设置当前显示的时段
   setCurrentSlots(index) {
     const { dates, slots, slotsPerDay, granularity } = this.data
     const date = dates[index]
     const currentSlots = []
 
-    // 根据粒度生成时段，显示时间标签
     for (let i = 0; i < slotsPerDay; i++) {
       const id = `${date.date}_${i}`
+      const score = slots[id] || SCORE_NONE
       currentSlots.push({
         id,
-        selected: slots[id] || false,
+        score,
         timeLabel: util.formatTimeSlot(i, granularity)
       })
     }
@@ -282,45 +336,64 @@ Page({
     })
   },
 
-  // 切换日期（带过渡动画）
   switchDate(e) {
     const { index } = e.currentTarget.dataset
     if (index === this.data.currentDateIndex) return
 
-    // 先淡出
     this.setData({ gridVisible: false })
 
-    // 100ms 后切换数据并淡入
     setTimeout(() => {
       this.setCurrentSlots(index)
       this.setData({ gridVisible: true })
     }, 100)
   },
 
-  // 切换时段选择（带动画反馈）
+  // 三态循环点击：0 → 2 → 1 → 0
   toggleSlot(e) {
+    if (this._animating) return
     const { index } = e.currentTarget.dataset
-    const { currentSlots, selectedCount } = this.data
+    const { currentSlots, slots, availableCount, reluctantCount } = this.data
     const slot = currentSlots[index]
-    const newSelected = !slot.selected
+    const currentScore = slot.score || SCORE_NONE
 
-    // 设置动画状态
-    const animAction = newSelected ? 'select' : 'deselect'
+    // 循环：未选(0) → 有空(2) → 勉强(1) → 未选(0)
+    let newScore
+    if (currentScore === SCORE_NONE) newScore = SCORE_AVAILABLE
+    else if (currentScore === SCORE_AVAILABLE) newScore = SCORE_RELUCTANT
+    else newScore = SCORE_NONE
+
+    // 更新计数
+    let newAvailable = availableCount
+    let newReluctant = reluctantCount
+
+    if (currentScore === SCORE_AVAILABLE) newAvailable--
+    if (currentScore === SCORE_RELUCTANT) newReluctant--
+    if (newScore === SCORE_AVAILABLE) newAvailable++
+    if (newScore === SCORE_RELUCTANT) newReluctant++
+
+    const animAction = newScore > 0 ? 'select' : 'deselect'
+    const floatingText = newScore === SCORE_AVAILABLE ? '有空' : (newScore === SCORE_RELUCTANT ? '勉强' : '')
+
     this.setData({
-      [`slots.${slot.id}`]: newSelected,
-      [`currentSlots[${index}].selected`]: newSelected,
-      selectedCount: selectedCount + (newSelected ? 1 : -1),
+      [`slots.${slot.id}`]: newScore,
+      [`currentSlots[${index}].score`]: newScore,
+      availableCount: newAvailable,
+      reluctantCount: newReluctant,
       animatingSlotIndex: index,
-      animatingSlotAction: animAction
+      animatingSlotAction: animAction,
+      floatingSlotIndex: index,
+      floatingText
     })
 
-    // 延迟清除动画状态（让动画播放完）
+    // 清除动画状态
     setTimeout(() => {
       this.setData({
         animatingSlotIndex: -1,
-        animatingSlotAction: ''
+        animatingSlotAction: '',
+        floatingSlotIndex: -1,
+        floatingText: ''
       })
-    }, 350)
+    }, 800)
 
     // Ripple 效果
     if (e.changedTouches || e.touches) {
@@ -335,23 +408,112 @@ Page({
       }, 600)
     }
 
-    // 数字递增动画
-    const finalCount = newSelected ? selectedCount + 1 : selectedCount - 1
+    // 数字动画
+    const finalCount = newAvailable + newReluctant
     animateNumber(this, 'displayCount', finalCount, 400)
 
-    // 进度条
+    // 进度条 - 双色（绿+黄）
     const total = this.data.currentSlots.length
-    const percent = Math.round(finalCount / total * 100)
-    this.setData({ counterPercent: percent })
+    const greenPercent = Math.round(newAvailable / total * 100)
+    const yellowPercent = Math.round(newReluctant / total * 100)
+    this.setData({
+      counterPercent: greenPercent + yellowPercent,
+      counterGreenPercent: greenPercent,
+      counterYellowPercent: yellowPercent
+    })
 
     // 触觉反馈
     try {
-      wx.vibrateShort({ type: 'light' })
+      if (newScore === SCORE_AVAILABLE) {
+        wx.vibrateShort({ type: 'light' })
+      } else if (newScore === SCORE_RELUCTANT) {
+        wx.vibrateShort({ type: 'medium' })
+      }
     } catch (e) {}
   },
 
-  // 数字动画：从旧值逐步变化到新值
-  animateCount(from, to) {
+  // 清空当天（多米诺效果）
+  clearSelection() {
+    if (this._animating) return
+    this._animating = true
+    const { currentSlots } = this.data
+
+    currentSlots.forEach((slot, index) => {
+      const score = slot.score || SCORE_NONE
+      if (score > SCORE_NONE) {
+        setTimeout(() => {
+          this.setData({
+            [`slots.${slot.id}`]: SCORE_NONE,
+            [`currentSlots[${index}].score`]: SCORE_NONE,
+            animatingSlotIndex: index,
+            animatingSlotAction: 'deselect'
+          })
+          setTimeout(() => {
+            if (this.data.animatingSlotIndex === index) {
+              this.setData({ animatingSlotIndex: -1, animatingSlotAction: '' })
+            }
+          }, 350)
+        }, index * 30)
+      }
+    })
+
+    const totalAnimated = currentSlots.length
+    setTimeout(() => {
+      const newSlots = { ...this.data.slots }
+      currentSlots.forEach(slot => { newSlots[slot.id] = SCORE_NONE })
+      const counts = this._countSlots(newSlots)
+      const oldCount = this.data.availableCount + this.data.reluctantCount
+      this.setData({
+        availableCount: counts.available,
+        reluctantCount: counts.reluctant
+      })
+      this._animateCount(oldCount, counts.available + counts.reluctant)
+    }, totalAnimated * 30 + 50)
+    setTimeout(() => { this._animating = false }, totalAnimated * 30 + 100)
+  },
+
+  // 全选当天为"有空"（波浪效果）
+  selectAll() {
+    if (this._animating) return
+    this._animating = true
+    const { currentSlots } = this.data
+
+    currentSlots.forEach((slot, index) => {
+      const score = slot.score || SCORE_NONE
+      if (score !== SCORE_AVAILABLE) {
+        setTimeout(() => {
+          this.setData({
+            [`slots.${slot.id}`]: SCORE_AVAILABLE,
+            [`currentSlots[${index}].score`]: SCORE_AVAILABLE,
+            animatingSlotIndex: index,
+            animatingSlotAction: 'select'
+          })
+          setTimeout(() => {
+            if (this.data.animatingSlotIndex === index) {
+              this.setData({ animatingSlotIndex: -1, animatingSlotAction: '' })
+            }
+          }, 350)
+        }, index * 30)
+      }
+    })
+
+    const totalSlots = currentSlots.length
+    setTimeout(() => {
+      const newSlots = { ...this.data.slots }
+      currentSlots.forEach(slot => { newSlots[slot.id] = SCORE_AVAILABLE })
+      const counts = this._countSlots(newSlots)
+      const oldCount = this.data.availableCount + this.data.reluctantCount
+      this.setData({
+        availableCount: counts.available,
+        reluctantCount: counts.reluctant
+      })
+      this._animateCount(oldCount, counts.available + counts.reluctant)
+    }, totalSlots * 30 + 50)
+    setTimeout(() => { this._animating = false }, totalSlots * 30 + 100)
+  },
+
+  // 数字动画
+  _animateCount(from, to) {
     if (from === to) return
 
     const step = from < to ? 1 : -1
@@ -370,97 +532,33 @@ Page({
     }, interval)
   },
 
-  // 清空选择（多米诺效果）
-  clearSelection() {
-    const { currentSlots } = this.data
-
-    currentSlots.forEach((slot, index) => {
-      if (slot.selected) {
-        setTimeout(() => {
-          this.setData({
-            [`slots.${slot.id}`]: false,
-            [`currentSlots[${index}].selected`]: false,
-            animatingSlotIndex: index,
-            animatingSlotAction: 'deselect'
-          })
-          setTimeout(() => {
-            if (this.data.animatingSlotIndex === index) {
-              this.setData({ animatingSlotIndex: -1, animatingSlotAction: '' })
-            }
-          }, 350)
-        }, index * 30)
-      }
-    })
-
-    const totalSelected = currentSlots.length
-    setTimeout(() => {
-      const newSlots = { ...this.data.slots }
-      currentSlots.forEach(slot => { newSlots[slot.id] = false })
-      const selectedCount = Object.keys(newSlots).filter(k => newSlots[k]).length
-      const oldCount = this.data.selectedCount
-      this.setData({ selectedCount })
-      this.animateCount(oldCount, selectedCount)
-    }, totalSelected * 30 + 50)
-  },
-
-  // 全选当前日期（波浪效果）
-  selectAll() {
-    const { currentSlots } = this.data
-
-    currentSlots.forEach((slot, index) => {
-      if (!slot.selected) {
-        setTimeout(() => {
-          this.setData({
-            [`slots.${slot.id}`]: true,
-            [`currentSlots[${index}].selected`]: true,
-            animatingSlotIndex: index,
-            animatingSlotAction: 'select'
-          })
-          setTimeout(() => {
-            if (this.data.animatingSlotIndex === index) {
-              this.setData({ animatingSlotIndex: -1, animatingSlotAction: '' })
-            }
-          }, 350)
-        }, index * 30)
-      }
-    })
-
-    const totalSlots = currentSlots.length
-    setTimeout(() => {
-      const newSlots = { ...this.data.slots }
-      currentSlots.forEach(slot => { newSlots[slot.id] = true })
-      const selectedCount = Object.keys(newSlots).filter(k => newSlots[k]).length
-      const oldCount = this.data.selectedCount
-      this.setData({ selectedCount })
-      this.animateCount(oldCount, selectedCount)
-    }, totalSlots * 30 + 50)
-  },
-
-  // 昵称输入
   onNicknameInput(e) {
     this.setData({ nickname: e.detail.value })
   },
 
-  // 提交
+  // 提交 - 发送 { slotId: score } 格式
   async handleSubmit() {
-    const { selectedCount, submitting, eventId, nickname, slots } = this.data
+    const { availableCount, reluctantCount, submitting, eventId, nickname, slots } = this.data
+    const totalCount = availableCount + reluctantCount
 
-    if (submitting || selectedCount === 0) return
+    if (submitting || totalCount === 0) return
 
     this.setData({ submitting: true })
 
-    // 收集选中的时段
-    const selectedSlots = Object.keys(slots).filter(k => slots[k])
+    // 只发送 score > 0 的时段
+    const slotsObj = {}
+    Object.entries(slots).forEach(([id, score]) => {
+      if (score > 0) slotsObj[id] = score
+    })
 
     try {
       if (wx.cloud) {
-        // 调用云函数提交
         const res = await wx.cloud.callFunction({
           name: 'submitResponse',
           data: {
             eventId,
             nickname: nickname.trim() || '匿名用户',
-            slots: selectedSlots
+            slots: slotsObj  // 新格式：{ slotId: score }
           }
         })
 
@@ -470,7 +568,6 @@ Page({
           throw new Error(res.result?.error || '提交失败')
         }
       } else {
-        // 模拟成功
         this.showSuccessModal()
       }
     } catch (err) {
@@ -483,38 +580,38 @@ Page({
     }
   },
 
-  // 显示成功弹窗
   showSuccessModal() {
-    this.setData({ showSuccess: true })
-    wx.vibrateShort({ type: 'medium' })
-
-    // 记录本地通知（有人参与）
-    notificationUtil.saveLocalNotification('new_participant', {
-      participantName: this.data.nickname || '匿名用户',
-      eventName: this.data.event?.name || '聚会'
+    const { availableCount, reluctantCount } = this.data
+    this.setData({
+      showSuccess: true,
+      successAvailable: availableCount,
+      successReluctant: reluctantCount
     })
+    wx.vibrateShort({ type: 'medium' })
   },
 
-  // 开启提醒
   async requestSubscribe() {
     this.setData({ subscribeRequested: true })
-    const result = await notificationUtil.subscribeAll()
-    if (result === 'accepted') {
-      wx.showToast({ title: '已开启提醒', icon: 'success' })
-    } else if (result === 'rejected') {
-      wx.showToast({ title: '可在设置中开启', icon: 'none' })
-    }
+    try {
+      const result = await new Promise((resolve) => {
+        wx.requestSubscribeMessage({
+          tmplIds: ['your_template_id'],
+          success: res => resolve('accepted'),
+          fail: () => resolve('rejected')
+        })
+      })
+      if (result === 'accepted') {
+        wx.showToast({ title: '已开启提醒', icon: 'success' })
+      }
+    } catch (e) {}
   },
 
-  // 关闭成功弹窗
   closeSuccess() {
     this.setData({ showSuccess: false })
   },
 
-  // 阻止滚动穿透
   preventMove() {},
 
-  // 跳转到结果页
   goToResult() {
     const { eventId } = this.data
     wx.redirectTo({
@@ -522,7 +619,6 @@ Page({
     })
   },
 
-  // 分享
   onShareAppMessage() {
     const { event, participantCount } = this.data
     return {
@@ -535,6 +631,10 @@ Page({
     if (this._countTimer) {
       clearInterval(this._countTimer)
       this._countTimer = null
+    }
+    if (this._guideTimer) {
+      clearTimeout(this._guideTimer)
+      this._guideTimer = null
     }
   }
 })

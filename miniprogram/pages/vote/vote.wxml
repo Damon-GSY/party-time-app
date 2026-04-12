@@ -1,4 +1,4 @@
-<!--投票页面 - 时段选择（核心交互页面）-->
+<!--投票页面 - 三态偏好版-->
 <view class="page-container">
   <!-- 加载状态 -->
   <view class="loading-screen" wx:if="{{loading}}">
@@ -50,7 +50,7 @@
     <view class="tip-section fade-in" style="animation-delay: 0.15s;">
       <view class="tip-card">
         <text class="tip-icon">💡</text>
-        <text class="tip-text">点击时段格子选择你有空的时间</text>
+        <text class="tip-text">点击选择：有空 → 勉强 → 取消</text>
       </view>
     </view>
 
@@ -72,7 +72,7 @@
       </scroll-view>
     </view>
 
-    <!-- 选择操作按钮（移动到网格上方） -->
+    <!-- 选择操作按钮 -->
     <view class="slot-actions fade-in" style="animation-delay: 0.22s;">
       <view class="action-row">
         <view class="day-selector">
@@ -81,10 +81,10 @@
         </view>
         <view class="quick-actions">
           <view class="quick-btn select-all" bindtap="selectAll">
-            <text>✓ 全选当天</text>
+            <text>全天有空</text>
           </view>
-          <view class="quick-btn clear" bindtap="clearSelection" wx:if="{{selectedCount > 0}}">
-            <text>✕ 清空当天</text>
+          <view class="quick-btn clear" bindtap="clearSelection" wx:if="{{availableCount + reluctantCount > 0}}">
+            <text>清空</text>
           </view>
         </view>
       </view>
@@ -97,10 +97,10 @@
         <view class="time-label" wx:for="{{timeLabels}}" wx:key="*this">{{item}}</view>
       </view>
 
-      <!-- 时段格子 -->
+      <!-- 时段格子 - 三态 -->
       <view class="slots-grid slots-{{slotsPerDay}} {{gridVisible ? 'grid-visible' : 'grid-hidden'}}">
         <view
-          class="slot-cell {{item.selected ? 'selected' : ''}} glass-slot {{item.partial ? 'partial' : ''}} {{animatingSlotIndex === index && animatingSlotAction === 'select' ? 'anim-select' : ''}} {{animatingSlotIndex === index && animatingSlotAction === 'deselect' ? 'anim-deselect' : ''}}"
+          class="slot-cell glass-slot {{item.score === 2 ? 'state-available' : ''}} {{item.score === 1 ? 'state-reluctant' : ''}} {{animatingSlotIndex === index && animatingSlotAction === 'select' ? 'anim-select' : ''}} {{animatingSlotIndex === index && animatingSlotAction === 'deselect' ? 'anim-deselect' : ''}}"
           wx:for="{{currentSlots}}"
           wx:key="id"
           bindtap="toggleSlot"
@@ -114,38 +114,54 @@
           </view>
           <view class="slot-inner">
             <text class="slot-time">{{item.timeLabel}}</text>
-            <view class="slot-check" wx:if="{{item.selected}}">
-              <text class="check-icon">✓</text>
+            <!-- 有空标记 -->
+            <view class="slot-icon" wx:if="{{item.score === 2}}">
+              <text class="icon-mark">✓</text>
             </view>
+            <!-- 勉强标记 -->
+            <view class="slot-icon" wx:if="{{item.score === 1}}">
+              <text class="icon-mark icon-wave">~</text>
+            </view>
+          </view>
+          <!-- 浮现状态文字 -->
+          <view class="floating-label {{floatingSlotIndex === index ? 'show' : ''}}" wx:if="{{floatingSlotIndex === index}}">
+            <text>{{floatingText}}</text>
           </view>
         </view>
       </view>
     </view>
 
-    <!-- 已选统计 -->
+    <!-- 已选统计 - 双色 -->
     <view class="selection-summary fade-in" style="animation-delay: 0.3s;">
-      <view class="summary-left">
-        <text class="summary-label">已选择</text>
-        <view class="counter-display">
-          <text class="summary-count {{countAnimated ? 'animated' : ''}}">{{displayCount || selectedCount}}</text>
+      <view class="summary-row">
+        <view class="summary-stat">
+          <text class="stat-dot dot-green"></text>
+          <text class="stat-num">{{availableCount}}</text>
+          <text class="stat-label">个有空</text>
         </view>
-        <text class="summary-unit">个时段</text>
+        <text class="stat-divider" wx:if="{{reluctantCount > 0}}">·</text>
+        <view class="summary-stat" wx:if="{{reluctantCount > 0}}">
+          <text class="stat-dot dot-yellow"></text>
+          <text class="stat-num">{{reluctantCount}}</text>
+          <text class="stat-label">个勉强</text>
+        </view>
       </view>
       <view class="counter-progress">
-        <view class="counter-progress-bar" style="width: {{counterPercent}}%;"></view>
+        <view class="counter-progress-green" style="width: {{counterGreenPercent || 0}}%;"></view>
+        <view class="counter-progress-yellow" style="width: {{counterYellowPercent || 0}}%;"></view>
       </view>
     </view>
 
     <!-- 提交按钮 -->
     <view class="submit-section fade-in" style="animation-delay: 0.35s;">
       <button
-        class="submit-btn {{submitting ? 'submitting' : ''}} {{selectedCount > 0 ? 'has-selection' : ''}}"
+        class="submit-btn {{submitting ? 'submitting' : ''}} {{availableCount + reluctantCount > 0 ? 'has-selection' : ''}}"
         bindtap="handleSubmit"
         disabled="{{submitting}}"
       >
         <view class="btn-content" wx:if="{{!submitting}}">
           <text class="btn-icon">✨</text>
-          <text class="btn-text">{{selectedCount > 0 ? '提交我的时间' : '请先选择时段'}}</text>
+          <text class="btn-text">{{availableCount + reluctantCount > 0 ? '提交我的时间' : '请先选择时段'}}</text>
         </view>
         <view class="btn-loading" wx:else>
           <view class="spinner"></view>
@@ -154,7 +170,51 @@
       </button>
     </view>
 
-    <!-- 成功弹窗 - 带粒子效果 -->
+    <!-- 首次引导 Overlay -->
+    <view class="guide-overlay {{showGuide ? 'show' : ''}}" catchtouchmove="preventMove">
+      <view class="guide-backdrop" bindtap="closeGuide"></view>
+      <view class="guide-content">
+        <text class="guide-title">选择你的时间偏好</text>
+        <view class="guide-steps">
+          <!-- 步骤1：点击→有空 -->
+          <view class="guide-step {{guideAnimStep >= 1 ? 'active' : ''}}">
+            <view class="guide-demo-cell">
+              <view class="guide-demo-inner {{guideAnimStep === 1 ? 'demo-available' : ''}}">✓</view>
+            </view>
+            <view class="guide-step-text">
+              <text class="guide-step-label">点击一次</text>
+              <text class="guide-step-desc">有空</text>
+            </view>
+          </view>
+          <!-- 步骤2：再点→勉强 -->
+          <view class="guide-step {{guideAnimStep >= 2 ? 'active' : ''}}">
+            <view class="guide-demo-cell">
+              <view class="guide-demo-inner {{guideAnimStep === 2 ? 'demo-reluctant' : ''}}">~</view>
+            </view>
+            <view class="guide-step-text">
+              <text class="guide-step-label">再点一次</text>
+              <text class="guide-step-desc">勉强可以</text>
+            </view>
+          </view>
+          <!-- 步骤3：再点→取消 -->
+          <view class="guide-step {{guideAnimStep >= 3 ? 'active' : ''}}">
+            <view class="guide-demo-cell">
+              <view class="guide-demo-inner {{guideAnimStep === 3 ? 'demo-empty' : ''}}"></view>
+            </view>
+            <view class="guide-step-text">
+              <text class="guide-step-label">再点一次</text>
+              <text class="guide-step-desc">取消选择</text>
+            </view>
+          </view>
+        </view>
+        <text class="guide-hint">不需要长按，不需要菜单，点就行</text>
+        <view class="guide-btn" bindtap="closeGuide">
+          <text>知道了</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 成功弹窗 -->
     <view class="success-modal {{showSuccess ? 'show' : ''}}" catchtouchmove="preventMove">
       <view class="modal-backdrop"></view>
       <!-- 粒子效果 -->
@@ -171,7 +231,6 @@
         <view class="confetti c10"></view>
         <view class="confetti c11"></view>
         <view class="confetti c12"></view>
-        <!-- 新增粒子 c13-c20：不同形状和轨迹 -->
         <view class="confetti c13"></view>
         <view class="confetti c14"></view>
         <view class="confetti c15"></view>
@@ -182,17 +241,13 @@
         <view class="confetti c20"></view>
       </view>
       <view class="modal-content glass-modal">
-        <!-- Beam 光效 -->
         <view class="success-beam" style="top: 30%;"></view>
         <view class="success-beam" style="top: 70%;"></view>
-        <!-- 流星 -->
         <view class="modal-meteor"></view>
         <view class="modal-meteor"></view>
         <view class="modal-meteor"></view>
-        <!-- 原有内容 -->
         <view class="success-animation">
           <view class="checkmark-circle"></view>
-          <!-- SVG 对号动画 -->
           <view class="checkmark-svg">
             <svg class="checkmark-svg-path" viewBox="0 0 52 52">
               <circle class="checkmark-svg-circle" cx="26" cy="26" r="24" fill="none" stroke="#e94560" stroke-width="2"/>
@@ -201,12 +256,14 @@
           </view>
         </view>
         <text class="success-title">提交成功！</text>
-        <text class="success-desc">感谢你的参与，已选择 {{selectedCount}} 个时段</text>
+        <view class="success-stats">
+          <text class="success-stat green">{{successAvailable}} 个有空</text>
+          <text class="success-stat yellow" wx:if="{{successReluctant > 0}}"> · {{successReluctant}} 个勉强</text>
+        </view>
         <view class="modal-actions">
           <button class="modal-btn secondary" bindtap="goToResult">查看统计</button>
           <button class="modal-btn primary" bindtap="closeSuccess">继续修改</button>
         </view>
-        <!-- 开启提醒按钮 -->
         <view class="subscribe-row" wx:if="{{!subscribeRequested}}">
           <button class="subscribe-btn" bindtap="requestSubscribe">
             <text class="subscribe-icon">🔔</text>

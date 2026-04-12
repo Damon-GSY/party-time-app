@@ -43,6 +43,7 @@ exports.main = async (event, context) => {
         eventId,
         _openid: openid
       })
+      .limit(1)
       .get()
 
     const responseName = nickname || '匿名用户'

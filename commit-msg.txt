@@ -1,0 +1,42 @@
+feat: preference-weighted voting to avoid Arrow impossibility pitfalls
+
+## Changes
+
+### Vote Page (vote.js/wxml/wxss)
+- Three-state cycle tap: unselected(0) -> available(2) -> reluctant(1) -> unselected
+- First-use guide overlay with animation demo
+- Progress bar shows available + reluctant counts separately
+- Submit sends slot score object instead of array
+
+### Result Page (result/result.wxml/wxss)
+- Top 3 recommendation cards with satisfaction distribution bars
+- Consensus level indicator (high/medium/low)
+- Preference-weighted heatmap (score-based coloring, not headcount)
+- Pareto optimal markers (gold star)
+- Slot detail modal shows available/reluctant/unavailable groups
+
+### Cloud Functions
+- getEventResult: weighted aggregation algorithm
+  - Score = H * (W + alpha*P) where H=hard count, W=weighted sum, P=preference concentration
+  - Satisfaction rate, consensus level, Pareto optimal set
+  - Paginated response query (up to 100 per batch)
+- submitResponse: accepts both old array and new object slot formats
+  - Normalizes old arrays to score=2 automatically
+
+### Data Compatibility
+- normalizeSlots handles both array and object formats
+- Old data treated as all available (score=2)
+- Zero migration required
+
+### Bug Fixes
+- P0: Paginated DB queries to handle 20-record cloud database limit
+- P0: hour-granularity timeLabels mismatch (12 to 24)
+- P1: _slotDetails moved to instance property (avoid setData bloat)
+- P1: Animation lock prevents toggleSlot during clearSelection/selectAll
+- P1: deleteEvent loading state protection
+- P1: submitResponse .limit(1) for existing record query
+- P1: formatSlotLabel endHour clamped to 24
+
+### Design Docs
+- DESIGN_ALGORITHM.md: complete algorithm specification
+- DESIGN_UX.md: UX interaction and visual design spec

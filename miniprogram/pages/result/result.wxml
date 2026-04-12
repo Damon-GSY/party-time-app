@@ -1,4 +1,4 @@
-<!--统计结果页面 - 热力图和推荐-->
+<!--统计结果页面 - 偏好加权版-->
 <view class="page-container">
   <!-- 加载状态 -->
   <view class="loading-screen" wx:if="{{loading}}">
@@ -22,12 +22,12 @@
         </view>
       </view>
       <view class="event-meta">
-        <text class="meta-item">📅 {{event.dateRangeText}}</text>
+        <text class="meta-item">{{event.dateRangeText}}</text>
       </view>
       <text class="event-note" wx:if="{{event.note}}">{{event.note}}</text>
     </view>
 
-    <!-- 统计卡片 -->
+    <!-- 统计卡片：参与人数 + 最高票数 + 共识度 -->
     <view class="stats-cards fade-in" style="animation-delay: 0.1s;">
       <view class="stat-card-wrapper shimmer-border">
         <view class="stat-card glass-stat-card">
@@ -45,27 +45,57 @@
           <text class="stat-label">最高票数</text>
         </view>
       </view>
+      <view class="stat-card-wrapper shimmer-border">
+        <view class="stat-card glass-stat-card">
+          <view class="stat-value">
+            <text class="stat-number consensus-num" style="color: {{consensusColor}};">{{displayConsensus}}%</text>
+          </view>
+          <text class="stat-label" style="color: {{consensusColor}};">{{consensusLabel}}</text>
+        </view>
+      </view>
     </view>
 
-    <!-- 最佳时段推荐 - 醒目卡片 -->
+    <!-- Top 3 推荐时段 -->
     <view class="recommend-section fade-in" style="animation-delay: 0.15s;">
-      <view class="recommend-beam-wrapper border-beam golden-beam" wx:if="{{bestSlot.timeText}}">
-        <view class="beam-content">
-          <view class="recommend-card recommend-highlight recommend-bounce">
-            <view class="recommend-icon-wrap">
-              <text class="recommend-trophy">🏆</text>
+      <view class="section-header">
+        <text class="section-title">推荐时段</text>
+      </view>
+
+      <block wx:if="{{topRecommendations.length > 0}}">
+        <view class="top3-list">
+          <view
+            class="top3-card {{item.rank === 1 ? 'top3-rank1' : ''}} slide-in-bounce"
+            wx:for="{{topRecommendations}}"
+            wx:key="slotId"
+            style="animation-delay: {{0.1 * index}}s;"
+          >
+            <!-- 排名 + 帕累托标签 -->
+            <view class="top3-header">
+              <view class="top3-rank-badge rank-{{item.rank}}">{{item.rank}}</view>
+              <view class="top3-pareto-badge" wx:if="{{item.isPareto}}">帕累托最优</view>
             </view>
-            <view class="recommend-content">
-              <text class="recommend-label">最佳推荐时段</text>
-              <text class="recommend-time">{{bestSlot.timeText}}</text>
-              <view class="recommend-meta">
-                <text class="recommend-count">{{bestSlot.count}} 人有空</text>
-                <text class="recommend-percent" wx:if="{{bestSlot.percent > 0}}">({{bestSlot.percent}}%)</text>
+            <!-- 时间 -->
+            <text class="top3-time">{{item.timeLabel}}</text>
+            <!-- 偏好得分 -->
+            <view class="top3-score-row">
+              <text class="top3-score-label">偏好得分</text>
+              <text class="top3-score-value">{{item.satisfactionPercent}}%</text>
+            </view>
+            <!-- 满意度分布条 -->
+            <view class="top3-bar-wrap">
+              <view class="top3-bar">
+                <view class="top3-bar-green" style="width: {{item.hardCount / participantCount * 100}}%;"></view>
+                <view class="top3-bar-yellow" style="width: {{item.reluctantCount / participantCount * 100}}%;"></view>
+              </view>
+              <view class="top3-bar-labels">
+                <text class="bar-label green">{{item.hardCount}}人方便</text>
+                <text class="bar-label yellow" wx:if="{{item.reluctantCount > 0}}">{{item.reluctantCount}}人勉强</text>
               </view>
             </view>
           </view>
         </view>
-      </view>
+      </block>
+
       <!-- 空状态 -->
       <view class="recommend-card recommend-empty" wx:else>
         <view class="recommend-icon-wrap">
@@ -74,26 +104,26 @@
         <view class="recommend-content">
           <text class="recommend-label">暂无数据</text>
           <text class="recommend-time">等待参与者投票</text>
-          <text class="recommend-hint">分享给好友开始投票吧～</text>
+          <text class="recommend-hint">分享给好友开始投票吧~</text>
         </view>
       </view>
     </view>
 
-    <!-- 热力图 - 仅有人参与时显示 -->
+    <!-- 偏好加权热力图 -->
     <view class="heatmap-section fade-in" style="animation-delay: 0.2s;" wx:if="{{participantCount > 0}}">
       <view class="section-header">
-        <text class="section-title">时段热力图</text>
+        <text class="section-title">偏好热力图</text>
       </view>
 
-      <!-- 清晰图例条 -->
+      <!-- 图例 -->
       <view class="legend-bar">
-        <text class="legend-label">人数：</text>
+        <text class="legend-label">偏好得分：</text>
         <view class="legend-gradient">
           <view class="legend-step" wx:for="{{legendSteps}}" wx:key="value" style="background: {{item.color}};">
             <text class="legend-value">{{item.value}}</text>
           </view>
         </view>
-        <text class="legend-hint">点击格子查看详情</text>
+        <text class="legend-hint">点击查看详情</text>
       </view>
 
       <!-- 日期标签 -->
@@ -110,19 +140,19 @@
           <text class="time-text" wx:for="{{timeLabels}}" wx:key="*this">{{item}}</text>
         </view>
 
-        <!-- 热力格子 - 加大尺寸 -->
         <view class="heatmap-grid">
           <view class="heatmap-column" wx:for="{{dates}}" wx:key="date">
             <view
-              class="heatmap-cell level-{{item.level}} glass-heatmap-cell"
+              class="heatmap-cell hlevel-{{item.level}} glass-heatmap-cell {{item.isPareto ? 'pareto-cell' : ''}}"
               wx:for="{{item.slots}}"
               wx:key="slotId"
               bindtap="showSlotDetail"
-              data-date="{{item.date}}"
-              data-hour="{{item.timeSlot}}"
+              data-slot-id="{{item.slotId}}"
               hover-class="heatmap-cell-hover"
             >
-              <text class="cell-count" wx:if="{{item.count > 0}}">{{item.count}}</text>
+              <text class="cell-pareto-star" wx:if="{{item.isPareto}}">★</text>
+              <text class="cell-pref" wx:if="{{item.prefScore > 0}}">{{item.prefScore}}%</text>
+              <text class="cell-detail" wx:if="{{item.count > 0}}">{{item.hardCount}}✓ {{item.reluctantCount}}~</text>
             </view>
           </view>
         </view>
@@ -137,7 +167,7 @@
       <text class="empty-title">还没有人参与</text>
       <text class="empty-desc">分享给好友，让大家一起选时间吧！</text>
       <button class="empty-share-btn shimmer-btn" open-type="share">
-        <text>📤 立即分享</text>
+        <text>立即分享</text>
       </button>
     </view>
 
@@ -169,7 +199,6 @@
 
     <!-- 操作按钮 -->
     <view class="action-section fade-in" style="animation-delay: 0.3s;">
-      <!-- 通知参与者按钮（仅创建者可见，且有参与者时） -->
       <button
         class="notify-btn {{notifying ? 'notifying' : ''}}"
         bindtap="notifyParticipants"
@@ -201,27 +230,65 @@
       </view>
     </view>
 
-    <!-- 时段详情弹窗 -->
+    <!-- 时段详情弹窗（偏好版） -->
     <view class="slot-modal {{showSlotModal ? 'show' : ''}}" catchtouchmove="preventMove">
       <view class="modal-backdrop" bindtap="closeSlotModal"></view>
       <view class="modal-content glass-modal">
         <view class="modal-header">
           <text class="modal-title">{{selectedSlotInfo.dateText}} {{selectedSlotInfo.timeText}}</text>
           <view class="modal-header-right">
-            <text class="modal-count">{{selectedSlotInfo.count}} 人有空</text>
+            <text class="modal-count">偏好得分 {{selectedSlotInfo.prefScore}}%</text>
             <view class="modal-close" bindtap="closeSlotModal" aria-label="关闭">×</view>
           </view>
         </view>
         <view class="modal-body">
-          <view class="participant-list" wx:if="{{selectedSlotInfo.users.length > 0}}">
-            <view class="participant-item" wx:for="{{selectedSlotInfo.users}}" wx:key="*this">
-              <view class="participant-avatar small">
-                <text>{{item[0]}}</text>
+          <!-- 有空 -->
+          <view class="modal-group" wx:if="{{selectedSlotInfo.hardUsers.length > 0}}">
+            <view class="modal-group-header">
+              <text class="modal-group-dot green"></text>
+              <text class="modal-group-label">有空（{{selectedSlotInfo.hardUsers.length}}人）</text>
+            </view>
+            <view class="participant-list">
+              <view class="participant-item" wx:for="{{selectedSlotInfo.hardUsers}}" wx:key="*this">
+                <view class="participant-avatar small">
+                  <text>{{item[0]}}</text>
+                </view>
+                <text class="participant-name">{{item}}</text>
               </view>
-              <text class="participant-name">{{item}}</text>
             </view>
           </view>
-          <view class="no-data" wx:else>
+          <!-- 勉强 -->
+          <view class="modal-group" wx:if="{{selectedSlotInfo.reluctantUsers.length > 0}}">
+            <view class="modal-group-header">
+              <text class="modal-group-dot yellow"></text>
+              <text class="modal-group-label">勉强（{{selectedSlotInfo.reluctantUsers.length}}人）</text>
+            </view>
+            <view class="participant-list">
+              <view class="participant-item" wx:for="{{selectedSlotInfo.reluctantUsers}}" wx:key="*this">
+                <view class="participant-avatar small">
+                  <text>{{item[0]}}</text>
+                </view>
+                <text class="participant-name">{{item}}</text>
+              </view>
+            </view>
+          </view>
+          <!-- 不方便 -->
+          <view class="modal-group" wx:if="{{selectedSlotInfo.unavailableUsers.length > 0}}">
+            <view class="modal-group-header">
+              <text class="modal-group-dot gray"></text>
+              <text class="modal-group-label">不方便（{{selectedSlotInfo.unavailableUsers.length}}人）</text>
+            </view>
+            <view class="participant-list">
+              <view class="participant-item" wx:for="{{selectedSlotInfo.unavailableUsers}}" wx:key="*this">
+                <view class="participant-avatar small gray-avatar">
+                  <text>{{item[0]}}</text>
+                </view>
+                <text class="participant-name unavailable-name">{{item}}</text>
+              </view>
+            </view>
+          </view>
+          <!-- 无数据 -->
+          <view class="no-data" wx:if="{{selectedSlotInfo.hardUsers.length === 0 && selectedSlotInfo.reluctantUsers.length === 0}}">
             <text>暂无人选择此时段</text>
           </view>
         </view>
