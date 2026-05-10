@@ -11,6 +11,10 @@ exports.main = async (event, context) => {
   const { eventId, nickname, slots } = event
   const openid = cloud.getWXContext().OPENID
 
+  if (!openid) {
+    return { success: false, error: '未授权' }
+  }
+
   // 参数校验
   if (!eventId || !slots || typeof slots !== 'object') {
     return {
@@ -30,6 +34,7 @@ exports.main = async (event, context) => {
     }
 
     const eventData = eventRes.data
+    // NOTE: 使用本地服务器时间比较，存在与数据库写入时间的时钟偏差风险
     if (eventData.expireAt && new Date() > new Date(eventData.expireAt)) {
       return {
         success: false,
@@ -94,10 +99,10 @@ exports.main = async (event, context) => {
       success: true
     }
   } catch (err) {
-    console.error('提交失败', err)
+    console.error('submitResponse failed:', err)
     return {
       success: false,
-      error: err.message || '提交失败'
+      error: '操作失败，请重试'
     }
   }
 }

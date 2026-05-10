@@ -11,6 +11,10 @@ exports.main = async (event, context) => {
   const { eventId } = event
   const openid = cloud.getWXContext().OPENID
 
+  if (!openid) {
+    return { success: false, error: '未授权' }
+  }
+
   if (!eventId) {
     return {
       success: false,
@@ -36,22 +40,21 @@ exports.main = async (event, context) => {
       }
     }
 
-    // 删除活动
-    await db.collection('events').doc(eventId).remove()
-
-    // 删除所有相关响应
+    // 先删除所有相关响应，再删除活动（避免孤立数据）
     await db.collection('responses').where({
       eventId
     }).remove()
+
+    await db.collection('events').doc(eventId).remove()
 
     return {
       success: true
     }
   } catch (err) {
-    console.error('删除活动失败', err)
+    console.error('deleteEvent failed:', err)
     return {
       success: false,
-      error: err.message || '删除失败'
+      error: '操作失败，请重试'
     }
   }
 }

@@ -239,7 +239,7 @@ exports.main = async (event, context) => {
       }
     }
   } catch (err) {
-    console.error('获取结果失败', err)
-    return { success: false, error: err.message || '获取失败' }
+    console.error('getEventResult failed:', err)
+    return { success: false, error: '操作失败，请重试' }
   }
 }

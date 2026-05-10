@@ -24,7 +24,8 @@ exports.main = async (event, context) => {
   let errorCount = 0
 
   try {
-    // 查询所有将在 24 小时内过期、且创建者已订阅的活动（分页查询）
+    // NOTE: 使用本地服务器时间比较，存在与数据库写入时间的时钟偏差风险
+  // 云开发 db.serverDate() 不支持算术运算，此处为最佳可用方案
     const CF_LIMIT = 100
     let allEvents = []
     let skipCount = 0
@@ -75,6 +76,18 @@ exports.main = async (event, context) => {
           }
         }
 
+        // 先写入通知日志（防止并发检查重复发送）
+        await db.collection('notification_logs').add({
+          data: {
+            eventId,
+            type: 'expiring_soon',
+            toOpenId: creatorOpenId,
+            status: 'pending',
+            content: { eventName },
+            createdAt: db.serverDate()
+          }
+        })
+
         // 格式化过期时间
         const expireDate = new Date(eventItem.expireAt)
         const diffHours = Math.floor((expireDate - now) / (60 * 60 * 1000))
@@ -102,6 +115,15 @@ exports.main = async (event, context) => {
         })
 
         if (sendResult.result && sendResult.result.success) {
+          // 更新通知日志状态为已发送
+          try {
+            await db.collection('notification_logs').where({
+              eventId,
+              type: 'expiring_soon',
+              toOpenId: creatorOpenId,
+              status: 'pending'
+            }).update({ data: { status: 'sent' } })
+          } catch (_) { /* non-critical */ }
           notifiedCount++
           console.log(`[checkExpiring] 已通知创建者 ${creatorOpenId}，活动：${eventName}`)
         } else {

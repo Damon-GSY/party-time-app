@@ -72,14 +72,24 @@ const getUserStats = async () => {
       .where({ _openid: '{openid}' })
       .count()
 
-    // 查询参与的聚会数量
-    const responsesRes = await db.collection('responses')
-      .where({ _openid: '{openid}' })
-      .field({ eventId: true })
-      .get()
+    // 查询参与的聚会数量（分页获取，客户端默认最多 20 条）
+    const PAGE_LIMIT = 20
+    let allResponses = []
+    let pageNum = 0
+    while (true) {
+      const resPage = await db.collection('responses')
+        .where({ _openid: '{openid}' })
+        .field({ eventId: true })
+        .skip(pageNum * PAGE_LIMIT)
+        .limit(PAGE_LIMIT)
+        .get()
+      allResponses.push(...resPage.data)
+      if (resPage.data.length < PAGE_LIMIT) break
+      pageNum++
+    }
 
     // 去重
-    const joinedEventIds = [...new Set(responsesRes.data.map(r => r.eventId))]
+    const joinedEventIds = [...new Set(allResponses.map(r => r.eventId))]
     // 减去自己创建的（避免重复计数）
     let joinedOnly = joinedEventIds.length
     if (createdRes.total > 0 && joinedEventIds.length > 0) {

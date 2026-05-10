@@ -96,9 +96,11 @@ Page({
 
       let joinedEvents = []
       if (joinedEventIds.length > 0) {
-        // 分批获取参与的聚会（in 限制 + get 默认 20 条）
-        for (let i = 0; i < joinedEventIds.length; i += MAX_LIMIT) {
-          const batchIds = joinedEventIds.slice(i, i + MAX_LIMIT)
+        // 分批获取参与的聚会
+        // 客户端 .get() 最多返回 20 条，.in() 每批建议不超过 10 个 ID
+        const BATCH_SIZE = 10
+        for (let i = 0; i < joinedEventIds.length; i += BATCH_SIZE) {
+          const batchIds = joinedEventIds.slice(i, i + BATCH_SIZE)
           const joinedRes = await db.collection('events')
             .where({ _id: db.command.in(batchIds) })
             .get()

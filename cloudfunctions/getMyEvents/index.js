@@ -10,6 +10,11 @@ const _ = db.command
 
 exports.main = async (event, context) => {
   const openid = cloud.getWXContext().OPENID
+
+  if (!openid) {
+    return { success: false, error: '未授权' }
+  }
+
   const { limit = 20, skip = 0 } = event
 
   try {
@@ -74,15 +79,21 @@ exports.main = async (event, context) => {
     const events = Array.from(eventMap.values())
       .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
 
+    // 对合并结果集应用分页
+    const safeLimit = Math.min(Math.max(Number(limit) || 20, 1), 50)
+    const safeSkip = Math.max(Number(skip) || 0, 0)
+    const pagedEvents = events.slice(safeSkip, safeSkip + safeLimit)
+
     return {
       success: true,
-      data: events
+      data: pagedEvents,
+      total: events.length
     }
   } catch (err) {
-    console.error('获取活动列表失败', err)
+    console.error('getMyEvents failed:', err)
     return {
       success: false,
-      error: err.message
+      error: '操作失败，请重试'
     }
   }
 }

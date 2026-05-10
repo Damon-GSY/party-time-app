@@ -1,4 +1,5 @@
 // 云函数 - 发送订阅消息通知
+// ⚠️  WARNING: REPLACE TEMPLATE_IDS WITH REAL VALUES BEFORE DEPLOYMENT
 const cloud = require('wx-server-sdk')
 
 cloud.init({
@@ -129,6 +130,6 @@ exports.main = async (event, context) => {
     }
   } catch (err) {
     console.error('[sendNotification] 异常', err)
-    return { success: false, error: err.message || '发送失败' }
+    return { success: false, error: '操作失败，请重试' }
   }
 }

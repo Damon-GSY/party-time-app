@@ -1,7 +1,8 @@
 /**
  * 通知配置 - 模板 ID 常量
- * 
- * 使用前请替换为你在微信公众平台申请的订阅消息模板 ID
+ *
+ * ⚠️  WARNING: REPLACE WITH REAL TEMPLATE IDs BEFORE DEPLOYMENT
+ * 当前模板 ID 为占位符，订阅消息功能不可用。
  * 申请路径：微信公众平台 -> 功能 -> 订阅消息 -> 选用模板
  */
 
