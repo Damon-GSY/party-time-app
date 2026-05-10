@@ -1,6 +1,16 @@
 // 海报页面逻辑 - Canvas 2D API
 const util = require('../../utils/util')
 
+// 偏好归一化：旧格式 slots 数组 → 全部视为有空=2分
+function normalizeSlots(slots) {
+  if (Array.isArray(slots)) {
+    const result = {}
+    slots.forEach(id => { result[id] = 2 })
+    return result
+  }
+  return slots || {}
+}
+
 // 海报设计尺寸（CSS像素）
 const POSTER_WIDTH = 375
 const POSTER_HEIGHT = 667
@@ -36,31 +46,45 @@ Page({
         if (!eventRes.data) throw new Error('活动不存在')
         const event = eventRes.data
 
-        // 获取参与人数
+        // 分页查询所有响应（db.get() 默认最多返回 20 条）
+        const MAX_LIMIT = 20
         const countRes = await db.collection('responses')
           .where({ eventId })
           .count()
+        const total = countRes.total
+        const batchTimes = Math.ceil(total / MAX_LIMIT)
+        const responses = []
+        for (let i = 0; i < batchTimes; i++) {
+          const resPage = await db.collection('responses')
+            .where({ eventId })
+            .skip(i * MAX_LIMIT)
+            .limit(MAX_LIMIT)
+            .get()
+          responses.push(...resPage.data)
+        }
 
-        // 获取所有响应（用于找最佳时段）
-        const responsesRes = await db.collection('responses')
-          .where({ eventId })
-          .get()
-        const responses = responsesRes.data || []
+        // 偏好加权聚合（与 result.js 一致）
+        const normalized = responses.map(resp => ({
+          ...resp,
+          _slots: normalizeSlots(resp.slots || resp.availableSlots)
+        }))
 
-        // 找最佳时段
-        const slotCounts = {}
-        responses.forEach(r => {
-          const slots = r.slots || r.availableSlots || []
-          slots.forEach(slotId => {
-            slotCounts[slotId] = (slotCounts[slotId] || 0) + 1
+        const N = normalized.length
+        const slotScores = {}
+        normalized.forEach(resp => {
+          Object.entries(resp._slots).forEach(([slotId, score]) => {
+            if (score > 0) {
+              slotScores[slotId] = (slotScores[slotId] || 0) + score
+            }
           })
         })
 
+        // 找最佳时段（按加权得分降序）
         let bestSlot = null
-        let maxCount = 0
-        Object.keys(slotCounts).forEach(slotId => {
-          if (slotCounts[slotId] > maxCount) {
-            maxCount = slotCounts[slotId]
+        let bestScore = -1
+        Object.keys(slotScores).forEach(slotId => {
+          if (slotScores[slotId] > bestScore) {
+            bestScore = slotScores[slotId]
             const [date, hour] = slotId.split('_')
             const weekDays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
             const d = new Date(date)
