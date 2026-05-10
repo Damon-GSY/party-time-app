@@ -205,13 +205,13 @@ body{background:#0a0a14;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',
     <div class="title">🏆 推荐时段</div>
 
     <div class="rec-card rank1">
-      <div class="rec-info"><div class="rec-rank">1</div><div class="rec-time">周六 14:00-16:00</div><div class="rec-score">满意度 87%</div><span class="pareto-badge">★ 帕累托最优</span></div>
+      <div class="rec-info"><div class="rec-rank">1</div><div class="rec-time">周六 14:00-16:00</div><div class="rec-score">满意度 87%</div></div>
       <div class="rec-bar"><div class="rec-bar-green" style="width:56%"></div><div class="rec-bar-yellow" style="width:11%"></div><div class="rec-bar-gray" style="width:33%"></div></div>
       <div class="rec-bar-labels"><span class="g">5人方便</span><span class="y">1人勉强</span><span class="gy">3人不行</span></div>
     </div>
 
     <div class="rec-card rank2">
-      <div class="rec-info"><div class="rec-rank">2</div><div class="rec-time">周六 16:00-18:00</div><div class="rec-score">满意度 80%</div><span class="pareto-badge">★ 帕累托最优</span></div>
+      <div class="rec-info"><div class="rec-rank">2</div><div class="rec-time">周六 16:00-18:00</div><div class="rec-score">满意度 80%</div></div>
       <div class="rec-bar"><div class="rec-bar-green" style="width:56%"></div><div class="rec-bar-yellow" style="width:22%"></div><div class="rec-bar-gray" style="width:22%"></div></div>
       <div class="rec-bar-labels"><span class="g">5人方便</span><span class="y">2人勉强</span><span class="gy">2人不行</span></div>
     </div>
@@ -386,8 +386,8 @@ function getHeatLevel(score) {
   return 'hl4';
 }
 
-// Pareto slots (hardcoded for demo)
-const paretoSlots = new Set(['1_6','1_7','1_5']);
+// Pareto logic removed — no longer shown to users
+const paretoSlots = new Set();
 
 const tc = document.getElementById('time-col');
 timeLabels.forEach(t => { const d = document.createElement('div'); d.className='time-label-hm'; d.textContent=t; tc.appendChild(d); });
