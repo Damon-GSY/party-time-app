@@ -76,25 +76,34 @@ Page({
         .limit(20)
         .get()
 
-      // 获取我参与的聚会
-      const responsesRes = await db.collection('responses')
-        .where({
-          _openid: '{openid}'
-        })
-        .field({ eventId: true })
-        .get()
+      // 获取我参与的聚会（分页查询，客户端默认最多 20 条）
+      const MAX_LIMIT = 20
+      let allResponses = []
+      let pageNum = 0
+      while (true) {
+        const resPage = await db.collection('responses')
+          .where({ _openid: '{openid}' })
+          .field({ eventId: true })
+          .skip(pageNum * MAX_LIMIT)
+          .limit(MAX_LIMIT)
+          .get()
+        allResponses.push(...resPage.data)
+        if (resPage.data.length < MAX_LIMIT) break
+        pageNum++
+      }
 
-      const joinedEventIds = [...new Set(responsesRes.data.map(r => r.eventId))]
+      const joinedEventIds = [...new Set(allResponses.map(r => r.eventId))]
 
       let joinedEvents = []
       if (joinedEventIds.length > 0) {
-        // 批量获取参与的聚会
-        const joinedRes = await db.collection('events')
-          .where({
-            _id: db.command.in(joinedEventIds)
-          })
-          .get()
-        joinedEvents = joinedRes.data
+        // 分批获取参与的聚会（in 限制 + get 默认 20 条）
+        for (let i = 0; i < joinedEventIds.length; i += MAX_LIMIT) {
+          const batchIds = joinedEventIds.slice(i, i + MAX_LIMIT)
+          const joinedRes = await db.collection('events')
+            .where({ _id: db.command.in(batchIds) })
+            .get()
+          joinedEvents.push(...joinedRes.data)
+        }
       }
 
       // 合并并标记类型
@@ -315,13 +324,13 @@ Page({
       wx.showLoading({ title: '删除中...' })
 
       if (wx.cloud) {
-        const db = wx.cloud.database()
-        // 删除活动
-        await db.collection('events').doc(id).remove()
-        // 删除所有响应
-        await db.collection('responses').where({
-          eventId: id
-        }).remove()
+        const res = await wx.cloud.callFunction({
+          name: 'deleteEvent',
+          data: { eventId: id }
+        })
+        if (!res.result || !res.result.success) {
+          throw new Error(res.result?.error || '删除失败')
+        }
       }
 
       wx.hideLoading()

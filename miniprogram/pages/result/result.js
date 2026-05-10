@@ -489,9 +489,13 @@ Page({
 
     try {
       if (wx.cloud) {
-        const db = wx.cloud.database()
-        await db.collection('events').doc(this.data.eventId).remove()
-        await db.collection('responses').where({ eventId: this.data.eventId }).remove()
+        const res = await wx.cloud.callFunction({
+          name: 'deleteEvent',
+          data: { eventId: this.data.eventId }
+        })
+        if (!res.result || !res.result.success) {
+          throw new Error(res.result?.error || '删除失败')
+        }
       }
       wx.hideLoading()
       wx.showToast({ title: '已删除', icon: 'success' })
@@ -525,8 +529,15 @@ Page({
     try {
       if (!wx.cloud) throw new Error('云开发未初始化')
       const db = wx.cloud.database()
-      const responsesRes = await db.collection('responses').where({ eventId }).get()
-      const responses = responsesRes.data || []
+      // 分页查询所有响应
+      const responses = []
+      const RLIMIT = 20
+      const rCount = await db.collection('responses').where({ eventId }).count()
+      for (let i = 0; i < Math.ceil(rCount.total / RLIMIT); i++) {
+        const rPage = await db.collection('responses').where({ eventId })
+          .skip(i * RLIMIT).limit(RLIMIT).get()
+        responses.push(...rPage.data)
+      }
       let successCount = 0
       let failCount = 0
 

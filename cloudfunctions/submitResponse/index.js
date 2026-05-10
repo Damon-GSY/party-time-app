@@ -12,7 +12,7 @@ exports.main = async (event, context) => {
   const openid = cloud.getWXContext().OPENID
 
   // 参数校验
-  if (!eventId || !slots || !Array.isArray(slots)) {
+  if (!eventId || !slots || typeof slots !== 'object') {
     return {
       success: false,
       error: '参数错误'
@@ -37,42 +37,39 @@ exports.main = async (event, context) => {
       }
     }
 
-    // 查找是否已有提交记录
-    const existingRes = await db.collection('responses')
-      .where({
-        eventId,
-        _openid: openid
-      })
-      .limit(1)
-      .get()
-
+    // 使用事务避免并发提交产生重复记录
     const responseName = nickname || '匿名用户'
 
-    if (existingRes.data && existingRes.data.length > 0) {
-      // 更新已有记录
-      await db.collection('responses').doc(existingRes.data[0]._id).update({
-        data: {
-          nickname: responseName,
-          slots,
-          updatedAt: db.serverDate()
-        }
-      })
-    } else {
-      // 创建新记录
-      await db.collection('responses').add({
-        data: {
-          eventId,
-          nickname: responseName,
-          slots,
-          createdAt: db.serverDate(),
-          updatedAt: db.serverDate()
-        }
-      })
-    }
+    await db.runTransaction(async transaction => {
+      const existingRes = await transaction.collection('responses')
+        .where({ eventId, _openid: openid })
+        .limit(1)
+        .get()
+
+      if (existingRes.data && existingRes.data.length > 0) {
+        await transaction.collection('responses').doc(existingRes.data[0]._id).update({
+          data: {
+            nickname: responseName,
+            slots,
+            updatedAt: db.serverDate()
+          }
+        })
+      } else {
+        await transaction.collection('responses').add({
+          data: {
+            eventId,
+            nickname: responseName,
+            slots,
+            createdAt: db.serverDate(),
+            updatedAt: db.serverDate()
+          }
+        })
+      }
+    })
 
     // 通知创建者：有人参与了投票
     try {
-      const creatorOpenId = eventData.createdBy || eventData._openid
+      const creatorOpenId = eventData._openid
       // 排除自己通知自己
       if (creatorOpenId && creatorOpenId !== openid) {
         await cloud.callFunction({

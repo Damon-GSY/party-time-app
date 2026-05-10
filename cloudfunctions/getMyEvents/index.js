@@ -16,22 +16,30 @@ exports.main = async (event, context) => {
     // 获取用户创建的活动
     const createdRes = await db.collection('events')
       .where({
-        createdBy: openid
+        _openid: openid
       })
       .orderBy('createdAt', 'desc')
       .skip(skip)
       .limit(Math.min(limit, 50))
       .get()
 
-    // 获取用户参与的活动ID
-    const responsesRes = await db.collection('responses')
-      .where({
-        _openid: openid
-      })
-      .field({ eventId: true })
-      .get()
+    // 获取用户参与的活动ID（分页查询）
+    const CF_LIMIT = 100
+    let allResponses = []
+    let skipCount = 0
+    while (true) {
+      const resPage = await db.collection('responses')
+        .where({ _openid: openid })
+        .field({ eventId: true })
+        .skip(skipCount)
+        .limit(CF_LIMIT)
+        .get()
+      allResponses.push(...resPage.data)
+      if (resPage.data.length < CF_LIMIT) break
+      skipCount += CF_LIMIT
+    }
 
-    const joinedEventIds = [...new Set(responsesRes.data.map(r => r.eventId))]
+    const joinedEventIds = [...new Set(allResponses.map(r => r.eventId))]
 
     let joinedEvents = []
     if (joinedEventIds.length > 0) {

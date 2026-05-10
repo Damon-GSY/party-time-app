@@ -29,7 +29,7 @@ exports.main = async (event, context) => {
     }
 
     // 验证权限：只有创建者可以删除
-    if (eventRes.data.createdBy !== openid) {
+    if (eventRes.data._openid !== openid) {
       return {
         success: false,
         error: '无权删除此活动'

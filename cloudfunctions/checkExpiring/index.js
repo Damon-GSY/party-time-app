@@ -13,9 +13,6 @@ const _ = db.command
 // 检查窗口：未来 24 小时内过期的活动
 const EXPIRE_WINDOW_HOURS = 24
 
-// 每次检查最大处理数量（防止超时）
-const MAX_EVENTS_PER_RUN = 50
-
 exports.main = async (event, context) => {
   console.log('[checkExpiring] 开始检查即将过期的活动')
 
@@ -27,24 +24,32 @@ exports.main = async (event, context) => {
   let errorCount = 0
 
   try {
-    // 查询所有将在 24 小时内过期、且创建者已订阅的活动
-    // 使用 createdAt 排序确保分页一致性
-    const eventsRes = await db.collection('events')
-      .where({
-        expireAt: _.gte(now.toISOString()).and(_.lte(windowEnd.toISOString())),
-        'notifications.creatorSubscribed': true
-      })
-      .orderBy('expireAt', 'asc')
-      .limit(MAX_EVENTS_PER_RUN)
-      .get()
+    // 查询所有将在 24 小时内过期、且创建者已订阅的活动（分页查询）
+    const CF_LIMIT = 100
+    let allEvents = []
+    let skipCount = 0
+    while (true) {
+      const eventsRes = await db.collection('events')
+        .where({
+          expireAt: _.gte(now.toISOString()).and(_.lte(windowEnd.toISOString())),
+          'notifications.creatorSubscribed': true
+        })
+        .orderBy('expireAt', 'asc')
+        .skip(skipCount)
+        .limit(CF_LIMIT)
+        .get()
+      allEvents.push(...(eventsRes.data || []))
+      if (eventsRes.data.length < CF_LIMIT) break
+      skipCount += CF_LIMIT
+    }
 
-    const events = eventsRes.data || []
+    const events = allEvents
     console.log(`[checkExpiring] 找到 ${events.length} 个即将过期的活动`)
 
     for (const eventItem of events) {
       checkedCount++
       const eventId = eventItem._id
-      const creatorOpenId = eventItem.createdBy || eventItem._openid
+      const creatorOpenId = eventItem._openid
       const eventName = eventItem.name || '聚会'
 
       try {
