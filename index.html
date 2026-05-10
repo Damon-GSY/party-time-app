@@ -85,7 +85,8 @@ body{background:#0a0a14;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',
 /* Top 3 Recommendations */
 .recommend-section{padding:0 16px;margin-bottom:20px}
 .recommend-section .title{font-size:15px;font-weight:600;margin-bottom:12px}
-.rec-card{padding:16px;margin-bottom:10px;border-radius:20px;background:rgba(15,52,96,.5);border:1px solid rgba(255,255,255,.06);position:relative;overflow:hidden}
+.rec-card{padding:16px;margin-bottom:10px;border-radius:20px;background:rgba(15,52,96,.5);border:1px solid rgba(255,255,255,.06);position:relative;overflow:hidden;cursor:pointer;transition:all .2s}
+.rec-card:active{transform:scale(.98)}
 .rec-card.rank1{border-color:rgba(251,191,36,.3)}
 .rec-rank{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;font-size:14px;font-weight:700;margin-right:10px;flex-shrink:0}
 .rec-card.rank1 .rec-rank{background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#000}
@@ -101,6 +102,7 @@ body{background:#0a0a14;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',
 .rec-bar-gray{height:100%;background:rgba(255,255,255,.06)}
 .rec-bar-labels{display:flex;gap:12px;font-size:11px}
 .rec-bar-labels .g{color:var(--green)}.rec-bar-labels .y{color:var(--yellow)}.rec-bar-labels .gy{color:var(--text3)}
+.rec-expand-hint{font-size:11px;color:var(--text3);margin-left:auto;white-space:nowrap}
 
 /* Heatmap */
 .heatmap-section{padding:0 16px;margin-bottom:24px}
@@ -204,20 +206,20 @@ body{background:#0a0a14;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',
   <div class="recommend-section">
     <div class="title">🏆 推荐时段</div>
 
-    <div class="rec-card rank1">
-      <div class="rec-info"><div class="rec-rank">1</div><div class="rec-time">周六 14:00-16:00</div><div class="rec-score">满意度 87%</div></div>
+    <div class="rec-card rank1" onclick="showRecDetail(0)">
+      <div class="rec-info"><div class="rec-rank">1</div><div class="rec-time">周六 14:00-16:00</div><div class="rec-score">满意度 87%</div><div class="rec-expand-hint">点击查看详情 ›</div></div>
       <div class="rec-bar"><div class="rec-bar-green" style="width:56%"></div><div class="rec-bar-yellow" style="width:11%"></div><div class="rec-bar-gray" style="width:33%"></div></div>
       <div class="rec-bar-labels"><span class="g">5人方便</span><span class="y">1人勉强</span><span class="gy">3人不行</span></div>
     </div>
 
-    <div class="rec-card rank2">
-      <div class="rec-info"><div class="rec-rank">2</div><div class="rec-time">周六 16:00-18:00</div><div class="rec-score">满意度 80%</div></div>
+    <div class="rec-card rank2" onclick="showRecDetail(1)">
+      <div class="rec-info"><div class="rec-rank">2</div><div class="rec-time">周六 16:00-18:00</div><div class="rec-score">满意度 80%</div><div class="rec-expand-hint">点击查看详情 ›</div></div>
       <div class="rec-bar"><div class="rec-bar-green" style="width:56%"></div><div class="rec-bar-yellow" style="width:22%"></div><div class="rec-bar-gray" style="width:22%"></div></div>
       <div class="rec-bar-labels"><span class="g">5人方便</span><span class="y">2人勉强</span><span class="gy">2人不行</span></div>
     </div>
 
-    <div class="rec-card rank3">
-      <div class="rec-info"><div class="rec-rank">3</div><div class="rec-time">周日 14:00-16:00</div><div class="rec-score">满意度 73%</div></div>
+    <div class="rec-card rank3" onclick="showRecDetail(2)">
+      <div class="rec-info"><div class="rec-rank">3</div><div class="rec-time">周日 14:00-16:00</div><div class="rec-score">满意度 73%</div><div class="rec-expand-hint">点击查看详情 ›</div></div>
       <div class="rec-bar"><div class="rec-bar-green" style="width:44%"></div><div class="rec-bar-yellow" style="width:11%"></div><div class="rec-bar-gray" style="width:44%"></div></div>
       <div class="rec-bar-labels"><span class="g">4人方便</span><span class="y">1人勉强</span><span class="gy">4人不行</span></div>
     </div>
@@ -415,6 +417,29 @@ function showHeatDetail(d, s, cell) {
   const h = parseInt(timeLabels[s]);
   document.getElementById('hm-title').textContent = dayNames[d] + ' ' + String(h).padStart(2,'0') + ':00-' + String(h+2).padStart(2,'0') + ':00';
   document.getElementById('hm-score').textContent = '偏好得分 ' + cell.prefScore + '%';
+  document.getElementById('hm-avail-count').textContent = cell.avail.length;
+  document.getElementById('hm-avail-users').textContent = cell.avail.join(' · ') || '无';
+  document.getElementById('hm-reluct-count').textContent = cell.reluct.length;
+  document.getElementById('hm-reluct-users').textContent = cell.reluct.join(' · ') || '无';
+  document.getElementById('hm-unavail-count').textContent = cell.unavail.length;
+  document.getElementById('hm-unavail-users').textContent = cell.unavail.join(' · ') || '无';
+  document.getElementById('heat-modal').classList.add('show');
+}
+
+// Recommendation detail — show who can come for top 3 slots
+const recSlots = [
+  { day: 1, slot: 6 },  // 周六 14:00-16:00
+  { day: 1, slot: 7 },  // 周六 16:00-18:00
+  { day: 2, slot: 6 },  // 周日 14:00-16:00
+];
+
+function showRecDetail(rankIdx) {
+  const { day, slot } = recSlots[rankIdx];
+  const cell = heatmapData[day][slot];
+  const dayNames = ['周五 4日','周六 5日','周日 6日'];
+  const h = parseInt(timeLabels[slot]);
+  document.getElementById('hm-title').textContent = dayNames[day] + ' ' + String(h).padStart(2,'0') + ':00-' + String(h+2).padStart(2,'0') + ':00';
+  document.getElementById('hm-score').textContent = '偏好得分 ' + cell.prefScore + '% · 满意度 ' + ['87%','80%','73%'][rankIdx];
   document.getElementById('hm-avail-count').textContent = cell.avail.length;
   document.getElementById('hm-avail-users').textContent = cell.avail.join(' · ') || '无';
   document.getElementById('hm-reluct-count').textContent = cell.reluct.length;
