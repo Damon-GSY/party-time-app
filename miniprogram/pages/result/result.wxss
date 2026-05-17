@@ -549,7 +549,7 @@
 }
 
 .time-text {
-  height: 80rpx;
+  height: 88rpx;
   font-size: 20rpx;
   color: var(--text-muted);
   display: flex;
@@ -587,8 +587,8 @@
 
 /* 热力格子 - 5级偏好渐变 */
 .heatmap-cell {
-  height: 80rpx;
-  min-height: 80rpx;
+  height: 88rpx;
+  min-height: 88rpx;
   border-radius: 12rpx;
   display: flex;
   flex-direction: column;

@@ -16,12 +16,32 @@ exports.main = async (event, context) => {
   }
 
   // 参数校验
-  if (!eventId || !slots || typeof slots !== 'object') {
+  if (!eventId || !slots || typeof slots !== 'object' || Array.isArray(slots)) {
     return {
       success: false,
       error: '参数错误'
     }
   }
+
+  // Slots 格式校验：key 为字符串，value 必须为 0/1/2，数量上限 200
+  const slotEntries = Object.entries(slots)
+  if (slotEntries.length > 200) {
+    return { success: false, error: '参数错误' }
+  }
+  const validScores = new Set([0, 1, 2])
+  for (const [key, val] of slotEntries) {
+    if (typeof key !== 'string' || key.length > 64 || !validScores.has(val)) {
+      return { success: false, error: '参数错误' }
+    }
+  }
+
+  // 昵称 XSS 过滤：剥离 HTML 标签，截断长度
+  const sanitizeName = (raw) => {
+    if (typeof raw !== 'string') return ''
+    return raw.replace(/<[^>]*>/g, '').trim().slice(0, 20)
+  }
+  const safeName = sanitizeName(nickname)
+  const responseName = safeName || '匿名用户'
 
   try {
     // 检查活动是否存在且未过期
@@ -41,9 +61,6 @@ exports.main = async (event, context) => {
         error: '活动已过期'
       }
     }
-
-    // 使用事务避免并发提交产生重复记录
-    const responseName = nickname || '匿名用户'
 
     await db.runTransaction(async transaction => {
       const existingRes = await transaction.collection('responses')
