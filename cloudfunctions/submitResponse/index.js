@@ -62,6 +62,7 @@ exports.main = async (event, context) => {
       } else {
         await transaction.collection('responses').add({
           data: {
+            _openid: openid,
             eventId,
             nickname: responseName,
             slots,
