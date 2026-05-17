@@ -33,6 +33,7 @@ Page({
 
     // 推荐数据
     topRecommendations: [], // Top 3
+    currentTop3Index: 0,
     bestSlot: { timeText: '', count: 0, percent: '' },
 
     // 共识度
@@ -471,6 +472,21 @@ Page({
   },
 
   preventMove() {},
+
+  onTop3Scroll(e) {
+    const { scrollLeft } = e.detail
+    if (!this._cardWidthPx) {
+      const sysInfo = wx.getSystemInfoSync()
+      const rpxToPx = sysInfo.windowWidth / 750
+      this._cardWidthPx = (sysInfo.windowWidth - 210 * rpxToPx) + 16 * rpxToPx
+    }
+    const index = Math.round(scrollLeft / this._cardWidthPx)
+    const maxIndex = this.data.topRecommendations.length - 1
+    const clamped = Math.max(0, Math.min(index, maxIndex))
+    if (clamped !== this.data.currentTop3Index) {
+      this.setData({ currentTop3Index: clamped })
+    }
+  },
 
   editEvent() {
     wx.showToast({ title: '功能开发中', icon: 'none' })

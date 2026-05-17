@@ -246,20 +246,23 @@
   color: #fff;
 }
 
-.top3-list {
-  display: flex;
-  flex-direction: column;
-  gap: 16rpx;
+.top3-scroll {
+  width: 100%;
+  -webkit-overflow-scrolling: touch;
 }
 
 .top3-card {
+  flex-shrink: 0;
+  width: calc(100vw - 210rpx);
   padding: 24rpx;
+  margin-right: 16rpx;
   background: rgba(15, 52, 96, 0.4);
   border-radius: 20rpx;
   border: 2rpx solid rgba(255, 255, 255, 0.06);
   backdrop-filter: blur(16rpx);
   -webkit-backdrop-filter: blur(16rpx);
   transition: all 0.3s ease;
+  box-sizing: border-box;
 }
 
 .top3-card:active {
@@ -377,6 +380,42 @@
 
 .bar-label.green { color: #4ade80; }
 .bar-label.yellow { color: #fbbf24; }
+
+/* 滑动指示器 */
+.top3-indicators {
+  display: flex;
+  justify-content: center;
+  gap: 12rpx;
+  margin-top: 20rpx;
+}
+
+.top3-dot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.top3-dot.active {
+  background: #fbbf24;
+  width: 28rpx;
+  border-radius: 6rpx;
+}
+
+/* 滑动提示 */
+.top3-swipe-hint {
+  text-align: center;
+  margin-top: 8rpx;
+  font-size: 20rpx;
+  color: var(--text-muted);
+  animation: hintPulse 3s ease-in-out infinite;
+}
+
+@keyframes hintPulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
 
 /* ========== 空推荐 ========== */
 
