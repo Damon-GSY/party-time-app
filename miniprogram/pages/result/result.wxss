@@ -606,13 +606,16 @@
   box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.3);
 }
 
-/* 5级偏好渐变色 */
+/* 5级偏好渐变色 — DESIGN_UX.md §7.1 色阶 */
 .heatmap-cell.hlevel-0 { background: #1a1a2e; }
 .heatmap-cell.hlevel-1 { background: #1e3a5f; }
 .heatmap-cell.hlevel-2 { background: #2d6a4f; }
-.heatmap-cell.hlevel-3 { background: rgba(251, 191, 36, 0.45); }
+.heatmap-cell.hlevel-3 { background: #fbbf24; }
+.heatmap-cell.hlevel-3 .cell-pareto-star { color: rgba(0, 0, 0, 0.5); }
+.heatmap-cell.hlevel-3 .cell-pref,
+.heatmap-cell.hlevel-3 .cell-detail { color: rgba(0, 0, 0, 0.75); }
 .heatmap-cell.hlevel-4 {
-  background: linear-gradient(135deg, #e94560, #ff6b6b);
+  background: #e94560;
   box-shadow: 0 2rpx 12rpx rgba(233, 69, 96, 0.3);
 }
 

@@ -278,14 +278,13 @@ Page({
       }
     }
 
-    // 热力图数据
+    // 热力图数据 — 颜色映射基于归一化偏好得分（DESIGN_UX.md §4.1）
     const slotHeatData = {}
     for (const [slotId, detail] of Object.entries(slotDetails)) {
-      const ratio = N > 0 ? detail.availableCount / N : 0
-      const level = ratio <= 0 ? 0
-        : ratio <= 0.2 ? 1
-        : ratio <= 0.4 ? 2
-        : ratio <= 0.6 ? 3
+      const level = detail.prefScore <= 0 ? 0
+        : detail.prefScore <= 25 ? 1
+        : detail.prefScore <= 50 ? 2
+        : detail.prefScore <= 75 ? 3
         : 4
       slotHeatData[slotId] = { ...detail, level }
     }
