@@ -625,18 +625,8 @@ Page({
 
   async requestSubscribe() {
     this.setData({ subscribeRequested: true })
-    try {
-      const result = await new Promise((resolve) => {
-        wx.requestSubscribeMessage({
-          tmplIds: ['your_template_id'],
-          success: res => resolve('accepted'),
-          fail: () => resolve('rejected')
-        })
-      })
-      if (result === 'accepted') {
-        wx.showToast({ title: '已开启提醒', icon: 'success' })
-      }
-    } catch (e) {}
+    // MVP: notification templates not yet configured, skip API call
+    wx.showToast({ title: '提醒功能即将上线', icon: 'none' })
   },
 
   closeSuccess() {
