@@ -170,6 +170,37 @@
       </button>
     </view>
 
+    <!-- 提交确认弹窗 -->
+    <view class="confirm-modal {{showConfirmModal ? 'show' : ''}}" catchtouchmove="preventMove">
+      <view class="modal-backdrop" bindtap="cancelConfirm"></view>
+      <view class="modal-content glass-modal">
+        <text class="confirm-title">确认提交</text>
+        <text class="confirm-desc">确认以下选择的时间：</text>
+        <view class="confirm-group" wx:if="{{confirmAvailableList.length > 0}}">
+          <view class="confirm-group-header">
+            <text class="confirm-dot green"></text>
+            <text class="confirm-group-label">有空（{{confirmAvailableList.length}}个）</text>
+          </view>
+          <view class="confirm-tags">
+            <text class="confirm-tag tag-green" wx:for="{{confirmAvailableList}}" wx:key="*this">{{item}}</text>
+          </view>
+        </view>
+        <view class="confirm-group" wx:if="{{confirmReluctantList.length > 0}}">
+          <view class="confirm-group-header">
+            <text class="confirm-dot yellow"></text>
+            <text class="confirm-group-label">勉强（{{confirmReluctantList.length}}个）</text>
+          </view>
+          <view class="confirm-tags">
+            <text class="confirm-tag tag-yellow" wx:for="{{confirmReluctantList}}" wx:key="*this">{{item}}</text>
+          </view>
+        </view>
+        <view class="confirm-actions">
+          <button class="confirm-btn cancel" bindtap="cancelConfirm">再看看</button>
+          <button class="confirm-btn submit" bindtap="confirmSubmit">确认提交</button>
+        </view>
+      </view>
+    </view>
+
     <!-- 首次引导 Overlay -->
     <view class="guide-overlay {{showGuide ? 'show' : ''}}" catchtouchmove="preventMove">
       <view class="guide-backdrop" bindtap="closeGuide"></view>

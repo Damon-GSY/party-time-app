@@ -216,7 +216,7 @@ Page({
   // 跳转到结果页
   goToResult(e) {
     const id = e.currentTarget.dataset.id
-    wx.navigateTo({
+    wx.redirectTo({
       url: `/pages/result/result?id=${id}`
     })
   },

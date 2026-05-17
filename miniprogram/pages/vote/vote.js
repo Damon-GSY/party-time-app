@@ -57,6 +57,11 @@ Page({
     // 首次使用引导
     showGuide: false,
     guideAnimStep: 0,
+
+    // 提交确认弹窗
+    showConfirmModal: false,
+    confirmAvailableList: [],
+    confirmReluctantList: [],
   },
 
   onLoad(options) {
@@ -536,16 +541,44 @@ Page({
     this.setData({ nickname: e.detail.value })
   },
 
-  // 提交 - 发送 { slotId: score } 格式
+  // 提交 — 先展示确认预览
   async handleSubmit() {
-    const { availableCount, reluctantCount, submitting, eventId, nickname, slots } = this.data
+    const { availableCount, reluctantCount, submitting, slots, dates, timeLabels, granularity } = this.data
     const totalCount = availableCount + reluctantCount
 
     if (submitting || totalCount === 0) return
 
-    this.setData({ submitting: true })
+    // 构建已选时段摘要
+    const availableList = []
+    const reluctantList = []
 
-    // 只发送 score > 0 的时段
+    Object.entries(slots).forEach(([id, score]) => {
+      if (score <= 0) return
+      const parts = id.split('_')
+      const dateStr = parts[0]
+      const slotIndex = parseInt(parts[1], 10)
+      const dateObj = dates.find(d => d.date === dateStr)
+      if (!dateObj) return
+      const label = `${dateObj.weekday} ${util.formatTimeSlot(slotIndex, granularity)}`
+      if (score === SCORE_AVAILABLE) availableList.push(label)
+      else if (score === SCORE_RELUCTANT) reluctantList.push(label)
+    })
+
+    this.setData({
+      showConfirmModal: true,
+      confirmAvailableList: availableList,
+      confirmReluctantList: reluctantList
+    })
+  },
+
+  cancelConfirm() {
+    this.setData({ showConfirmModal: false })
+  },
+
+  async confirmSubmit() {
+    const { eventId, nickname, slots } = this.data
+    this.setData({ showConfirmModal: false, submitting: true })
+
     const slotsObj = {}
     Object.entries(slots).forEach(([id, score]) => {
       if (score > 0) slotsObj[id] = score
@@ -558,7 +591,7 @@ Page({
           data: {
             eventId,
             nickname: nickname.trim() || '匿名用户',
-            slots: slotsObj  // 新格式：{ slotId: score }
+            slots: slotsObj
           }
         })
 
