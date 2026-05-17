@@ -630,7 +630,7 @@
 .heatmap-cell.hlevel-0 { background: #1a1a2e; }
 .heatmap-cell.hlevel-1 { background: #1e3a5f; }
 .heatmap-cell.hlevel-2 { background: #2d6a4f; }
-.heatmap-cell.hlevel-3 { background: rgba(251, 191, 36, 0.45); }
+.heatmap-cell.hlevel-3 { background: #fbbf24; }
 .heatmap-cell.hlevel-4 {
   background: linear-gradient(135deg, #e94560, #ff6b6b);
   box-shadow: 0 2rpx 12rpx rgba(233, 69, 96, 0.3);
