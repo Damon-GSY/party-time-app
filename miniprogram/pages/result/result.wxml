@@ -69,7 +69,15 @@
       </view>
 
       <block wx:if="{{topRecommendations.length > 0}}">
-        <view class="top3-list">
+        <scroll-view
+          scroll-x
+          enable-flex
+          class="top3-scroll"
+          scroll-with-animation
+          enhanced
+          show-scrollbar="{{false}}"
+          bindscroll="onTop3Scroll"
+        >
           <view
             class="top3-card {{item.rank === 1 ? 'top3-rank1' : ''}} slide-in-bounce"
             wx:for="{{topRecommendations}}"
@@ -100,6 +108,20 @@
               </view>
             </view>
           </view>
+        </scroll-view>
+
+        <!-- 滑动指示器 -->
+        <view class="top3-indicators" wx:if="{{topRecommendations.length > 1}}">
+          <view
+            class="top3-dot {{currentTop3Index === index ? 'active' : ''}}"
+            wx:for="{{topRecommendations}}"
+            wx:key="index"
+          ></view>
+        </view>
+
+        <!-- 滑动提示 -->
+        <view class="top3-swipe-hint" wx:if="{{topRecommendations.length > 1}}">
+          <text>← 左右滑动切换 →</text>
         </view>
       </block>
 
