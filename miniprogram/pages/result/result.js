@@ -361,7 +361,7 @@ Page({
     setTimeout(() => animateNumber(this, 'displayConsensus', consensusPercent, 800), 500)
 
     if (this.data.justCreated && N <= 1) {
-      this.showSubscribeGuide()
+      // MVP: notification templates not yet configured
     }
 
     // 首次查看结果提示
