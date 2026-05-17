@@ -55,7 +55,10 @@ Page({
     selectedSlotInfo: { dateText: '', timeText: '', count: 0, prefScore: 0, hardUsers: [], reluctantUsers: [], unavailableUsers: [] },
     notifying: false,
     subscribeRequested: false,
-    deleting: false
+    deleting: false,
+
+    // 首次引导提示条
+    showResultTip: false
   },
 
   onLoad(options) {
@@ -359,6 +362,9 @@ Page({
     if (this.data.justCreated && N <= 1) {
       this.showSubscribeGuide()
     }
+
+    // 首次查看结果提示
+    this._checkShowResultTip()
   },
 
   // 帕累托最优
@@ -508,7 +514,7 @@ Page({
   },
 
   goToVote() {
-    wx.navigateTo({ url: `/pages/vote/vote?id=${this.data.eventId}` })
+    wx.redirectTo({ url: `/pages/vote/vote?id=${this.data.eventId}` })
   },
 
   async notifyParticipants() {
@@ -576,7 +582,7 @@ Page({
   },
 
   goToPoster() {
-    wx.navigateTo({ url: `/pages/poster/poster?id=${this.data.eventId}` })
+    wx.redirectTo({ url: `/pages/poster/poster?id=${this.data.eventId}` })
   },
 
   onShareAppMessage() {
@@ -588,6 +594,37 @@ Page({
     return {
       title,
       path: `/pages/vote/vote?id=${this.data.eventId}`
+    }
+  },
+
+  // 首次查看结果提示
+  _checkShowResultTip() {
+    try {
+      const seen = wx.getStorageSync('result_tip_seen')
+      if (!seen) {
+        this.setData({ showResultTip: true })
+        this._tipTimer = setTimeout(() => {
+          this.dismissResultTip()
+        }, 3000)
+      }
+    } catch (e) {}
+  },
+
+  dismissResultTip() {
+    if (this._tipTimer) {
+      clearTimeout(this._tipTimer)
+      this._tipTimer = null
+    }
+    this.setData({ showResultTip: false })
+    try {
+      wx.setStorageSync('result_tip_seen', true)
+    } catch (e) {}
+  },
+
+  onUnload() {
+    if (this._tipTimer) {
+      clearTimeout(this._tipTimer)
+      this._tipTimer = null
     }
   }
 })
