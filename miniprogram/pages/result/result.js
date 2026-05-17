@@ -278,14 +278,14 @@ Page({
       }
     }
 
-    // 热力图数据
+    // 热力图数据 — 按 DESIGN_UX 偏好得分百分比映射 5 级色阶
     const slotHeatData = {}
     for (const [slotId, detail] of Object.entries(slotDetails)) {
-      const ratio = N > 0 ? detail.availableCount / N : 0
-      const level = ratio <= 0 ? 0
-        : ratio <= 0.2 ? 1
-        : ratio <= 0.4 ? 2
-        : ratio <= 0.6 ? 3
+      const ps = detail.prefScore
+      const level = ps <= 0 ? 0
+        : ps <= 25 ? 1
+        : ps <= 50 ? 2
+        : ps <= 75 ? 3
         : 4
       slotHeatData[slotId] = { ...detail, level }
     }
