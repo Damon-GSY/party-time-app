@@ -581,8 +581,12 @@ Page({
 
   onShareAppMessage() {
     const { event, participantCount } = this.data
+    const name = event?.name || '聚会'
+    const title = participantCount > 0
+      ? `${participantCount}人正在选「${name}」的时间，来投票吧！`
+      : `「${name}」正在选时间，来投票吧！`
     return {
-      title: `${participantCount}人正在选「${event?.name || '聚会'}」的时间，来投票吧！`,
+      title,
       path: `/pages/vote/vote?id=${this.data.eventId}`
     }
   }

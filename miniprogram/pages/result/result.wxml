@@ -27,8 +27,8 @@
       <text class="event-note" wx:if="{{event.note}}">{{event.note}}</text>
     </view>
 
-    <!-- 统计卡片：参与人数 + 最高票数 + 共识度 -->
-    <view class="stats-cards fade-in" style="animation-delay: 0.1s;">
+    <!-- 统计卡片：参与人数 + 最高票数 + 共识度（仅有人投票时显示） -->
+    <view class="stats-cards fade-in" style="animation-delay: 0.1s;" wx:if="{{participantCount > 0}}">
       <view class="stat-card-wrapper shimmer-border">
         <view class="stat-card glass-stat-card">
           <view class="stat-value">
@@ -55,8 +55,8 @@
       </view>
     </view>
 
-    <!-- Top 3 推荐时段 -->
-    <view class="recommend-section fade-in" style="animation-delay: 0.15s;">
+    <!-- Top 3 推荐时段（仅有人投票时显示） -->
+    <view class="recommend-section fade-in" style="animation-delay: 0.15s;" wx:if="{{participantCount > 0}}">
       <view class="section-header">
         <text class="section-title">推荐时段</text>
       </view>
@@ -96,15 +96,15 @@
         </view>
       </block>
 
-      <!-- 空状态 -->
+      <!-- 推荐为空（有人投票但无重叠） -->
       <view class="recommend-card recommend-empty" wx:else>
         <view class="recommend-icon-wrap">
           <text class="recommend-empty-icon">🗳️</text>
         </view>
         <view class="recommend-content">
-          <text class="recommend-label">暂无数据</text>
-          <text class="recommend-time">等待参与者投票</text>
-          <text class="recommend-hint">分享给好友开始投票吧~</text>
+          <text class="recommend-label">暂无重叠时段</text>
+          <text class="recommend-time">参与者的时间没有交集</text>
+          <text class="recommend-hint">试试通知更多人参与吧~</text>
         </view>
       </view>
     </view>
@@ -160,15 +160,28 @@
     </view>
 
     <!-- 空状态引导 -->
-    <view class="empty-participants fade-in" style="animation-delay: 0.2s;" wx:if="{{participantCount === 0}}">
-      <view class="empty-icon breathe-float">
-        <text>👥</text>
+    <view class="empty-state fade-in" wx:if="{{participantCount === 0}}">
+      <view class="empty-state-illustration">
+        <view class="empty-state-ring breathe-float">
+          <text class="empty-state-emoji">📬</text>
+        </view>
+        <view class="empty-state-dots">
+          <view class="empty-dot dot-1"></view>
+          <view class="empty-dot dot-2"></view>
+          <view class="empty-dot dot-3"></view>
+        </view>
       </view>
-      <text class="empty-title">还没有人参与</text>
-      <text class="empty-desc">分享给好友，让大家一起选时间吧！</text>
-      <button class="empty-share-btn shimmer-btn" open-type="share">
-        <text>立即分享</text>
-      </button>
+      <text class="empty-state-title">等待大家来投票</text>
+      <text class="empty-state-desc">把这个聚会分享给好友</text>
+      <text class="empty-state-desc">让大家一起选出最佳时间</text>
+      <view class="empty-state-actions">
+        <button class="empty-state-share shimmer-btn" open-type="share">
+          <text>🔗 立即分享</text>
+        </button>
+        <button class="empty-state-vote" bindtap="goToVote" wx:if="{{!event.expired}}">
+          <text>✏️ 我先投票</text>
+        </button>
+      </view>
     </view>
 
     <!-- 参与者列表 -->
