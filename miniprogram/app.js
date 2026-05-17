@@ -5,7 +5,7 @@ App({
     // 初始化云开发环境
     if (wx.cloud) {
       wx.cloud.init({
-        env: 'party-time-xxx', // ⚠️ WARNING: REPLACE WITH YOUR REAL CLOUD ENV ID BEFORE DEPLOYMENT
+        env: wx.cloud.DYNAMIC_CURRENT_ENV,
         traceUser: true
       })
     }
