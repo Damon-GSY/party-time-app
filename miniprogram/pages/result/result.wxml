@@ -72,7 +72,7 @@
             <!-- 排名 + 帕累托标签 -->
             <view class="top3-header">
               <view class="top3-rank-badge rank-{{item.rank}}">{{item.rank}}</view>
-              <view class="top3-pareto-badge" wx:if="{{item.isPareto}}">帕累托最优</view>
+              <view class="top3-pareto-badge" wx:if="{{item.isPareto}}">最佳推荐</view>
             </view>
             <!-- 时间 -->
             <text class="top3-time">{{item.timeLabel}}</text>
