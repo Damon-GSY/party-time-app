@@ -58,7 +58,7 @@ test('core pages do not bring back decorative animation clutter', () => {
 test('preview contains the complete acceptance path and valid script syntax', () => {
   const preview = read('preview.html')
   for (const testId of [
-    'home-screen', 'home-create', 'create-screen', 'event-name', 'start-hour', 'end-hour', 'create-submit',
+    'home-screen', 'home-create', 'create-screen', 'event-name', 'start-hour', 'end-hour', 'time-picker-dialog', 'create-submit',
     'vote-screen', 'slots-grid', 'nickname', 'vote-submit', 'success-dialog',
     'view-result', 'result-screen', 'heatmap', 'detail-dialog', 'edit-vote'
   ]) {
@@ -117,6 +117,10 @@ test('create flow persists a daily time window and preview applies it end-to-end
   assert.match(preview, /function configureTimeWindow\(\)/)
   assert.match(preview, /const eventSlotConfig = \(\) => slotConfig\(state\.event\.granularity, state\.event\.dailyTimeWindow\)/)
   assert.match(preview, /dailyTimeWindow:\s*\{ \.\.\.state\.dailyTimeWindow \}/)
+  assert.match(preview, /aria-haspopup="dialog"/)
+  assert.match(preview, /function openTimePicker\(boundary\)/)
+  assert.match(preview, /class="time-option"[\s\S]*aria-pressed=/)
+  assert.doesNotMatch(preview, /<select[^>]+id="(?:start|end)-hour"/)
 })
 
 test('the primary mobile navigation has exactly three stable destinations', () => {

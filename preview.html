@@ -190,7 +190,7 @@
     .field-label { display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px; font-size: 14px; font-weight: 600; }
     .required { color: var(--coral); font-size: 11px; }
     .optional, .field-hint { color: var(--muted); font-size: 11px; font-weight: 400; }
-    .field-input, .field-textarea, .field-select {
+    .field-input, .field-textarea {
       width: 100%; min-height: 54px; padding: 13px 15px; border: 1px solid rgba(23,24,23,.28); border-radius: 12px; background: var(--paper); color: var(--ink); font-size: 16px; transition: border-color .14s ease, background-color .14s ease;
     }
     .field-textarea { min-height: 90px; resize: vertical; }
@@ -203,6 +203,14 @@
     .time-field-label { min-width: 0; }
     .time-connector { min-height: 54px; display: grid; place-items: center; color: var(--muted); font-size: 11px; }
     .time-summary { display: flex; justify-content: space-between; gap: 12px; }
+    .time-select-trigger {
+      width: 100%; min-height: 58px; padding: 0 10px 0 16px; display: flex; align-items: center; justify-content: space-between; gap: 8px; border: 1px solid rgba(23,24,23,.34); border-radius: 9px; background: var(--paper); color: var(--ink); box-shadow: inset 4px 0 var(--coral); text-align: left; transition: transform .14s var(--ease), border-color .14s ease, background-color .14s ease;
+    }
+    .time-select-trigger:active { transform: scale(.98); }
+    .time-select-value { font: 800 19px ui-monospace, "SFMono-Regular", Consolas, monospace; font-variant-numeric: tabular-nums; letter-spacing: -.03em; }
+    .time-select-icon { width: 30px; height: 30px; flex: 0 0 auto; display: grid; place-items: center; border: 1px solid rgba(23,24,23,.45); border-radius: 50%; font: 800 15px ui-monospace, "SFMono-Regular", Consolas, monospace; transition: transform .2s var(--ease), background-color .14s ease, color .14s ease; }
+    .time-select-trigger[aria-expanded="true"] { border-color: var(--coral); background: var(--paper-raised); }
+    .time-select-trigger[aria-expanded="true"] .time-select-icon { transform: rotate(180deg); background: var(--ink); color: var(--paper); }
     .segmented { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); padding: 4px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
     .segment { min-height: 46px; border: 0; border-radius: 9px; background: transparent; color: var(--secondary); font-size: 13px; font-weight: 600; transition: transform .14s var(--ease), color .14s ease, background-color .14s ease; }
     .segment.active { background: var(--coral-soft); color: var(--coral); }
@@ -297,6 +305,18 @@
     .dialog-actions { display: grid; gap: 8px; }
     .detail-users { display: flex; flex-wrap: wrap; gap: 7px; margin: 14px 0 20px; }
     .detail-user { padding: 7px 10px; border: 1px solid var(--border); border-radius: 999px; color: var(--secondary); font-size: 12px; }
+    .time-picker-dialog { width: min(calc(100% - 28px), 402px); border-color: rgba(220,201,169,.64); border-radius: 10px; background: var(--paper-raised); color: var(--ink); }
+    .time-picker-dialog::backdrop { background: rgba(8,9,8,.78); }
+    .time-picker-content { padding: 0; }
+    .time-picker-head { min-height: 72px; padding: 14px 15px; display: flex; align-items: center; justify-content: space-between; gap: 16px; border-bottom: 1px solid rgba(23,24,23,.45); }
+    .time-picker-kicker { display: block; color: var(--coral); font: 800 10px ui-monospace, "SFMono-Regular", Consolas, monospace; letter-spacing: .12em; }
+    .time-picker-title { display: block; margin-top: 5px; font-size: 20px; }
+    .time-picker-close { width: 42px; height: 42px; padding: 0; display: grid; place-items: center; border: 1px solid rgba(23,24,23,.45); border-radius: 50%; background: transparent; color: var(--ink); font-size: 22px; line-height: 1; }
+    .time-option-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); border-left: 1px solid rgba(23,24,23,.22); }
+    .time-option { min-height: 58px; padding: 0 8px; border: 0; border-right: 1px solid rgba(23,24,23,.22); border-bottom: 1px solid rgba(23,24,23,.22); background: transparent; color: var(--ink); font: 750 16px ui-monospace, "SFMono-Regular", Consolas, monospace; font-variant-numeric: tabular-nums; transition: background-color .14s ease, color .14s ease, transform .14s var(--ease); }
+    .time-option:active { transform: scale(.95); }
+    .time-option[aria-pressed="true"] { background: var(--ink); color: var(--paper-raised); box-shadow: inset 0 -4px var(--coral); }
+    .time-picker-foot { min-height: 42px; padding: 0 15px; display: flex; align-items: center; justify-content: space-between; color: rgba(23,24,23,.64); font: 700 10px ui-monospace, "SFMono-Regular", Consolas, monospace; letter-spacing: .05em; }
 
     .simple-page { padding-top: 48px; }
     .simple-list { margin-top: 28px; border-top: 1px solid var(--border); }
@@ -357,7 +377,7 @@
         <form id="create-form" novalidate>
           <div class="field"><label class="field-label" for="event-name">聚会名称 <span class="required">必填</span></label><input class="field-input" id="event-name" data-testid="event-name" maxlength="30" placeholder="例如：周末聚餐" required><span class="field-hint"><span id="name-count">0</span> / 30</span></div>
           <div class="field"><span class="field-label">日期范围 <span class="required">必填</span></span><div class="date-fields"><label><span class="field-hint">开始日期</span><input class="field-input" id="start-date" data-testid="start-date" type="date" aria-describedby="date-error" required></label><label><span class="field-hint">结束日期</span><input class="field-input" id="end-date" data-testid="end-date" type="date" aria-describedby="date-error" required></label></div><span class="error-text" id="date-error" role="alert"></span></div>
-          <div class="field"><span class="field-label">每日可选时段 <span class="required">必填</span></span><div class="time-fields"><label class="time-field-label" for="start-hour"><span class="field-hint">开始时间</span><select class="field-select" id="start-hour" data-testid="start-hour" aria-describedby="time-window-summary"></select></label><span class="time-connector" aria-hidden="true">至</span><label class="time-field-label" for="end-hour"><span class="field-hint">结束时间</span><select class="field-select" id="end-hour" data-testid="end-hour" aria-describedby="time-window-summary"></select></label></div><span class="field-hint time-summary" id="time-window-summary" aria-live="polite"><span id="time-slot-count"></span><span id="time-window-copy"></span></span></div>
+          <div class="field"><span class="field-label">每日可选时段 <span class="required">必填</span></span><div class="time-fields"><div class="time-field-label"><span class="field-hint">开始时间</span><button class="time-select-trigger" id="start-hour" data-testid="start-hour" type="button" aria-haspopup="dialog" aria-controls="time-picker-dialog" aria-expanded="false" aria-describedby="time-window-summary"><strong class="time-select-value" id="start-hour-value">10:00</strong><span class="time-select-icon" aria-hidden="true">↓</span></button></div><span class="time-connector" aria-hidden="true">至</span><div class="time-field-label"><span class="field-hint">结束时间</span><button class="time-select-trigger" id="end-hour" data-testid="end-hour" type="button" aria-haspopup="dialog" aria-controls="time-picker-dialog" aria-expanded="false" aria-describedby="time-window-summary"><strong class="time-select-value" id="end-hour-value">22:00</strong><span class="time-select-icon" aria-hidden="true">↓</span></button></div></div><span class="field-hint time-summary" id="time-window-summary" aria-live="polite"><span id="time-slot-count"></span><span id="time-window-copy"></span></span></div>
           <div class="field"><span class="field-label">时段粒度</span><div class="segmented" role="group" aria-label="时段粒度"><button class="segment" type="button" data-granularity="hour" aria-pressed="false">1 小时</button><button class="segment active" type="button" data-granularity="twoHours" aria-pressed="true">2 小时</button><button class="segment" type="button" data-granularity="halfDay" aria-pressed="false">6 小时</button></div><span class="field-hint">2 小时适合大多数聚会，也更容易完成投票。</span></div>
           <div class="field"><span class="field-label">投票有效期</span><div class="choices" role="group" aria-label="投票有效期"><button class="choice" type="button" data-expiry="24h" aria-pressed="false">24 小时</button><button class="choice" type="button" data-expiry="3days" aria-pressed="false">3 天</button><button class="choice active" type="button" data-expiry="7days" aria-pressed="true">7 天</button><button class="choice" type="button" data-expiry="never" aria-pressed="false">长期</button></div></div>
           <div class="field"><label class="field-label" for="event-note">备注 <span class="optional">选填</span></label><textarea class="field-textarea" id="event-note" placeholder="地点、人数或其他说明"></textarea></div>
@@ -404,6 +424,7 @@
 
     <dialog id="success-dialog" data-testid="success-dialog"><div class="dialog-content"><h2 class="dialog-title">时间已提交</h2><p class="dialog-copy" id="success-copy"></p><div class="dialog-actions"><button class="primary-button" id="view-result" data-testid="view-result" type="button">查看结果</button><button class="secondary-button" id="continue-edit" type="button">继续修改</button></div></div></dialog>
     <dialog id="detail-dialog" data-testid="detail-dialog"><div class="dialog-content"><h2 class="dialog-title" id="detail-title"></h2><p class="dialog-copy" id="detail-copy"></p><div class="detail-users" id="detail-users"></div><button class="secondary-button" id="close-detail" type="button">关闭</button></div></dialog>
+    <dialog class="time-picker-dialog" id="time-picker-dialog" data-testid="time-picker-dialog"><div class="time-picker-content"><div class="time-picker-head"><div><span class="time-picker-kicker">DAILY_TIME_WINDOW</span><strong class="time-picker-title" id="time-picker-title">选择开始时间</strong></div><button class="time-picker-close" id="close-time-picker" type="button" aria-label="关闭时间选择">×</button></div><div class="time-option-grid" id="time-option-grid" role="group" aria-label="可选时间"></div><div class="time-picker-foot"><span id="time-picker-step">STEP / 02_HOURS</span><span>点击时间即完成选择</span></div></div></dialog>
   </main>
 
   <script>
@@ -562,8 +583,10 @@
     const nameInput = document.getElementById('event-name')
     const startInput = document.getElementById('start-date')
     const endInput = document.getElementById('end-date')
-    const startHourSelect = document.getElementById('start-hour')
-    const endHourSelect = document.getElementById('end-hour')
+    const startHourTrigger = document.getElementById('start-hour')
+    const endHourTrigger = document.getElementById('end-hour')
+    const timePickerDialog = document.getElementById('time-picker-dialog')
+    let timePickerBoundary = 'start'
     const createSubmit = document.getElementById('create-submit')
     startInput.min = formatDate(today)
     endInput.min = formatDate(today)
@@ -578,24 +601,18 @@
       endMinute = Math.max(step, Math.min(1440, endMinute))
       if (endMinute <= startMinute) endMinute = Math.min(1440, startMinute + step)
       state.dailyTimeWindow = { startMinute, endMinute }
-      startHourSelect.innerHTML = Array.from({ length: 1440 / step }, (_, index) => {
-        const value = index * step
-        return `<option value="${value}">${formatWindowMinute(value)}</option>`
-      }).join('')
-      endHourSelect.innerHTML = Array.from({ length: 1440 / step }, (_, index) => {
-        const value = (index + 1) * step
-        return `<option value="${value}">${formatWindowMinute(value)}</option>`
-      }).join('')
-      startHourSelect.value = String(startMinute)
-      endHourSelect.value = String(endMinute)
+      document.getElementById('start-hour-value').textContent = formatWindowMinute(startMinute)
+      document.getElementById('end-hour-value').textContent = formatWindowMinute(endMinute)
+      startHourTrigger.setAttribute('aria-label', `选择开始时间，当前 ${formatWindowMinute(startMinute)}`)
+      endHourTrigger.setAttribute('aria-label', `选择结束时间，当前 ${formatWindowMinute(endMinute)}`)
       document.getElementById('time-slot-count').textContent = `每天开放 ${(endMinute - startMinute) / step} 个时段`
       document.getElementById('time-window-copy').textContent = `${formatWindowMinute(startMinute)}—${formatWindowMinute(endMinute)}`
     }
 
-    function updateTimeWindow(changedBoundary) {
+    function updateTimeWindow(changedBoundary, selectedMinute) {
       const step = state.granularity === 'hour' ? 60 : state.granularity === 'halfDay' ? 360 : 120
-      let startMinute = Number(startHourSelect.value)
-      let endMinute = Number(endHourSelect.value)
+      let startMinute = changedBoundary === 'start' ? selectedMinute : state.dailyTimeWindow.startMinute
+      let endMinute = changedBoundary === 'end' ? selectedMinute : state.dailyTimeWindow.endMinute
       if (startMinute >= endMinute) {
         if (changedBoundary === 'start') endMinute = Math.min(1440, startMinute + step)
         else startMinute = Math.max(0, endMinute - step)
@@ -603,6 +620,27 @@
       state.dailyTimeWindow = { startMinute, endMinute }
       configureTimeWindow()
       validateCreate()
+    }
+
+    function openTimePicker(boundary) {
+      timePickerBoundary = boundary
+      const step = state.granularity === 'hour' ? 60 : state.granularity === 'halfDay' ? 360 : 120
+      const count = 1440 / step
+      const selectedMinute = boundary === 'start' ? state.dailyTimeWindow.startMinute : state.dailyTimeWindow.endMinute
+      document.getElementById('time-picker-title').textContent = boundary === 'start' ? '选择开始时间' : '选择结束时间'
+      document.getElementById('time-picker-step').textContent = `STEP / ${pad(step / 60)}_HOURS`
+      document.getElementById('time-option-grid').innerHTML = Array.from({ length: count }, (_, index) => {
+        const value = boundary === 'start' ? index * step : (index + 1) * step
+        const selected = value === selectedMinute
+        return `<button class="time-option" type="button" data-time-option="${value}" aria-pressed="${selected}">${formatWindowMinute(value)}</button>`
+      }).join('')
+      document.querySelectorAll('[data-time-option]').forEach(button => button.addEventListener('click', () => {
+        updateTimeWindow(timePickerBoundary, Number(button.dataset.timeOption))
+        timePickerDialog.close()
+      }))
+      startHourTrigger.setAttribute('aria-expanded', String(boundary === 'start'))
+      endHourTrigger.setAttribute('aria-expanded', String(boundary === 'end'))
+      timePickerDialog.showModal()
     }
 
     function validateCreate() {
@@ -624,8 +662,13 @@
     }
 
     ;[nameInput, startInput, endInput].forEach(input => input.addEventListener('input', validateCreate))
-    startHourSelect.addEventListener('change', () => updateTimeWindow('start'))
-    endHourSelect.addEventListener('change', () => updateTimeWindow('end'))
+    startHourTrigger.addEventListener('click', () => openTimePicker('start'))
+    endHourTrigger.addEventListener('click', () => openTimePicker('end'))
+    document.getElementById('close-time-picker').addEventListener('click', () => timePickerDialog.close())
+    timePickerDialog.addEventListener('close', () => {
+      startHourTrigger.setAttribute('aria-expanded', 'false')
+      endHourTrigger.setAttribute('aria-expanded', 'false')
+    })
     document.querySelectorAll('[data-granularity]').forEach(button => button.addEventListener('click', () => {
       state.granularity = button.dataset.granularity
       document.querySelectorAll('[data-granularity]').forEach(item => {
@@ -844,12 +887,13 @@
       input.addEventListener('focus', () => action.classList.add('keyboard-hidden'))
       input.addEventListener('blur', () => action.classList.remove('keyboard-hidden'))
     })
-    ;[successDialog, detailDialog].forEach(dialog => dialog.addEventListener('click', event => {
+    ;[successDialog, detailDialog, timePickerDialog].forEach(dialog => dialog.addEventListener('click', event => {
       if (event.target === dialog) dialog.close()
     }))
     document.addEventListener('keydown', event => {
       if (event.key !== 'Escape') return
-      if (detailDialog.open) detailDialog.close()
+      if (timePickerDialog.open) timePickerDialog.close()
+      else if (detailDialog.open) detailDialog.close()
       else if (successDialog.open) successDialog.close()
     })
 
