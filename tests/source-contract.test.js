@@ -148,6 +148,73 @@ test('custom-navigation terminal states retain a safe back action', () => {
   assert.match(globalStyles, /\.vote-page > \.loading-state[\s\S]*min-height: 100vh;[\s\S]*padding: 220rpx 44rpx 120rpx;/)
 })
 
+test('native and preview share the selected retro palette semantics', () => {
+  const nativeStyles = read('miniprogram/app.wxss').toLowerCase()
+  const preview = read('preview.html').toLowerCase()
+
+  for (const color of ['#171817', '#dcc9a9', '#b83a2d', '#4e6851']) {
+    assert.equal(nativeStyles.includes(color), true, `native theme is missing ${color}`)
+    assert.equal(preview.includes(color), true, `preview theme is missing ${color}`)
+  }
+  assert.match(read('miniprogram/pages/result/result.wxss'), /level-4 \{ background: var\(--color-success\)/)
+  assert.match(preview, /\.heat-cell\.level-4 \{ border-color: var\(--success\); background: var\(--success\)/)
+})
+
+test('native and preview use the editorial two-column scheduler contract', () => {
+  const nativeVote = read('miniprogram/pages/vote/vote.wxml')
+  const nativeStyles = read('miniprogram/pages/vote/vote.wxss')
+  const preview = read('preview.html')
+
+  assert.match(nativeVote, /SCHEDULING \/ REV\. 003/)
+  assert.match(nativeVote, /SLOT_SELECT/)
+  assert.match(nativeVote, /TOTAL_SELECTION/)
+  assert.match(nativeVote, /SELECTED/)
+  assert.doesNotMatch(nativeVote, /class="date-scroll" wx:if=/)
+  assert.match(nativeVote, /class="slot-button \{\{item\.selected \? 'is-selected' : ''\}\}"/)
+  assert.match(nativeVote, /aria-pressed="\{\{item\.selected\}\}"/)
+  assert.match(nativeVote, /\{\{item\.selected \? 'SELECTED' : 'OPEN'\}\}/)
+  assert.match(nativeStyles, /grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/)
+  assert.match(nativeStyles, /\.vote-footer \{[\s\S]*position: fixed;[\s\S]*bottom: 0;/)
+  assert.match(nativeStyles, /\.vote-footer \{[\s\S]*constant\(safe-area-inset-bottom\)[\s\S]*env\(safe-area-inset-bottom\)/)
+  assert.match(nativeStyles, /\.selected-kicker,[\s\S]*\.selected-detail \{[\s\S]*font-size: 20rpx;/)
+  assert.match(nativeStyles, /\.date-tab\.is-active \{[\s\S]*background: var\(--color-ink\)/)
+  assert.match(nativeStyles, /\.slot-button\.is-selected \{[\s\S]*background: var\(--color-coral\)/)
+  assert.match(preview, /<section class="scheduler-board"/)
+  assert.match(preview, /grid-template-columns: repeat\(2,minmax\(0,1fr\)\)/)
+  assert.match(preview, /\.date-tab\.active \{ background: var\(--ink\)/)
+  assert.match(preview, /\.slot\.selected \{[^}]*background: var\(--coral\)/)
+  assert.match(preview, /\.fixed-action \{[\s\S]*position: fixed;/)
+  assert.match(preview, /\.selection-kicker, \.selection-detail \{[^}]*font-size: 10px;/)
+  assert.match(read('miniprogram/pages/create/create.wxss'), /\.create-footer \{[\s\S]*constant\(safe-area-inset-bottom\)[\s\S]*env\(safe-area-inset-bottom\)/)
+  assert.match(read('miniprogram/pages/result/result.wxss'), /\.result-footer \{[\s\S]*constant\(safe-area-inset-bottom\)[\s\S]*env\(safe-area-inset-bottom\)/)
+})
+
+test('home calendar expands from the current week into a complete month', () => {
+  const nativeHome = read('miniprogram/pages/index/index.wxml')
+  const nativeScript = read('miniprogram/pages/index/index.js')
+  const nativeStyles = read('miniprogram/pages/index/index.wxss')
+  const preview = read('preview.html')
+
+  assert.match(nativeHome, /<button[\s\S]*class="calendar-toggle-surface"[\s\S]*bindtap="toggleCalendar"/)
+  assert.match(nativeHome, /aria-expanded="\{\{calendarExpanded\}\}"/)
+  assert.match(nativeHome, /aria-controls="home-month-calendar"/)
+  assert.match(nativeHome, /aria-label="\{\{item\.accessibleLabel\}\}"/)
+  assert.match(nativeHome, /aria-current="\{\{item\.current \? 'date' : 'false'\}\}"/)
+  assert.match(nativeHome, /wx:for="\{\{monthCalendarDays\}\}"/)
+  assert.match(nativeScript, /monthCalendarDays: \[\]/)
+  assert.match(nativeScript, /util\.generateMonthCalendar\(today\)/)
+  assert.match(nativeScript, /toggleCalendar\(\)/)
+  assert.match(nativeStyles, /\.calendar-month-grid \{[\s\S]*grid-template-columns: repeat\(7/)
+  assert.match(preview, /<button class="calendar-toggle"[^>]*data-testid="home-calendar"[^>]*aria-expanded="false"[^>]*aria-controls="home-month-view"/)
+  assert.match(preview, /id="home-month-grid"/)
+  assert.match(preview, /role="gridcell"[^>]*datetime="\$\{formatDate\(date\)\}"[^>]*aria-label="\$\{accessibleLabel\}"/)
+  assert.match(preview, /\.week\[hidden\], \.calendar-month-view\[hidden\] \{ display: none; \}/)
+  assert.match(preview, /function toggleHomeCalendar\(\)/)
+  assert.match(preview, /home-calendar-toggle'\)\.addEventListener\('click', toggleHomeCalendar\)/)
+  assert.match(preview, /\['Enter', ' '\]\.includes\(event\.key\)/)
+  assert.match(preview, /home-calendar-collapse'\)\.addEventListener\('click', toggleHomeCalendar\)/)
+})
+
 test('motion and visual assets stay local and lightweight', () => {
   const miniProgramSource = [
     ...walk(path.join(root, 'miniprogram'), '.js'),

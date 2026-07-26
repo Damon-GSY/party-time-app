@@ -11,14 +11,48 @@
       </button>
     </view>
 
-    <view class="calendar enter">
-      <text class="calendar-month">{{currentMonth}}</text>
-      <view class="calendar-week">
-        <view class="calendar-day {{item.current ? 'is-current' : ''}}" wx:for="{{calendarDays}}" wx:key="weekday">
-          <text class="calendar-weekday">{{item.weekday}}</text>
-          <text class="calendar-number">{{item.day}}</text>
-          <view class="calendar-dot" wx:if="{{item.current}}"></view>
+    <view class="calendar enter {{calendarExpanded ? 'is-expanded' : ''}}">
+      <button
+        class="calendar-toggle-surface"
+        bindtap="toggleCalendar"
+        aria-expanded="{{calendarExpanded}}"
+        aria-controls="home-month-calendar"
+        aria-label="{{calendarExpanded ? '收起完整月历' : '展开完整月历'}}"
+      >
+        <view class="calendar-header">
+          <text class="calendar-month">{{currentMonth}}</text>
+          <view class="calendar-expand-control" aria-hidden="true">
+            <text>{{calendarExpanded ? '收起月历' : '查看整月'}}</text>
+            <image class="calendar-expand-icon" src="/assets/icons/chevron-right-dark.png" mode="aspectFit"></image>
+          </view>
         </view>
+
+        <view class="calendar-week" wx:if="{{!calendarExpanded}}">
+          <view class="calendar-day {{item.current ? 'is-current' : ''}}" wx:for="{{calendarDays}}" wx:key="date">
+            <text class="calendar-weekday">{{item.weekday}}</text>
+            <text class="calendar-number">{{item.day}}</text>
+            <view class="calendar-dot" wx:if="{{item.current}}"></view>
+          </view>
+        </view>
+      </button>
+
+      <view id="home-month-calendar" class="calendar-month-view" wx:if="{{calendarExpanded}}" aria-role="region" aria-label="{{currentMonth}}完整月历">
+        <view class="calendar-month-weekdays">
+          <text wx:for="{{calendarWeekdays}}" wx:key="*this">{{item}}</text>
+        </view>
+        <view class="calendar-month-grid">
+          <view
+            class="calendar-month-day {{item.inMonth ? '' : 'is-outside'}} {{item.current ? 'is-current' : ''}}"
+            wx:for="{{monthCalendarDays}}"
+            wx:key="date"
+            aria-role="text"
+            aria-label="{{item.accessibleLabel}}"
+            aria-current="{{item.current ? 'date' : 'false'}}"
+          >
+            <text>{{item.day}}</text>
+          </view>
+        </view>
+        <button class="calendar-collapse-button" bindtap="toggleCalendar" aria-label="收起完整月历">点击这里收起</button>
       </view>
     </view>
 

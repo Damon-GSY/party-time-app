@@ -86,6 +86,38 @@ const generateDateRange = (startDate, endDate) => {
 }
 
 /**
+ * 生成周一开头的 6 × 7 月历。
+ * referenceDate 同时决定展示月份和“今天”高亮，方便页面与测试共享同一规则。
+ */
+const generateMonthCalendar = (referenceDate = new Date()) => {
+  const today = new Date(referenceDate)
+  if (Number.isNaN(today.getTime())) return []
+
+  const monthStart = new Date(today.getFullYear(), today.getMonth(), 1)
+  const gridStart = new Date(monthStart)
+  gridStart.setDate(monthStart.getDate() - ((monthStart.getDay() + 6) % 7))
+  const todayKey = formatDate(today)
+  const targetMonthIndex = today.getFullYear() * 12 + today.getMonth()
+
+  return Array.from({ length: 42 }, (_, index) => {
+    const date = new Date(gridStart)
+    date.setDate(gridStart.getDate() + index)
+    const dateKey = formatDate(date)
+    const inMonth = date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear()
+    const monthIndex = date.getFullYear() * 12 + date.getMonth()
+    const current = dateKey === todayKey
+    const relativeLabel = inMonth ? '' : monthIndex < targetMonthIndex ? '，上月' : '，下月'
+    return {
+      date: dateKey,
+      day: date.getDate(),
+      inMonth,
+      current,
+      accessibleLabel: `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日${current ? '，今天' : relativeLabel}`
+    }
+  })
+}
+
+/**
  * 生成时间槽（从0点开始，覆盖全天24小时）
  * 注意：halfDay 粒度使用索引 0-3，与 formatTimeSlot 保持一致
  */
@@ -164,15 +196,15 @@ const formatExpireTime = (expireAt) => {
  * 获取热力图颜色
  */
 const getHeatColor = (count, maxCount) => {
-  if (maxCount === 0) return 'rgba(233, 69, 96, 0.1)'
+  if (maxCount === 0) return 'rgba(78, 104, 81, 0.16)'
 
   const intensity = count / maxCount
 
-  if (intensity === 0) return 'rgba(233, 69, 96, 0.1)'
-  if (intensity < 0.25) return 'rgba(233, 69, 96, 0.3)'
-  if (intensity < 0.5) return 'rgba(233, 69, 96, 0.5)'
-  if (intensity < 0.75) return 'rgba(233, 69, 96, 0.7)'
-  return 'rgba(233, 69, 96, 0.9)'
+  if (intensity === 0) return 'rgba(78, 104, 81, 0.16)'
+  if (intensity < 0.25) return 'rgba(78, 104, 81, 0.3)'
+  if (intensity < 0.5) return 'rgba(78, 104, 81, 0.5)'
+  if (intensity < 0.75) return 'rgba(78, 104, 81, 0.72)'
+  return 'rgba(78, 104, 81, 0.94)'
 }
 
 /**
@@ -217,6 +249,7 @@ module.exports = {
   getTimeSlotConfig,
   formatTimeSlot,
   generateDateRange,
+  generateMonthCalendar,
   generateTimeSlots,
   generateSlotId,
   parseSlotId,

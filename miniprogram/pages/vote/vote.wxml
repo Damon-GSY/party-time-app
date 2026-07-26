@@ -32,75 +32,82 @@
         </view>
       </view>
 
-      <view class="nickname-field enter">
-        <view class="field-label"><text>你的昵称</text><text class="field-optional">选填</text></view>
-        <input
-          class="field-input"
-          placeholder="匿名参与也可以"
-          placeholder-class="placeholder"
-          value="{{nickname}}"
-          bindinput="onNicknameInput"
-          bindfocus="onKeyboardFocus"
-          bindblur="onKeyboardBlur"
-          maxlength="20"
-          aria-label="你的昵称，选填"
-          cursor-spacing="150"
-        />
-      </view>
+      <view class="scheduler-board enter">
+        <view class="scheduler-meta" aria-hidden="true">
+          <text>SCHEDULING / REV. 003</text>
+          <text>SLOT_SELECT</text>
+        </view>
 
-      <view class="section-heading">
-        <text class="section-heading-text">选择有空的时段</text>
-      </view>
-      <text class="selection-help">可以跨日期多选；再次点击即可取消。</text>
+        <view class="nickname-field">
+          <view class="field-label"><text>你的昵称</text><text class="field-optional">选填</text></view>
+          <input
+            class="field-input"
+            placeholder="匿名参与也可以"
+            placeholder-class="placeholder"
+            value="{{nickname}}"
+            bindinput="onNicknameInput"
+            bindfocus="onKeyboardFocus"
+            bindblur="onKeyboardBlur"
+            maxlength="20"
+            aria-label="你的昵称，选填"
+            cursor-spacing="150"
+          />
+        </view>
 
-      <scroll-view scroll-x class="date-scroll" wx:if="{{dates.length > 1}}" enhanced show-scrollbar="false">
-        <view class="date-tabs">
+        <view class="scheduler-section-label">
+          <text>01 / 选择日期</text>
+          <text>{{event.dateRangeText}}</text>
+        </view>
+        <scroll-view scroll-x class="date-scroll" enhanced show-scrollbar="false">
+          <view class="date-tabs">
+            <button
+              class="date-tab {{currentDateIndex === index ? 'is-active' : ''}}"
+              wx:for="{{dates}}"
+              wx:key="date"
+              bindtap="switchDate"
+              data-index="{{index}}"
+              aria-selected="{{currentDateIndex === index}}"
+              aria-label="{{item.weekday}} {{item.day}} 日，{{currentDateIndex === index ? '当前日期' : '选择日期'}}"
+            >
+              <text class="date-weekday">{{item.weekday}}</text>
+              <text class="date-day">{{item.day}}</text>
+            </button>
+          </view>
+        </scroll-view>
+
+        <view class="day-toolbar">
+          <view>
+            <text class="day-title">02 / 选择时段</text>
+            <text class="day-caption">{{dates[currentDateIndex].weekday}} · 当天已选 {{currentSelectedCount}} 个</text>
+          </view>
+          <view class="day-actions">
+            <button class="compact-button" bindtap="clearSelection" disabled="{{currentSelectedCount === 0}}">清空</button>
+            <button class="compact-button is-accent" bindtap="selectAll" disabled="{{allCurrentSelected}}">全选</button>
+          </view>
+        </view>
+
+        <view class="slots-grid {{gridVisible ? 'is-visible' : 'is-hidden'}}">
           <button
-            class="date-tab {{currentDateIndex === index ? 'is-active' : ''}}"
-            wx:for="{{dates}}"
-            wx:key="date"
-            bindtap="switchDate"
+            class="slot-button {{item.selected ? 'is-selected' : ''}}"
+            wx:for="{{currentSlots}}"
+            wx:key="id"
+            bindtap="toggleSlot"
             data-index="{{index}}"
-            aria-selected="{{currentDateIndex === index}}"
-            aria-label="{{item.weekday}} {{item.day}} 日，{{currentDateIndex === index ? '当前日期' : '选择日期'}}"
+            aria-pressed="{{item.selected}}"
+            aria-label="{{item.timeLabel}}，{{item.selected ? '已选择' : '未选择'}}"
           >
-            <text class="date-weekday">{{item.weekday}}</text>
-            <text class="date-day">{{item.day}}</text>
+            <text class="slot-label">{{item.shortLabel}}</text>
+            <text class="slot-state">{{item.selected ? 'SELECTED' : 'OPEN'}}</text>
           </button>
         </view>
-      </scroll-view>
-
-      <view class="day-toolbar">
-        <view>
-          <text class="day-title">{{dates[currentDateIndex].weekday}}</text>
-          <text class="day-caption">当天已选 {{currentSelectedCount}} 个</text>
-        </view>
-        <view class="day-actions">
-          <button class="compact-button" bindtap="clearSelection" disabled="{{currentSelectedCount === 0}}">清空</button>
-          <button class="compact-button is-accent" bindtap="selectAll" disabled="{{allCurrentSelected}}">全选</button>
-        </view>
-      </view>
-
-      <view class="slots-grid {{gridVisible ? 'is-visible' : 'is-hidden'}}">
-        <button
-          class="slot-button {{item.selected ? 'is-selected' : ''}}"
-          wx:for="{{currentSlots}}"
-          wx:key="id"
-          bindtap="toggleSlot"
-          data-index="{{index}}"
-          aria-pressed="{{item.selected}}"
-          aria-label="{{item.timeLabel}}，{{item.selected ? '已选择' : '未选择'}}"
-        >
-          <text class="slot-label">{{item.shortLabel}}</text>
-          <text class="slot-state">{{item.selected ? '已选' : '可选'}}</text>
-        </button>
       </view>
     </view>
 
     <view class="vote-footer safe-footer {{keyboardActive ? 'is-keyboard-hidden' : ''}}">
       <view class="selected-summary">
-        <text class="selected-number">{{selectedCount}}</text>
-        <text class="selected-label">个时段</text>
+        <text class="selected-kicker" aria-hidden="true">TOTAL_SELECTION</text>
+        <view><text class="selected-number">{{selectedCount}}</text><text class="selected-label"> 个时段</text></view>
+        <text class="selected-detail">{{dates[currentDateIndex].weekday}} · 已选 {{currentSelectedCount}}</text>
       </view>
       <button
         class="primary-button vote-submit"

@@ -224,7 +224,7 @@ Page({
       title: '通知参与者？',
       content: `最佳时间是 ${this.data.bestSlot.timeText}`,
       confirmText: '发送',
-      confirmColor: '#ff7668'
+      confirmColor: '#b83a2d'
     })
     if (!modal.confirm) return
 
@@ -260,7 +260,7 @@ Page({
       title: '删除聚会？',
       content: '删除后无法恢复。',
       confirmText: '删除',
-      confirmColor: '#ff7668'
+      confirmColor: '#b83a2d'
     })
     if (!modal.confirm) return
 

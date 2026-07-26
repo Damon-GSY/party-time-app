@@ -55,3 +55,30 @@ test('legacy generateTimeSlots follows the same index contract', () => {
     )
   }
 })
+
+test('month calendar always renders six Monday-first weeks with one current day', () => {
+  const days = util.generateMonthCalendar(new Date(2026, 6, 26, 12))
+
+  assert.equal(days.length, 42)
+  assert.equal(days[0].date, '2026-06-29')
+  assert.equal(days[6].date, '2026-07-05')
+  assert.equal(days.filter(day => day.inMonth).length, 31)
+  assert.equal(days.filter(day => !day.inMonth).length, 11)
+  assert.deepEqual(days.filter(day => day.current).map(day => day.date), ['2026-07-26'])
+  assert.equal(days[0].accessibleLabel, '2026年6月29日，上月')
+  assert.equal(days.find(day => day.current).accessibleLabel, '2026年7月26日，今天')
+})
+
+test('month calendar handles Sunday-start and cross-year months', () => {
+  const sundayStart = util.generateMonthCalendar(new Date(2025, 5, 15, 12))
+  assert.equal(sundayStart[0].date, '2025-05-26')
+  assert.equal(sundayStart[6].date, '2025-06-01')
+  assert.deepEqual(sundayStart.filter(day => day.current).map(day => day.date), ['2025-06-15'])
+
+  const crossYear = util.generateMonthCalendar(new Date(2027, 0, 1, 12))
+  assert.equal(crossYear[0].date, '2026-12-28')
+  assert.equal(crossYear[41].date, '2027-02-07')
+  assert.equal(crossYear[0].accessibleLabel, '2026年12月28日，上月')
+  assert.equal(crossYear[41].accessibleLabel, '2027年2月7日，下月')
+  assert.deepEqual(crossYear.filter(day => day.current).map(day => day.date), ['2027-01-01'])
+})

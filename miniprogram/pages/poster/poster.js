@@ -106,10 +106,10 @@ Page({
           this.drawDecorations(ctx)
 
           // 3. 右上角小程序名称
-          this.drawSingleText(ctx, '聚会时间', POSTER_WIDTH - 20, 36, 14, 'rgba(255,255,255,0.6)', 'right')
+          this.drawSingleText(ctx, '聚会时间', POSTER_WIDTH - 20, 36, 14, 'rgba(220,201,169,0.72)', 'right')
 
           // 4. 顶部装饰线条
-          ctx.strokeStyle = 'rgba(233, 69, 96, 0.4)'
+          ctx.strokeStyle = 'rgba(184, 58, 45, 0.48)'
           ctx.lineWidth = 2
           ctx.beginPath()
           ctx.moveTo(32, 70)
@@ -120,10 +120,10 @@ Page({
           this.drawEventName(ctx, event.name)
 
           // 6. 日期范围
-          this.drawSingleText(ctx, event.dateRangeText, 32, 240, 16, '#b8aea7', 'left')
+          this.drawSingleText(ctx, event.dateRangeText, 32, 240, 16, '#b9a98f', 'left')
 
           // 7. 分隔线
-          ctx.strokeStyle = 'rgba(233, 69, 96, 0.3)'
+          ctx.strokeStyle = 'rgba(184, 58, 45, 0.36)'
           ctx.lineWidth = 1
           ctx.beginPath()
           ctx.moveTo(32, 270)
@@ -158,7 +158,7 @@ Page({
   // 绘制背景
   drawBackground(ctx) {
     this.roundRect(ctx, 0, 0, POSTER_WIDTH, POSTER_HEIGHT, 0)
-    ctx.fillStyle = '#151311'
+    ctx.fillStyle = '#171817'
     ctx.fill()
   },
 
@@ -175,7 +175,7 @@ Page({
   // 绘制活动名称
   drawEventName(ctx, name) {
     ctx.font = 'bold 28px -apple-system, BlinkMacSystemFont, sans-serif'
-    ctx.fillStyle = '#f7f1ec'
+    ctx.fillStyle = '#dcc9a9'
     ctx.textAlign = 'left'
     ctx.textBaseline = 'top'
 
@@ -197,33 +197,33 @@ Page({
 
     // 参与人数卡片
     this.roundRect(ctx, 32, y, cardWidth, cardHeight, 12)
-    ctx.fillStyle = 'rgba(233, 69, 96, 0.15)'
+    ctx.fillStyle = 'rgba(184, 58, 45, 0.18)'
     ctx.fill()
-    ctx.strokeStyle = 'rgba(233, 69, 96, 0.3)'
+    ctx.strokeStyle = 'rgba(184, 58, 45, 0.36)'
     ctx.lineWidth = 1
     ctx.stroke()
 
     ctx.font = 'bold 28px -apple-system, BlinkMacSystemFont, sans-serif'
-    ctx.fillStyle = '#ff7668'
+    ctx.fillStyle = '#b83a2d'
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
     ctx.fillText(String(participantCount), 32 + cardWidth / 2, y + 36)
 
     ctx.font = '12px -apple-system, BlinkMacSystemFont, sans-serif'
-    ctx.fillStyle = '#b8aea7'
+    ctx.fillStyle = '#b9a98f'
     ctx.fillText('参与人数', 32 + cardWidth / 2, y + 62)
 
     // 投票状态卡片
     const card2X = 32 + cardWidth + 12
     this.roundRect(ctx, card2X, y, cardWidth, cardHeight, 12)
-    ctx.fillStyle = 'rgba(145, 182, 141, 0.12)'
+    ctx.fillStyle = 'rgba(78, 104, 81, 0.22)'
     ctx.fill()
-    ctx.strokeStyle = 'rgba(145, 182, 141, 0.3)'
+    ctx.strokeStyle = 'rgba(78, 104, 81, 0.44)'
     ctx.lineWidth = 1
     ctx.stroke()
 
     ctx.font = 'bold 18px -apple-system, BlinkMacSystemFont, sans-serif'
-    ctx.fillStyle = '#91b68d'
+    ctx.fillStyle = '#4e6851'
     ctx.fillText('进行中', card2X + cardWidth / 2, y + cardHeight / 2)
   },
 
@@ -235,26 +235,26 @@ Page({
 
     // 推荐卡片背景
     this.roundRect(ctx, 32, y, cardWidth, cardHeight, 16)
-    ctx.fillStyle = 'rgba(255, 118, 104, 0.12)'
+    ctx.fillStyle = 'rgba(184, 58, 45, 0.18)'
     ctx.fill()
-    ctx.strokeStyle = 'rgba(255, 118, 104, 0.45)'
+    ctx.strokeStyle = 'rgba(184, 58, 45, 0.5)'
     ctx.lineWidth = 1
     ctx.stroke()
 
     ctx.font = '12px -apple-system, BlinkMacSystemFont, sans-serif'
-    ctx.fillStyle = '#ff7668'
+    ctx.fillStyle = '#b83a2d'
     ctx.textAlign = 'left'
     ctx.textBaseline = 'top'
     ctx.fillText('最佳推荐时段', 52, y + 20)
 
     // 时段文字
     ctx.font = 'bold 18px -apple-system, BlinkMacSystemFont, sans-serif'
-    ctx.fillStyle = '#f7f1ec'
+    ctx.fillStyle = '#dcc9a9'
     ctx.fillText(bestSlot, 52, y + 42)
 
     // 人数
     ctx.font = '14px -apple-system, BlinkMacSystemFont, sans-serif'
-    ctx.fillStyle = '#b8aea7'
+    ctx.fillStyle = '#b9a98f'
     ctx.fillText(`${participantCount}人参与`, 52, y + 70)
   },
 
@@ -264,7 +264,7 @@ Page({
     const maxWidth = POSTER_WIDTH - 100
 
     ctx.font = '13px -apple-system, BlinkMacSystemFont, sans-serif'
-    ctx.fillStyle = '#847d77'
+    ctx.fillStyle = '#8b806f'
     ctx.textAlign = 'center'
     ctx.textBaseline = 'top'
 
@@ -279,7 +279,7 @@ Page({
   // 绘制底部提示文字
   drawBottomText(ctx) {
     // 分隔线
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)'
+    ctx.strokeStyle = 'rgba(220, 201, 169, 0.12)'
     ctx.lineWidth = 1
     ctx.beginPath()
     ctx.moveTo(60, POSTER_HEIGHT - 48)
@@ -287,7 +287,7 @@ Page({
     ctx.stroke()
 
     ctx.font = '13px -apple-system, BlinkMacSystemFont, sans-serif'
-    ctx.fillStyle = '#847d77'
+    ctx.fillStyle = '#8b806f'
     ctx.textAlign = 'center'
     ctx.textBaseline = 'bottom'
     ctx.fillText('在聚会时间小程序中参与投票', POSTER_WIDTH / 2, POSTER_HEIGHT - 24)

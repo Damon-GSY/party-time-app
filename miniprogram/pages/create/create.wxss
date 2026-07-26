@@ -135,7 +135,9 @@
   bottom: 0;
   left: 0;
   z-index: 20;
-  padding: 20rpx 40rpx;
+  padding: 20rpx 40rpx 20rpx;
+  padding: 20rpx 40rpx calc(20rpx + constant(safe-area-inset-bottom));
+  padding: 20rpx 40rpx calc(20rpx + env(safe-area-inset-bottom));
   background: var(--color-bg);
   border-top: 2rpx solid var(--color-border);
   transition: transform 180ms var(--ease-in), opacity 140ms ease;

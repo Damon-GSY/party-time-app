@@ -3,9 +3,9 @@
 }
 
 .result-content {
-  padding: 96rpx 44rpx 206rpx;
-  padding: calc(96rpx + constant(safe-area-inset-top)) 44rpx calc(206rpx + constant(safe-area-inset-bottom));
-  padding: calc(96rpx + env(safe-area-inset-top)) 44rpx calc(206rpx + env(safe-area-inset-bottom));
+  padding: 96rpx 28rpx 206rpx;
+  padding: calc(96rpx + constant(safe-area-inset-top)) 28rpx calc(206rpx + constant(safe-area-inset-bottom));
+  padding: calc(96rpx + env(safe-area-inset-top)) 28rpx calc(206rpx + env(safe-area-inset-bottom));
 }
 
 .result-title-row {
@@ -27,8 +27,10 @@
   display: flex;
   align-items: center;
   color: var(--color-success);
-  background: rgba(145, 182, 141, 0.12);
-  border-radius: var(--radius-pill);
+  background: var(--color-success-soft);
+  border: 2rpx solid var(--color-success);
+  border-radius: 2rpx;
+  font-family: "SFMono-Regular", Consolas, monospace;
   font-size: 21rpx;
 }
 
@@ -71,10 +73,11 @@
 
 .best-card {
   padding: 44rpx;
-  background: var(--color-surface);
-  border: 2rpx solid rgba(242, 122, 106, 0.55);
+  background: var(--color-success);
+  color: var(--color-on-accent);
+  border: 2rpx solid var(--color-success);
   border-left: 8rpx solid var(--color-coral);
-  border-radius: 28rpx;
+  border-radius: 8rpx;
 }
 
 .best-card.is-empty {
@@ -89,9 +92,11 @@
 }
 
 .best-label {
-  color: var(--color-coral);
-  font-size: 23rpx;
+  color: var(--color-on-accent);
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-size: 20rpx;
   font-weight: 600;
+  letter-spacing: 1rpx;
 }
 
 .best-card.is-empty .best-label {
@@ -100,7 +105,7 @@
 
 .best-time {
   margin-top: 14rpx;
-  font-size: 52rpx;
+  font-size: 58rpx;
   font-weight: 700;
   line-height: 1.4;
 }
@@ -113,6 +118,8 @@
 .best-range {
   margin-top: 4rpx;
   white-space: nowrap;
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-variant-numeric: tabular-nums;
 }
 
 .best-meta {
@@ -123,13 +130,13 @@
 }
 
 .best-count {
-  color: var(--color-coral);
+  color: var(--color-on-accent);
   font-size: 26rpx;
   font-weight: 600;
 }
 
 .best-percent {
-  color: var(--color-text-secondary);
+  color: rgba(244, 233, 216, 0.78);
   font-size: 24rpx;
 }
 
@@ -144,8 +151,9 @@
   padding: 32rpx 0;
   display: flex;
   align-items: stretch;
-  border-top: 2rpx solid var(--color-border);
-  border-bottom: 2rpx solid var(--color-border);
+  background: var(--color-paper);
+  border: 2rpx solid rgba(23, 24, 23, 0.28);
+  border-radius: 4rpx;
 }
 
 .stat-item {
@@ -156,20 +164,21 @@
 }
 
 .stat-value {
-  color: var(--color-text);
+  color: var(--color-ink);
+  font-family: "SFMono-Regular", Consolas, monospace;
   font-size: 60rpx;
   font-weight: 700;
 }
 
 .stat-label {
   margin-top: 4rpx;
-  color: var(--color-text-muted);
+  color: var(--color-success-ink);
   font-size: 22rpx;
 }
 
 .stat-divider {
   width: 2rpx;
-  background: var(--color-border);
+  background: rgba(23, 24, 23, 0.2);
 }
 
 .heatmap-help {
@@ -186,7 +195,7 @@
 
 .heatmap-columns {
   display: inline-flex;
-  gap: 14rpx;
+  gap: 0;
   padding-right: 40rpx;
 }
 
@@ -201,13 +210,15 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: var(--color-surface-raised);
-  border: 2rpx solid var(--color-border);
-  border-radius: var(--radius-md);
+  background: var(--color-paper);
+  color: var(--color-ink);
+  border: 2rpx solid rgba(23, 24, 23, 0.28);
+  border-radius: 0;
 }
 
 .heatmap-weekday {
-  color: var(--color-text-secondary);
+  color: var(--color-success-ink);
+  font-family: "SFMono-Regular", Consolas, monospace;
   font-size: 20rpx;
 }
 
@@ -220,7 +231,7 @@
 .heatmap-cell {
   width: 100%;
   min-height: 104rpx;
-  margin: 12rpx 0 0;
+  margin: 0;
   padding: 12rpx;
   display: flex;
   align-items: center;
@@ -228,15 +239,25 @@
   background: var(--color-surface);
   color: var(--color-text-secondary);
   border: 2rpx solid var(--color-border);
-  border-radius: var(--radius-md);
+  border-radius: 0;
 }
 
-.heatmap-cell.level-1 { background: rgba(255, 118, 104, 0.12); }
-.heatmap-cell.level-2 { background: rgba(255, 118, 104, 0.24); }
-.heatmap-cell.level-3 { background: rgba(255, 118, 104, 0.46); color: var(--color-text); }
-.heatmap-cell.level-4 { background: var(--color-coral); color: #1a1412; border-color: var(--color-coral); }
+.heatmap-cell + .heatmap-cell {
+  border-top: 0;
+}
+
+.heatmap-column + .heatmap-column .heatmap-date,
+.heatmap-column + .heatmap-column .heatmap-cell {
+  border-left: 0;
+}
+
+.heatmap-cell.level-1 { background: rgba(78, 104, 81, 0.22); }
+.heatmap-cell.level-2 { background: rgba(78, 104, 81, 0.44); color: var(--color-on-accent); }
+.heatmap-cell.level-3 { background: rgba(78, 104, 81, 0.72); color: var(--color-on-accent); }
+.heatmap-cell.level-4 { background: var(--color-success); color: var(--color-on-accent); border-color: var(--color-success); }
 
 .heatmap-time {
+  font-family: "SFMono-Regular", Consolas, monospace;
   font-size: 21rpx;
   font-weight: 600;
 }
@@ -304,6 +325,7 @@
   margin: 0;
   padding: 0 16rpx;
   font-size: 24rpx;
+  border-radius: 4rpx;
 }
 
 .danger-button {
@@ -323,14 +345,20 @@
   bottom: 0;
   left: 0;
   z-index: 20;
-  padding: 22rpx 44rpx;
-  background: var(--color-bg);
-  border-top: 2rpx solid var(--color-border);
+  padding: 22rpx 44rpx 22rpx;
+  padding: 22rpx 44rpx calc(22rpx + constant(safe-area-inset-bottom));
+  padding: 22rpx 44rpx calc(22rpx + env(safe-area-inset-bottom));
+  background: var(--color-paper-raised);
+  border-top: 2rpx solid var(--color-ink);
 }
 
 .result-primary {
   width: 100%;
   margin: 0;
+  background: var(--color-ink);
+  color: var(--color-paper-raised);
+  border-color: var(--color-ink);
+  border-radius: 2rpx;
 }
 
 .state-action {

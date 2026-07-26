@@ -19,6 +19,9 @@ Page({
     initialized: false,
     currentMonth: '',
     calendarDays: [],
+    calendarWeekdays: ['一', '二', '三', '四', '五', '六', '日'],
+    monthCalendarDays: [],
+    calendarExpanded: false,
     swipeStartX: 0,
     swipeStartY: 0,
     activeSwipeId: null,
@@ -48,13 +51,21 @@ Page({
       const date = new Date(monday)
       date.setDate(monday.getDate() + index)
       return {
+        date: util.formatDate(date),
         weekday,
         day: date.getDate(),
         current: util.formatDate(date) === util.formatDate(today)
       }
     })
 
-    this.setData({ currentMonth: `${today.getMonth() + 1}月`, calendarDays })
+    const monthCalendarDays = util.generateMonthCalendar(today)
+
+    this.setData({ currentMonth: `${today.getFullYear()} / ${today.getMonth() + 1}月`, calendarDays, monthCalendarDays })
+  },
+
+  toggleCalendar() {
+    this.setData({ calendarExpanded: !this.data.calendarExpanded })
+    try { wx.vibrateShort({ type: 'light' }) } catch (err) {}
   },
 
   loadUserAvatar() {
@@ -237,7 +248,7 @@ Page({
       title: '删除聚会？',
       content: '删除后无法恢复。',
       confirmText: '删除',
-      confirmColor: '#ff7668'
+      confirmColor: '#b83a2d'
     })
     if (!modal.confirm) {
       this.closeSwipe(id)

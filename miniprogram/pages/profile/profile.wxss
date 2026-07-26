@@ -2,7 +2,7 @@
 .profile-content { padding: calc(96rpx + env(safe-area-inset-top)) 44rpx calc(72rpx + env(safe-area-inset-bottom)); }
 .profile-heading { margin-bottom: 46rpx; }
 .identity-section { display: flex; align-items: center; gap: 28rpx; }
-.avatar-button { width: 124rpx; height: 124rpx; margin: 0; padding: 0; flex-shrink: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; background: var(--color-coral-soft); color: var(--color-coral); border: 2rpx solid rgba(255,118,104,.5); border-radius: 50%; }
+.avatar-button { width: 124rpx; height: 124rpx; margin: 0; padding: 0; flex-shrink: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; background: var(--color-coral-soft); color: var(--color-coral); border: 2rpx solid rgba(184,58,45,.58); border-radius: 50%; }
 .user-avatar { width: 100%; height: 100%; }
 .avatar-letter { font-size: 42rpx; font-weight: 700; }
 .identity-body { min-width: 0; flex: 1; }

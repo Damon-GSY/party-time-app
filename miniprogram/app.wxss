@@ -1,17 +1,23 @@
 page {
-  --color-bg: #171412;
-  --color-surface: #1e1a17;
-  --color-surface-raised: #26201c;
-  --color-coral: #f27a6a;
-  --color-coral-strong: #e46a5a;
-  --color-coral-soft: rgba(255, 118, 104, 0.14);
-  --color-text: #f6f1eb;
-  --color-text-secondary: #beb5ae;
-  --color-text-muted: #8f8781;
-  --color-border: #3c3430;
-  --color-success: #91b68d;
-  --color-warning: #d8aa69;
-  --color-danger: #ff8f84;
+  --color-bg: #171817;
+  --color-surface: #222320;
+  --color-surface-raised: #2b2b27;
+  --color-paper: #dcc9a9;
+  --color-paper-raised: #ead9bb;
+  --color-ink: #171817;
+  --color-coral: #b83a2d;
+  --color-coral-strong: #a82f25;
+  --color-coral-soft: rgba(184, 58, 45, 0.18);
+  --color-text: #dcc9a9;
+  --color-text-secondary: #b9a98f;
+  --color-text-muted: #8b806f;
+  --color-on-accent: #f4e9d8;
+  --color-border: rgba(220, 201, 169, 0.28);
+  --color-success: #4e6851;
+  --color-success-ink: #405944;
+  --color-success-soft: rgba(78, 104, 81, 0.22);
+  --color-warning: #b69057;
+  --color-danger: #c44a3d;
   --radius-sm: 12rpx;
   --radius-md: 20rpx;
   --radius-lg: 30rpx;
@@ -198,7 +204,7 @@ button::after {
 
 .primary-button {
   background: var(--color-coral);
-  color: #1a1412;
+  color: var(--color-on-accent);
   border: 2rpx solid var(--color-coral);
 }
 
@@ -223,9 +229,9 @@ button::after {
 }
 
 .primary-button[disabled] {
-  background: #39332f;
-  color: #746c66;
-  border-color: #39332f;
+  background: #30312e;
+  color: var(--color-text-muted);
+  border-color: #30312e;
   opacity: 1;
 }
 
@@ -257,9 +263,9 @@ button::after {
   min-height: 96rpx;
   box-sizing: border-box;
   padding: 24rpx 28rpx;
-  background: var(--color-surface);
-  color: var(--color-text);
-  border: 2rpx solid var(--color-border);
+  background: var(--color-paper);
+  color: var(--color-ink);
+  border: 2rpx solid rgba(23, 24, 23, 0.28);
   border-radius: var(--radius-md);
   font-size: 28rpx;
   transition: border-color var(--duration-fast) ease, background-color var(--duration-fast) ease;
@@ -274,11 +280,11 @@ button::after {
 .field-textarea:focus,
 .field-picker:active {
   border-color: var(--color-coral);
-  background: var(--color-surface-raised);
+  background: var(--color-paper-raised);
 }
 
 .placeholder {
-  color: var(--color-text-muted);
+  color: #6e6557;
 }
 
 .enter {
