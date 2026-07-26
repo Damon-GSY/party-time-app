@@ -81,7 +81,9 @@
 }
 
 .calendar-toggle-surface:active,
-.calendar-collapse-button:active {
+.calendar-collapse-button:active,
+.calendar-month-nav-button:active,
+.calendar-today-button:active {
   opacity: 0.72;
 }
 
@@ -176,6 +178,46 @@
   margin-top: 28rpx;
   border-top: 2rpx solid rgba(23, 24, 23, 0.28);
   animation: calendar-reveal var(--duration-base) var(--ease-out) both;
+}
+
+.calendar-month-nav {
+  min-height: 82rpx;
+  display: grid;
+  grid-template-columns: 82rpx 1fr 82rpx;
+  align-items: center;
+  border-bottom: 2rpx solid rgba(23, 24, 23, 0.28);
+}
+
+.calendar-month-nav-button,
+.calendar-today-button {
+  min-width: 82rpx;
+  min-height: 82rpx;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: var(--color-ink);
+  border: 0;
+  border-radius: 0;
+}
+
+.calendar-today-button {
+  justify-self: center;
+  min-width: 112rpx;
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-size: 22rpx;
+  font-weight: 600;
+}
+
+.calendar-month-nav-icon {
+  width: 30rpx;
+  height: 30rpx;
+}
+
+.calendar-month-nav-icon.is-previous {
+  transform: rotate(180deg);
 }
 
 .calendar-month-weekdays,

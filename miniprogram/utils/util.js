@@ -87,23 +87,25 @@ const generateDateRange = (startDate, endDate) => {
 
 /**
  * 生成周一开头的 6 × 7 月历。
- * referenceDate 同时决定展示月份和“今天”高亮，方便页面与测试共享同一规则。
+ * referenceDate 决定展示月份；currentDate 决定“今天”高亮。
+ * currentDate 默认沿用 referenceDate，保持旧调用行为不变。
  */
-const generateMonthCalendar = (referenceDate = new Date()) => {
-  const today = new Date(referenceDate)
-  if (Number.isNaN(today.getTime())) return []
+const generateMonthCalendar = (referenceDate = new Date(), currentDate = referenceDate) => {
+  const viewedMonth = new Date(referenceDate)
+  const today = new Date(currentDate)
+  if (Number.isNaN(viewedMonth.getTime()) || Number.isNaN(today.getTime())) return []
 
-  const monthStart = new Date(today.getFullYear(), today.getMonth(), 1)
+  const monthStart = new Date(viewedMonth.getFullYear(), viewedMonth.getMonth(), 1)
   const gridStart = new Date(monthStart)
   gridStart.setDate(monthStart.getDate() - ((monthStart.getDay() + 6) % 7))
   const todayKey = formatDate(today)
-  const targetMonthIndex = today.getFullYear() * 12 + today.getMonth()
+  const targetMonthIndex = viewedMonth.getFullYear() * 12 + viewedMonth.getMonth()
 
   return Array.from({ length: 42 }, (_, index) => {
     const date = new Date(gridStart)
     date.setDate(gridStart.getDate() + index)
     const dateKey = formatDate(date)
-    const inMonth = date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear()
+    const inMonth = date.getMonth() === viewedMonth.getMonth() && date.getFullYear() === viewedMonth.getFullYear()
     const monthIndex = date.getFullYear() * 12 + date.getMonth()
     const current = dateKey === todayKey
     const relativeLabel = inMonth ? '' : monthIndex < targetMonthIndex ? '，上月' : '，下月'

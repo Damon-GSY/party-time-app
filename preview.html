@@ -122,14 +122,22 @@
     .day.current .day-number { background: var(--coral); color: var(--on-accent); }
     .today-dot { width: 4px; height: 4px; margin: -8px auto 0; border-radius: 50%; background: var(--on-accent); }
     .calendar-month-view { margin-top: 14px; border-top: 1px solid rgba(23,24,23,.28); animation: calendarReveal .24s var(--ease) both; }
-    .calendar-month-weekdays, .calendar-month-grid { display: grid; grid-template-columns: repeat(7,minmax(0,1fr)); }
+    .calendar-month-nav { min-height: 44px; display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; border-bottom: 1px solid rgba(23,24,23,.28); }
+    .calendar-month-nav-button, .calendar-today-button { min-width: 44px; min-height: 44px; padding: 0; display: grid; place-items: center; border: 0; background: transparent; color: var(--ink); cursor: pointer; transition: opacity .14s ease, transform .14s var(--ease); }
+    .calendar-month-nav-button:active, .calendar-today-button:active { opacity: .62; transform: scale(.94); }
+    .calendar-today-button { justify-self: center; min-width: 58px; font: 700 11px ui-monospace, "SFMono-Regular", Consolas, monospace; }
+    .calendar-month-nav-icon { width: 16px; height: 16px; }
+    .calendar-month-nav-icon.previous { transform: rotate(180deg); }
+    .calendar-month-weekdays, .calendar-month-row { display: grid; grid-template-columns: repeat(7,minmax(0,1fr)); }
     .calendar-month-weekdays { min-height: 32px; align-items: center; color: rgba(23,24,23,.7); font: 700 11px ui-monospace, "SFMono-Regular", Consolas, monospace; text-align: center; }
     .calendar-month-grid { border-top: 1px solid rgba(23,24,23,.28); border-left: 1px solid rgba(23,24,23,.28); }
+    .calendar-month-grid.changing { animation: calendarMonthChange .18s var(--ease) both; }
     .calendar-month-day { min-height: 40px; display: grid; place-items: center; border-right: 1px solid rgba(23,24,23,.28); border-bottom: 1px solid rgba(23,24,23,.28); font: 500 12px ui-monospace, "SFMono-Regular", Consolas, monospace; font-variant-numeric: tabular-nums; }
     .calendar-month-day.outside { color: rgba(23,24,23,.68); }
     .calendar-month-day.current { background: var(--coral); color: var(--on-accent); font-weight: 800; }
     .calendar-collapse-button { min-height: 31px; margin: 9px 0 0 auto; padding: 0; display: block; border: 0; background: transparent; color: rgba(23,24,23,.7); font-size: 11px; text-align: right; cursor: pointer; }
     @keyframes calendarReveal { from { opacity: 0; transform: translateY(-6px) scale(.99); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    @keyframes calendarMonthChange { from { opacity: .35; transform: translateX(5px); } to { opacity: 1; transform: translateX(0); } }
 
     .section-heading { display: flex; align-items: center; gap: 11px; margin: 39px 0 22px; }
     .section-heading::before { content: ""; width: 4px; height: 24px; border-radius: 999px; background: var(--coral); }
@@ -314,10 +322,10 @@
         </div>
         <div class="calendar" id="home-calendar">
           <button class="calendar-toggle" id="home-calendar-toggle" data-testid="home-calendar" type="button" aria-expanded="false" aria-controls="home-month-view" aria-label="展开完整月历">
-            <span class="calendar-head"><span class="month" id="home-month">7月</span><span class="calendar-expand-control" aria-hidden="true"><span id="calendar-toggle-label">查看整月</span><img class="calendar-expand-icon" src="./miniprogram/assets/icons/chevron-right-dark.png?v=2" alt=""></span></span>
+            <span class="calendar-head"><span class="month" id="home-month" aria-live="polite">7月</span><span class="calendar-expand-control" aria-hidden="true"><span id="calendar-toggle-label">查看整月</span><img class="calendar-expand-icon" src="./miniprogram/assets/icons/chevron-right-dark.png?v=2" alt=""></span></span>
             <span class="week" id="home-week"></span>
           </button>
-          <div class="calendar-month-view" id="home-month-view" role="region" aria-label="完整月历" hidden><div class="calendar-month-weekdays" role="row"><span role="columnheader">一</span><span role="columnheader">二</span><span role="columnheader">三</span><span role="columnheader">四</span><span role="columnheader">五</span><span role="columnheader">六</span><span role="columnheader">日</span></div><div class="calendar-month-grid" id="home-month-grid" role="grid"></div><button class="calendar-collapse-button" id="home-calendar-collapse" type="button" aria-label="收起完整月历">点击这里收起</button></div>
+          <div class="calendar-month-view" id="home-month-view" role="region" aria-label="完整月历" hidden><div class="calendar-month-nav" role="group" aria-label="月份导航"><button class="calendar-month-nav-button" id="home-calendar-previous" type="button" aria-label="查看上个月"><img class="calendar-month-nav-icon previous" src="./miniprogram/assets/icons/chevron-right-dark.png?v=2" alt=""></button><button class="calendar-today-button" id="home-calendar-today" type="button" aria-label="回到本月">今天</button><button class="calendar-month-nav-button" id="home-calendar-next" type="button" aria-label="查看下个月"><img class="calendar-month-nav-icon" src="./miniprogram/assets/icons/chevron-right-dark.png?v=2" alt=""></button></div><div class="calendar-month-calendar" role="grid" aria-label="月历日期"><div class="calendar-month-weekdays" role="row"><span role="columnheader">一</span><span role="columnheader">二</span><span role="columnheader">三</span><span role="columnheader">四</span><span role="columnheader">五</span><span role="columnheader">六</span><span role="columnheader">日</span></div><div class="calendar-month-grid" id="home-month-grid" role="rowgroup"></div></div><button class="calendar-collapse-button" id="home-calendar-collapse" type="button" aria-label="收起完整月历">点击这里收起</button></div>
         </div>
         <div class="section-heading"><h2>进行中</h2></div>
         <article class="focus-event" data-testid="pending-event">
@@ -403,6 +411,8 @@
       expiry: '7days',
       currentDateIndex: 0,
       calendarExpanded: false,
+      calendarYear: 0,
+      calendarMonthIndex: 0,
       selected: new Set(),
       event: null,
       previewResultName: '',
@@ -410,6 +420,8 @@
     }
 
     const today = new Date()
+    state.calendarYear = today.getFullYear()
+    state.calendarMonthIndex = today.getMonth()
     const defaultStart = addDays(today, 5)
     const defaultEnd = addDays(today, 6)
     state.event = { name: '周末聚餐', startDate: formatDate(defaultStart), endDate: formatDate(defaultEnd), granularity: 'twoHours', note: '地点待定，选好时间后一起确认。' }
@@ -469,7 +481,8 @@
     }
 
     function renderHomeCalendar() {
-      document.getElementById('home-month').textContent = `${today.getFullYear()} / ${today.getMonth() + 1}月`
+      const viewedMonth = new Date(state.calendarYear, state.calendarMonthIndex, 1)
+      document.getElementById('home-month').textContent = `${viewedMonth.getFullYear()} / ${viewedMonth.getMonth() + 1}月`
       const monday = addDays(today, -((today.getDay() + 6) % 7))
       document.getElementById('home-week').innerHTML = Array.from({ length: 7 }, (_, index) => {
         const date = addDays(monday, index)
@@ -477,19 +490,26 @@
         return `<div class="day${current ? ' current' : ''}"><span class="weekday">${['周一','周二','周三','周四','周五','周六','周日'][index]}</span><span class="day-number">${date.getDate()}</span>${current ? '<span class="today-dot"></span>' : ''}</div>`
       }).join('')
 
-      const monthStart = new Date(today.getFullYear(), today.getMonth(), 1)
+      const monthStart = viewedMonth
       const gridStart = addDays(monthStart, -((monthStart.getDay() + 6) % 7))
-      document.getElementById('home-month-grid').innerHTML = Array.from({ length: 42 }, (_, index) => {
+      const monthGrid = document.getElementById('home-month-grid')
+      const monthCells = Array.from({ length: 42 }, (_, index) => {
         const date = addDays(gridStart, index)
         const current = formatDate(date) === formatDate(today)
-        const outside = date.getMonth() !== today.getMonth() || date.getFullYear() !== today.getFullYear()
+        const outside = date.getMonth() !== viewedMonth.getMonth() || date.getFullYear() !== viewedMonth.getFullYear()
         const monthIndex = date.getFullYear() * 12 + date.getMonth()
-        const targetMonthIndex = today.getFullYear() * 12 + today.getMonth()
+        const targetMonthIndex = viewedMonth.getFullYear() * 12 + viewedMonth.getMonth()
         const relative = outside ? (monthIndex < targetMonthIndex ? '，上月' : '，下月') : ''
         const accessibleLabel = `${date.getFullYear()}年${date.getMonth()+1}月${date.getDate()}日${current ? '，今天' : relative}`
         return `<time class="calendar-month-day${outside ? ' outside' : ''}${current ? ' current' : ''}" role="gridcell" datetime="${formatDate(date)}" aria-label="${accessibleLabel}"${current ? ' aria-current="date"' : ''}>${date.getDate()}</time>`
-      }).join('')
-      document.getElementById('home-month-view').setAttribute('aria-label', `${today.getFullYear()}年${today.getMonth()+1}月完整月历`)
+      })
+      monthGrid.innerHTML = Array.from({ length: 6 }, (_, weekIndex) =>
+        `<div class="calendar-month-row" role="row">${monthCells.slice(weekIndex * 7, weekIndex * 7 + 7).join('')}</div>`
+      ).join('')
+      monthGrid.classList.remove('changing')
+      void monthGrid.offsetWidth
+      monthGrid.classList.add('changing')
+      document.getElementById('home-month-view').setAttribute('aria-label', `${viewedMonth.getFullYear()}年${viewedMonth.getMonth()+1}月完整月历`)
       renderCalendarExpansion()
     }
 
@@ -506,7 +526,24 @@
 
     function toggleHomeCalendar() {
       state.calendarExpanded = !state.calendarExpanded
-      renderCalendarExpansion()
+      if (!state.calendarExpanded) {
+        state.calendarYear = today.getFullYear()
+        state.calendarMonthIndex = today.getMonth()
+      }
+      renderHomeCalendar()
+    }
+
+    function changeHomeCalendarMonth(offset) {
+      const nextMonth = new Date(state.calendarYear, state.calendarMonthIndex + offset, 1)
+      state.calendarYear = nextMonth.getFullYear()
+      state.calendarMonthIndex = nextMonth.getMonth()
+      renderHomeCalendar()
+    }
+
+    function showCurrentHomeMonth() {
+      state.calendarYear = today.getFullYear()
+      state.calendarMonthIndex = today.getMonth()
+      renderHomeCalendar()
     }
 
     const createForm = document.getElementById('create-form')
@@ -742,6 +779,9 @@
       toggleHomeCalendar()
     })
     document.getElementById('home-calendar-collapse').addEventListener('click', toggleHomeCalendar)
+    document.getElementById('home-calendar-previous').addEventListener('click', () => changeHomeCalendarMonth(-1))
+    document.getElementById('home-calendar-next').addEventListener('click', () => changeHomeCalendarMonth(1))
+    document.getElementById('home-calendar-today').addEventListener('click', showCurrentHomeMonth)
     document.querySelectorAll('[data-open-result]').forEach(button => button.addEventListener('click', () => { state.previewResultName = button.dataset.openResult; showPage('result') }))
 
     document.querySelectorAll('input, textarea').forEach(input => {

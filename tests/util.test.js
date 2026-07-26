@@ -82,3 +82,15 @@ test('month calendar handles Sunday-start and cross-year months', () => {
   assert.equal(crossYear[41].accessibleLabel, '2027年2月7日，下月')
   assert.deepEqual(crossYear.filter(day => day.current).map(day => day.date), ['2027-01-01'])
 })
+
+test('month calendar can browse away from today without inventing a current day', () => {
+  const today = new Date(2026, 6, 26, 12)
+  const august = util.generateMonthCalendar(new Date(2026, 7, 1, 12), today)
+
+  assert.equal(august[0].date, '2026-07-27')
+  assert.equal(august[41].date, '2026-09-06')
+  assert.equal(august.filter(day => day.inMonth).length, 31)
+  assert.deepEqual(august.filter(day => day.current), [])
+  assert.equal(august[0].accessibleLabel, '2026年7月27日，上月')
+  assert.equal(august[41].accessibleLabel, '2026年9月6日，下月')
+})

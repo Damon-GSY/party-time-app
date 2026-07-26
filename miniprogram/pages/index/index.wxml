@@ -20,7 +20,7 @@
         aria-label="{{calendarExpanded ? '收起完整月历' : '展开完整月历'}}"
       >
         <view class="calendar-header">
-          <text class="calendar-month">{{currentMonth}}</text>
+          <text class="calendar-month" aria-live="polite">{{currentMonth}}</text>
           <view class="calendar-expand-control" aria-hidden="true">
             <text>{{calendarExpanded ? '收起月历' : '查看整月'}}</text>
             <image class="calendar-expand-icon" src="/assets/icons/chevron-right-dark.png" mode="aspectFit"></image>
@@ -37,6 +37,15 @@
       </button>
 
       <view id="home-month-calendar" class="calendar-month-view" wx:if="{{calendarExpanded}}" aria-role="region" aria-label="{{currentMonth}}完整月历">
+        <view class="calendar-month-nav" aria-role="group" aria-label="月份导航">
+          <button class="calendar-month-nav-button" bindtap="showPreviousMonth" aria-label="查看上个月">
+            <image class="calendar-month-nav-icon is-previous" src="/assets/icons/chevron-right-dark.png" mode="aspectFit" aria-hidden="true"></image>
+          </button>
+          <button class="calendar-today-button" bindtap="showTodayMonth" aria-label="回到本月">今天</button>
+          <button class="calendar-month-nav-button" bindtap="showNextMonth" aria-label="查看下个月">
+            <image class="calendar-month-nav-icon" src="/assets/icons/chevron-right-dark.png" mode="aspectFit" aria-hidden="true"></image>
+          </button>
+        </view>
         <view class="calendar-month-weekdays">
           <text wx:for="{{calendarWeekdays}}" wx:key="*this">{{item}}</text>
         </view>

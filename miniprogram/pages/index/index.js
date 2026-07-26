@@ -9,6 +9,16 @@ function getEventIcon(name = '') {
   return '/assets/icons/calendar-days-coral.png'
 }
 
+function getMonthCalendarData(referenceDate, today = new Date()) {
+  const viewedMonth = new Date(referenceDate.getFullYear(), referenceDate.getMonth(), 1)
+  return {
+    currentMonth: `${viewedMonth.getFullYear()} / ${viewedMonth.getMonth() + 1}月`,
+    calendarYear: viewedMonth.getFullYear(),
+    calendarMonthIndex: viewedMonth.getMonth(),
+    monthCalendarDays: util.generateMonthCalendar(viewedMonth, today)
+  }
+}
+
 Page({
   data: {
     events: [],
@@ -18,6 +28,8 @@ Page({
     loadError: false,
     initialized: false,
     currentMonth: '',
+    calendarYear: 0,
+    calendarMonthIndex: 0,
     calendarDays: [],
     calendarWeekdays: ['一', '二', '三', '四', '五', '六', '日'],
     monthCalendarDays: [],
@@ -58,13 +70,32 @@ Page({
       }
     })
 
-    const monthCalendarDays = util.generateMonthCalendar(today)
-
-    this.setData({ currentMonth: `${today.getFullYear()} / ${today.getMonth() + 1}月`, calendarDays, monthCalendarDays })
+    this.setData({ calendarDays, ...getMonthCalendarData(today, today) })
   },
 
   toggleCalendar() {
-    this.setData({ calendarExpanded: !this.data.calendarExpanded })
+    const today = new Date()
+    this.setData({ calendarExpanded: !this.data.calendarExpanded, ...getMonthCalendarData(today, today) })
+    try { wx.vibrateShort({ type: 'light' }) } catch (err) {}
+  },
+
+  changeCalendarMonth(offset) {
+    const nextMonth = new Date(this.data.calendarYear, this.data.calendarMonthIndex + offset, 1)
+    this.setData(getMonthCalendarData(nextMonth))
+    try { wx.vibrateShort({ type: 'light' }) } catch (err) {}
+  },
+
+  showPreviousMonth() {
+    this.changeCalendarMonth(-1)
+  },
+
+  showNextMonth() {
+    this.changeCalendarMonth(1)
+  },
+
+  showTodayMonth() {
+    const today = new Date()
+    this.setData(getMonthCalendarData(today, today))
     try { wx.vibrateShort({ type: 'light' }) } catch (err) {}
   },
 
