@@ -60,10 +60,6 @@ const getTimeSlotConfig = (granularity = 'twoHours') => {
 }
 
 const formatHour = hour => `${String(hour).padStart(2, '0')}:00`
-const getSlotDurationHours = (granularity = 'twoHours') => {
-  const normalized = SLOT_RULES[granularity] ? granularity : 'twoHours'
-  return SLOT_RULES[normalized].hoursPerSlot
-}
 
 /**
  * 规范化活动每天的可选时间窗口。
@@ -337,7 +333,6 @@ module.exports = {
   getTimeSlotConfig,
   getEventTimeSlotConfig,
   getTimeWindowOptions,
-  getSlotDurationHours,
   normalizeEventTimeWindow,
   alignTimeWindow,
   formatEventTimeWindow,

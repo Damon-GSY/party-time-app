@@ -21,7 +21,6 @@
 .form-field:nth-child(3) { animation-delay: 80ms; }
 .form-field:nth-child(4) { animation-delay: 120ms; }
 .form-field:nth-child(5) { animation-delay: 160ms; }
-.form-field:nth-child(6) { animation-delay: 200ms; }
 
 .field-count {
   display: block;
@@ -63,37 +62,8 @@
   font-size: 23rpx;
 }
 
-.segmented-control {
-  display: flex;
-  padding: 6rpx;
-  background: var(--color-surface);
-  border: 2rpx solid var(--color-border);
-  border-radius: var(--radius-md);
-}
-
-.segment {
-  min-height: 88rpx;
-  margin: 0;
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: transparent;
-  color: var(--color-text-secondary);
-  border-radius: 16rpx;
-  font-size: 25rpx;
-  font-weight: 600;
-  transition: color var(--duration-fast) var(--ease-standard), background-color var(--duration-fast) var(--ease-standard), transform var(--duration-instant) var(--ease-standard);
-}
-
-.segment:active,
 .choice:active {
   transform: scale(0.97);
-}
-
-.segment.is-active {
-  background: var(--color-coral-soft);
-  color: var(--color-coral);
 }
 
 .choice-grid {

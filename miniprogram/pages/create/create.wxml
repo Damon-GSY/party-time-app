@@ -67,19 +67,9 @@
           </picker>
         </view>
         <view class="time-window-summary">
-          <text>每天开放 {{dailySlotCount}} 个时段</text>
+          <text>参与者可自由勾选</text>
           <text>{{startHourOptions[startHourIndex].label}}—{{endHourOptions[endHourIndex].label}}</text>
         </view>
-      </view>
-
-      <view class="form-field enter">
-        <view class="field-label"><text>时段粒度</text></view>
-        <view class="segmented-control">
-          <button class="segment {{granularity === 'hour' ? 'is-active' : ''}}" data-value="hour" bindtap="selectGranularity" aria-pressed="{{granularity === 'hour'}}" aria-label="1 小时时段，{{granularity === 'hour' ? '已选择' : '未选择'}}">1 小时</button>
-          <button class="segment {{granularity === 'twoHours' ? 'is-active' : ''}}" data-value="twoHours" bindtap="selectGranularity" aria-pressed="{{granularity === 'twoHours'}}" aria-label="2 小时时段，{{granularity === 'twoHours' ? '已选择' : '未选择'}}">2 小时</button>
-          <button class="segment {{granularity === 'halfDay' ? 'is-active' : ''}}" data-value="halfDay" bindtap="selectGranularity" aria-pressed="{{granularity === 'halfDay'}}" aria-label="6 小时时段，{{granularity === 'halfDay' ? '已选择' : '未选择'}}">6 小时</button>
-        </view>
-        <text class="field-hint">2 小时适合大多数聚会，也更容易完成投票。</text>
       </view>
 
       <view class="form-field enter">

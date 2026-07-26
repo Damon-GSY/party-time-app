@@ -69,6 +69,28 @@ test('createEvent validates and normalizes the persisted event contract', () => 
   assert.equal(document.expireAt, null)
   assert.equal(document.createdAt, 'server-date')
   assert.deepEqual(document.dailyTimeWindow, { startMinute: 0, endMinute: 1440 })
+
+  const legacyFallback = createEvent.exports._test.validateCreateInput({
+    name: '不指定颗粒度的聚会',
+    startDate: '2026-07-26',
+    endDate: '2026-07-27',
+    dailyTimeWindow: { startMinute: 600, endMinute: 1320 },
+    expireType: '7days'
+  }, now)
+  assert.equal(legacyFallback.ok, true)
+  assert.equal(legacyFallback.value.granularity, 'twoHours')
+
+  const officialHourlyCreate = createEvent.exports._test.validateCreateInput({
+    name: '新版自由选时聚会',
+    startDate: '2026-07-26',
+    endDate: '2026-07-27',
+    granularity: 'hour',
+    dailyTimeWindow: { startMinute: 540, endMinute: 900 },
+    expireType: '7days'
+  }, now)
+  assert.equal(officialHourlyCreate.ok, true)
+  assert.equal(officialHourlyCreate.value.granularity, 'hour')
+  assert.deepEqual(officialHourlyCreate.value.dailyTimeWindow, { startMinute: 540, endMinute: 900 })
 })
 
 test('createEvent rejects invalid dates, ranges and enums', () => {

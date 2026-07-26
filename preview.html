@@ -211,9 +211,6 @@
     .time-select-icon { width: 30px; height: 30px; flex: 0 0 auto; display: grid; place-items: center; border: 1px solid rgba(23,24,23,.45); border-radius: 50%; font: 800 15px ui-monospace, "SFMono-Regular", Consolas, monospace; transition: transform .2s var(--ease), background-color .14s ease, color .14s ease; }
     .time-select-trigger[aria-expanded="true"] { border-color: var(--coral); background: var(--paper-raised); }
     .time-select-trigger[aria-expanded="true"] .time-select-icon { transform: rotate(180deg); background: var(--ink); color: var(--paper); }
-    .segmented { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); padding: 4px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
-    .segment { min-height: 46px; border: 0; border-radius: 9px; background: transparent; color: var(--secondary); font-size: 13px; font-weight: 600; transition: transform .14s var(--ease), color .14s ease, background-color .14s ease; }
-    .segment.active { background: var(--coral-soft); color: var(--coral); }
     .choices { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 7px; }
     .choice { min-height: 46px; padding: 0 4px; border: 1px solid var(--border); border-radius: 11px; background: var(--surface); color: var(--secondary); font-size: 12px; transition: transform .14s var(--ease), color .14s ease, background-color .14s ease, border-color .14s ease; }
     .choice.active { border-color: var(--coral); background: var(--coral-soft); color: var(--coral); }
@@ -312,7 +309,7 @@
     .time-picker-kicker { display: block; color: var(--coral); font: 800 10px ui-monospace, "SFMono-Regular", Consolas, monospace; letter-spacing: .12em; }
     .time-picker-title { display: block; margin-top: 5px; font-size: 20px; }
     .time-picker-close { width: 42px; height: 42px; padding: 0; display: grid; place-items: center; border: 1px solid rgba(23,24,23,.45); border-radius: 50%; background: transparent; color: var(--ink); font-size: 22px; line-height: 1; }
-    .time-option-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); border-left: 1px solid rgba(23,24,23,.22); }
+    .time-option-grid { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); border-left: 1px solid rgba(23,24,23,.22); }
     .time-option { min-height: 58px; padding: 0 8px; border: 0; border-right: 1px solid rgba(23,24,23,.22); border-bottom: 1px solid rgba(23,24,23,.22); background: transparent; color: var(--ink); font: 750 16px ui-monospace, "SFMono-Regular", Consolas, monospace; font-variant-numeric: tabular-nums; transition: background-color .14s ease, color .14s ease, transform .14s var(--ease); }
     .time-option:active { transform: scale(.95); }
     .time-option[aria-pressed="true"] { background: var(--ink); color: var(--paper-raised); box-shadow: inset 0 -4px var(--coral); }
@@ -378,7 +375,6 @@
           <div class="field"><label class="field-label" for="event-name">聚会名称 <span class="required">必填</span></label><input class="field-input" id="event-name" data-testid="event-name" maxlength="30" placeholder="例如：周末聚餐" required><span class="field-hint"><span id="name-count">0</span> / 30</span></div>
           <div class="field"><span class="field-label">日期范围 <span class="required">必填</span></span><div class="date-fields"><label><span class="field-hint">开始日期</span><input class="field-input" id="start-date" data-testid="start-date" type="date" aria-describedby="date-error" required></label><label><span class="field-hint">结束日期</span><input class="field-input" id="end-date" data-testid="end-date" type="date" aria-describedby="date-error" required></label></div><span class="error-text" id="date-error" role="alert"></span></div>
           <div class="field"><span class="field-label">每日可选时段 <span class="required">必填</span></span><div class="time-fields"><div class="time-field-label"><span class="field-hint">开始时间</span><button class="time-select-trigger" id="start-hour" data-testid="start-hour" type="button" aria-haspopup="dialog" aria-controls="time-picker-dialog" aria-expanded="false" aria-describedby="time-window-summary"><strong class="time-select-value" id="start-hour-value">10:00</strong><span class="time-select-icon" aria-hidden="true">↓</span></button></div><span class="time-connector" aria-hidden="true">至</span><div class="time-field-label"><span class="field-hint">结束时间</span><button class="time-select-trigger" id="end-hour" data-testid="end-hour" type="button" aria-haspopup="dialog" aria-controls="time-picker-dialog" aria-expanded="false" aria-describedby="time-window-summary"><strong class="time-select-value" id="end-hour-value">22:00</strong><span class="time-select-icon" aria-hidden="true">↓</span></button></div></div><span class="field-hint time-summary" id="time-window-summary" aria-live="polite"><span id="time-slot-count"></span><span id="time-window-copy"></span></span></div>
-          <div class="field"><span class="field-label">时段粒度</span><div class="segmented" role="group" aria-label="时段粒度"><button class="segment" type="button" data-granularity="hour" aria-pressed="false">1 小时</button><button class="segment active" type="button" data-granularity="twoHours" aria-pressed="true">2 小时</button><button class="segment" type="button" data-granularity="halfDay" aria-pressed="false">6 小时</button></div><span class="field-hint">2 小时适合大多数聚会，也更容易完成投票。</span></div>
           <div class="field"><span class="field-label">投票有效期</span><div class="choices" role="group" aria-label="投票有效期"><button class="choice" type="button" data-expiry="24h" aria-pressed="false">24 小时</button><button class="choice" type="button" data-expiry="3days" aria-pressed="false">3 天</button><button class="choice active" type="button" data-expiry="7days" aria-pressed="true">7 天</button><button class="choice" type="button" data-expiry="never" aria-pressed="false">长期</button></div></div>
           <div class="field"><label class="field-label" for="event-note">备注 <span class="optional">选填</span></label><textarea class="field-textarea" id="event-note" placeholder="地点、人数或其他说明"></textarea></div>
           <div class="fixed-action"><button class="primary-button" id="create-submit" data-testid="create-submit" type="submit" disabled>创建并开始填写</button></div>
@@ -424,7 +420,7 @@
 
     <dialog id="success-dialog" data-testid="success-dialog"><div class="dialog-content"><h2 class="dialog-title">时间已提交</h2><p class="dialog-copy" id="success-copy"></p><div class="dialog-actions"><button class="primary-button" id="view-result" data-testid="view-result" type="button">查看结果</button><button class="secondary-button" id="continue-edit" type="button">继续修改</button></div></div></dialog>
     <dialog id="detail-dialog" data-testid="detail-dialog"><div class="dialog-content"><h2 class="dialog-title" id="detail-title"></h2><p class="dialog-copy" id="detail-copy"></p><div class="detail-users" id="detail-users"></div><button class="secondary-button" id="close-detail" type="button">关闭</button></div></dialog>
-    <dialog class="time-picker-dialog" id="time-picker-dialog" data-testid="time-picker-dialog"><div class="time-picker-content"><div class="time-picker-head"><div><span class="time-picker-kicker">DAILY_TIME_WINDOW</span><strong class="time-picker-title" id="time-picker-title">选择开始时间</strong></div><button class="time-picker-close" id="close-time-picker" type="button" aria-label="关闭时间选择">×</button></div><div class="time-option-grid" id="time-option-grid" role="group" aria-label="可选时间"></div><div class="time-picker-foot"><span id="time-picker-step">STEP / 02_HOURS</span><span>点击时间即完成选择</span></div></div></dialog>
+    <dialog class="time-picker-dialog" id="time-picker-dialog" data-testid="time-picker-dialog"><div class="time-picker-content"><div class="time-picker-head"><div><span class="time-picker-kicker">DAILY_TIME_WINDOW</span><strong class="time-picker-title" id="time-picker-title">选择开始时间</strong></div><button class="time-picker-close" id="close-time-picker" type="button" aria-label="关闭时间选择">×</button></div><div class="time-option-grid" id="time-option-grid" role="group" aria-label="可选时间"></div><div class="time-picker-foot"><span>AVAILABLE_TIME</span><span>点击时间即完成选择</span></div></div></dialog>
   </main>
 
   <script>
@@ -436,7 +432,6 @@
 
     const state = {
       page: 'home',
-      granularity: 'twoHours',
       dailyTimeWindow: { startMinute: 600, endMinute: 1320 },
       expiry: '7days',
       currentDateIndex: 0,
@@ -594,7 +589,7 @@
     endInput.value = formatDate(addDays(today, 1))
 
     function configureTimeWindow() {
-      const step = state.granularity === 'hour' ? 60 : state.granularity === 'halfDay' ? 360 : 120
+      const step = 60
       let startMinute = Math.floor(state.dailyTimeWindow.startMinute / step) * step
       let endMinute = Math.ceil(state.dailyTimeWindow.endMinute / step) * step
       startMinute = Math.max(0, Math.min(1440 - step, startMinute))
@@ -605,12 +600,12 @@
       document.getElementById('end-hour-value').textContent = formatWindowMinute(endMinute)
       startHourTrigger.setAttribute('aria-label', `选择开始时间，当前 ${formatWindowMinute(startMinute)}`)
       endHourTrigger.setAttribute('aria-label', `选择结束时间，当前 ${formatWindowMinute(endMinute)}`)
-      document.getElementById('time-slot-count').textContent = `每天开放 ${(endMinute - startMinute) / step} 个时段`
+      document.getElementById('time-slot-count').textContent = '参与者可自由勾选'
       document.getElementById('time-window-copy').textContent = `${formatWindowMinute(startMinute)}—${formatWindowMinute(endMinute)}`
     }
 
     function updateTimeWindow(changedBoundary, selectedMinute) {
-      const step = state.granularity === 'hour' ? 60 : state.granularity === 'halfDay' ? 360 : 120
+      const step = 60
       let startMinute = changedBoundary === 'start' ? selectedMinute : state.dailyTimeWindow.startMinute
       let endMinute = changedBoundary === 'end' ? selectedMinute : state.dailyTimeWindow.endMinute
       if (startMinute >= endMinute) {
@@ -624,11 +619,10 @@
 
     function openTimePicker(boundary) {
       timePickerBoundary = boundary
-      const step = state.granularity === 'hour' ? 60 : state.granularity === 'halfDay' ? 360 : 120
+      const step = 60
       const count = 1440 / step
       const selectedMinute = boundary === 'start' ? state.dailyTimeWindow.startMinute : state.dailyTimeWindow.endMinute
       document.getElementById('time-picker-title').textContent = boundary === 'start' ? '选择开始时间' : '选择结束时间'
-      document.getElementById('time-picker-step').textContent = `STEP / ${pad(step / 60)}_HOURS`
       document.getElementById('time-option-grid').innerHTML = Array.from({ length: count }, (_, index) => {
         const value = boundary === 'start' ? index * step : (index + 1) * step
         const selected = value === selectedMinute
@@ -669,16 +663,6 @@
       startHourTrigger.setAttribute('aria-expanded', 'false')
       endHourTrigger.setAttribute('aria-expanded', 'false')
     })
-    document.querySelectorAll('[data-granularity]').forEach(button => button.addEventListener('click', () => {
-      state.granularity = button.dataset.granularity
-      document.querySelectorAll('[data-granularity]').forEach(item => {
-        const selected = item === button
-        item.classList.toggle('active', selected)
-        item.setAttribute('aria-pressed', String(selected))
-      })
-      configureTimeWindow()
-      validateCreate()
-    }))
     document.querySelectorAll('[data-expiry]').forEach(button => button.addEventListener('click', () => {
       state.expiry = button.dataset.expiry
       document.querySelectorAll('[data-expiry]').forEach(item => {
@@ -691,7 +675,7 @@
     createForm.addEventListener('submit', event => {
       event.preventDefault()
       if (!validateCreate()) return
-      state.event = { name: nameInput.value.trim(), startDate: startInput.value, endDate: endInput.value, granularity: state.granularity, dailyTimeWindow: { ...state.dailyTimeWindow }, expiry: state.expiry, note: document.getElementById('event-note').value.trim() }
+      state.event = { name: nameInput.value.trim(), startDate: startInput.value, endDate: endInput.value, granularity: 'hour', dailyTimeWindow: { ...state.dailyTimeWindow }, expiry: state.expiry, note: document.getElementById('event-note').value.trim() }
       state.responses = []
       state.previewResultName = ''
       state.selected = new Set()

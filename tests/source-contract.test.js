@@ -66,7 +66,7 @@ test('preview contains the complete acceptance path and valid script syntax', ()
   }
   assert.equal(/(?:linear|conic)-gradient|backdrop-filter|meteor|spotlight|shimmer/i.test(preview), false)
   assert.equal(preview.includes('maximum-scale'), false)
-  assert.match(preview, /data-granularity="twoHours" aria-pressed="true"/)
+  assert.doesNotMatch(preview, /data-granularity=/)
   assert.match(preview, /setAttribute\('aria-pressed'/)
   for (const key of ['ArrowLeft', 'ArrowRight', 'Home', 'End']) assert.match(preview, new RegExp(`['"]${key}['"]`))
   const scripts = [...preview.matchAll(/<script>([\s\S]*?)<\/script>/g)]
@@ -114,6 +114,8 @@ test('create flow persists a daily time window and preview applies it end-to-end
   const createScript = read('miniprogram/pages/create/create.js')
   const preview = read('preview.html')
   assert.match(createScript, /dailyTimeWindow:\s*\{[\s\S]*startMinute:\s*startHour \* 60[\s\S]*endMinute:\s*endHour \* 60/)
+  assert.match(createScript, /granularity:\s*'hour'/)
+  assert.doesNotMatch(read('miniprogram/pages/create/create.wxml'), /时段粒度/)
   assert.match(preview, /function configureTimeWindow\(\)/)
   assert.match(preview, /const eventSlotConfig = \(\) => slotConfig\(state\.event\.granularity, state\.event\.dailyTimeWindow\)/)
   assert.match(preview, /dailyTimeWindow:\s*\{ \.\.\.state\.dailyTimeWindow \}/)
