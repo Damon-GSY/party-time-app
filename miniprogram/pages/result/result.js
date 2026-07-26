@@ -10,9 +10,10 @@ Page({
     isCreator: false,
     justCreated: false,
     participantCount: 0,
-    bestSlot: { timeText: '', count: 0, percent: 0, slotId: '' },
+    bestSlot: { timeText: '', dateText: '', rangeText: '', count: 0, percent: 0, slotId: '' },
     dates: [],
     participants: [],
+    slotModalMounted: false,
     showSlotModal: false,
     selectedSlotInfo: { dateText: '', timeText: '', count: 0, users: [] },
     notifying: false,
@@ -24,7 +25,7 @@ Page({
     const { id, created } = options
     if (!id || typeof id !== 'string' || id.length > 128) {
       wx.showToast({ title: '活动链接无效', icon: 'none' })
-      setTimeout(() => wx.navigateBack(), 1200)
+      setTimeout(() => this.goBack(), 1200)
       return
     }
     this.setData({ eventId: id, justCreated: created === '1' })
@@ -52,6 +53,12 @@ Page({
 
   retryLoad() {
     this.loadResult(this.data.eventId)
+  },
+
+  goBack() {
+    const pages = getCurrentPages()
+    if (pages.length > 1) wx.navigateBack()
+    else wx.switchTab({ url: '/pages/index/index' })
   },
 
   loadMockData() {
@@ -125,16 +132,19 @@ Page({
       }
     })
 
-    let bestSlot = { timeText: '', count: 0, percent: 0, slotId: '' }
+    let bestSlot = { timeText: '', dateText: '', rangeText: '', count: 0, percent: 0, slotId: '' }
     if (bestSlots[0]) {
       const parsedSlot = util.parseSlotId(bestSlots[0].slotId)
       const date = new Date(parsedSlot.date)
       const dateText = `${date.getMonth() + 1}月${date.getDate()}日 ${['周日', '周一', '周二', '周三', '周四', '周五', '周六'][date.getDay()]}`
+      const rangeText = util.formatTimeSlot(parsedSlot.hour, granularity).replace('-', '–')
       bestSlot = {
         slotId: bestSlots[0].slotId,
         count: bestSlots[0].count,
         percent: participantCount ? Math.round(bestSlots[0].count / participantCount * 100) : 0,
-        timeText: `${dateText} · ${util.formatTimeSlot(parsedSlot.hour, granularity)}`
+        dateText,
+        rangeText,
+        timeText: `${dateText} · ${rangeText}`
       }
     }
 
@@ -170,8 +180,9 @@ Page({
     const dateEntry = this.data.dates.find(item => item.date === date)
     const slot = dateEntry?.slots[Number(index)]
     if (!slot) return
+    if (this.slotCloseTimer) clearTimeout(this.slotCloseTimer)
     this.setData({
-      showSlotModal: true,
+      slotModalMounted: true,
       selectedSlotInfo: {
         slotId,
         dateText: `${dateEntry.dateText} ${dateEntry.weekday}`,
@@ -179,11 +190,22 @@ Page({
         count: slot.count,
         users: slot.users
       }
+    }, () => {
+      wx.nextTick(() => this.setData({ showSlotModal: true }))
     })
   },
 
   closeSlotModal() {
     this.setData({ showSlotModal: false })
+    if (this.slotCloseTimer) clearTimeout(this.slotCloseTimer)
+    this.slotCloseTimer = setTimeout(() => {
+      this.setData({ slotModalMounted: false })
+      this.slotCloseTimer = null
+    }, 220)
+  },
+
+  onUnload() {
+    if (this.slotCloseTimer) clearTimeout(this.slotCloseTimer)
   },
 
   preventMove() {},

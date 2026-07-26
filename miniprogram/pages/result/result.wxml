@@ -1,10 +1,13 @@
 <view class="page-shell result-page">
+  <image class="grain-layer" src="/assets/textures/warm-grain.jpg" mode="aspectFill" aria-hidden="true"></image>
   <view class="loading-state" wx:if="{{loading}}">
+    <button class="core-back-button state-back-button" bindtap="goBack" aria-label="返回聚会首页"><image class="core-back-icon" src="/assets/icons/arrow-left-primary.png" mode="aspectFit" aria-hidden="true"></image></button>
     <view class="loading-dot"></view>
     <text class="state-copy">正在汇总大家的时间</text>
   </view>
 
   <view class="error-state" wx:elif="{{loadError}}">
+    <button class="core-back-button state-back-button" bindtap="goBack" aria-label="返回聚会首页"><image class="core-back-icon" src="/assets/icons/arrow-left-primary.png" mode="aspectFit" aria-hidden="true"></image></button>
     <text class="state-title">暂时无法加载结果</text>
     <text class="state-copy">请检查网络后重试。</text>
     <button class="secondary-button state-action" bindtap="retryLoad">重新加载</button>
@@ -12,13 +15,16 @@
 
   <block wx:else>
     <view class="result-content">
-      <view class="result-header enter">
-        <view class="result-title-row">
-          <text class="page-title">{{event.name}}</text>
-          <text class="status-pill {{event.expired ? 'is-expired' : ''}}">{{event.expired ? '已结束' : event.expireText}}</text>
+      <view class="result-header core-flow-header enter">
+        <button class="core-back-button" bindtap="goBack" aria-label="返回聚会首页"><image class="core-back-icon" src="/assets/icons/arrow-left-primary.png" mode="aspectFit" aria-hidden="true"></image></button>
+        <view class="core-flow-body">
+          <view class="result-title-row">
+            <text class="page-title">{{event.name}}</text>
+            <text class="status-pill {{event.expired ? 'is-expired' : ''}}">{{event.expired ? '已结束' : event.expireText}}</text>
+          </view>
+          <text class="page-subtitle">{{event.dateRangeText}}</text>
+          <text class="event-note" wx:if="{{event.note}}">{{event.note}}</text>
         </view>
-        <text class="page-subtitle">{{event.dateRangeText}}</text>
-        <text class="event-note" wx:if="{{event.note}}">{{event.note}}</text>
       </view>
 
       <view class="created-notice" wx:if="{{justCreated}}">
@@ -32,7 +38,7 @@
 
       <view class="best-card" wx:if="{{bestSlot.timeText}}">
         <text class="best-label">当前重合最多</text>
-        <text class="best-time">{{bestSlot.timeText}}</text>
+        <text class="best-time"><text class="best-date">{{bestSlot.dateText}}</text><text class="best-range">{{bestSlot.rangeText}}</text></text>
         <view class="best-meta">
           <text class="best-count">{{bestSlot.count}} 人有空</text>
           <text class="best-percent">{{bestSlot.percent}}%</text>
@@ -113,7 +119,7 @@
       <button class="primary-button result-primary" bindtap="goToVote">填写或修改时间</button>
     </view>
 
-    <view class="slot-modal {{showSlotModal ? 'is-open' : ''}}" catchtouchmove="preventMove">
+    <view wx:if="{{slotModalMounted}}" class="slot-modal {{showSlotModal ? 'is-open' : ''}}" catchtouchmove="preventMove">
       <view class="modal-backdrop" bindtap="closeSlotModal"></view>
       <view class="slot-sheet" aria-role="dialog" aria-label="时段参与详情">
         <view class="slot-sheet-header">

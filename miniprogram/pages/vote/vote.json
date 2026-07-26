@@ -1,4 +1,4 @@
 {
-  "navigationBarTitleText": "选择时间",
+  "navigationStyle": "custom",
   "usingComponents": {}
 }

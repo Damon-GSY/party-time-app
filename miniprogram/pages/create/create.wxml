@@ -1,9 +1,13 @@
 <view class="page-shell create-page">
+  <image class="grain-layer" src="/assets/textures/warm-grain.jpg" mode="aspectFill" aria-hidden="true"></image>
   <view class="create-content">
-    <view class="create-header enter">
-      <text class="eyebrow">新聚会</text>
-      <text class="page-title">先定范围，再让大家选时间</text>
-      <text class="page-subtitle">只需要基本信息，创建后就能把投票分享出去。</text>
+    <view class="create-header core-flow-header enter">
+      <button class="core-back-button" bindtap="goBack" aria-label="返回聚会首页"><image class="core-back-icon" src="/assets/icons/arrow-left-primary.png" mode="aspectFit" aria-hidden="true"></image></button>
+      <view class="core-flow-body">
+        <text class="eyebrow">新聚会</text>
+        <text class="page-title">先定范围，再让大家选时间</text>
+        <text class="page-subtitle">只需要基本信息，创建后就能把投票分享出去。</text>
+      </view>
     </view>
 
     <form bindsubmit="handleSubmit">
@@ -74,6 +78,9 @@
           placeholder-class="placeholder"
           value="{{note}}"
           bindinput="onNoteInput"
+          data-field="note"
+          bindfocus="onInputFocus"
+          bindblur="onInputBlur"
           maxlength="200"
           cursor-spacing="140"
           aria-label="备注，选填"
@@ -81,7 +88,7 @@
         <text class="field-hint field-count">{{note.length || 0}} / 200</text>
       </view>
 
-      <view class="create-footer safe-footer">
+      <view class="create-footer safe-footer {{focusedField ? 'is-keyboard-hidden' : ''}}">
         <button class="primary-button create-submit" form-type="submit" disabled="{{!canSubmit || submitting}}">
           {{submitting ? '正在创建' : '创建并开始填写'}}
         </button>

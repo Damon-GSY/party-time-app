@@ -22,6 +22,8 @@ Page({
     currentSelectedCount: 0,
     allCurrentSelected: false,
     submitting: false,
+    keyboardActive: false,
+    successMounted: false,
     showSuccess: false,
     subscribeRequested: false,
     notificationsConfigured: notificationUtil.isConfigured('result_ready'),
@@ -80,6 +82,12 @@ Page({
     this.loadEvent(this.data.eventId)
   },
 
+  goBack() {
+    const pages = getCurrentPages()
+    if (pages.length > 1) wx.navigateBack()
+    else wx.switchTab({ url: '/pages/index/index' })
+  },
+
   initMockData() {
     const today = new Date()
     const tomorrow = new Date(today)
@@ -135,6 +143,10 @@ Page({
   },
 
   setCurrentSlots(index) {
+    this.applySelectionState(index, this.data.slots)
+  },
+
+  applySelectionState(index, slots) {
     const date = this.data.dates[index]
     if (!date) return
     const currentSlots = util.getTimeSlotConfig(this.data.granularity).map(slot => {
@@ -142,27 +154,39 @@ Page({
       return {
         id,
         index: slot.index,
-        selected: Boolean(this.data.slots[id]),
+        selected: Boolean(slots[id]),
         timeLabel: slot.label,
         shortLabel: slot.shortLabel
       }
     })
     const currentSelectedCount = currentSlots.filter(slot => slot.selected).length
+    const selectedCount = Object.values(slots).filter(Boolean).length
     this.setData({
       currentDateIndex: Number(index),
       currentSlots,
       currentSelectedCount,
+      selectedCount,
+      slots,
       allCurrentSelected: currentSlots.length > 0 && currentSelectedCount === currentSlots.length
     })
   },
 
   switchDate(e) {
     const index = Number(e.currentTarget.dataset.index)
-    if (index === this.data.currentDateIndex) return
+    if (index === this.data.currentDateIndex) {
+      if (this.dateSwitchTimer) {
+        clearTimeout(this.dateSwitchTimer)
+        this.dateSwitchTimer = null
+        this.setData({ gridVisible: true })
+      }
+      return
+    }
+    if (this.dateSwitchTimer) clearTimeout(this.dateSwitchTimer)
     this.setData({ gridVisible: false })
-    setTimeout(() => {
+    this.dateSwitchTimer = setTimeout(() => {
       this.setCurrentSlots(index)
       this.setData({ gridVisible: true })
+      this.dateSwitchTimer = null
     }, 100)
   },
 
@@ -171,33 +195,32 @@ Page({
     const slot = this.data.currentSlots[index]
     if (!slot) return
     const slots = { ...this.data.slots, [slot.id]: !slot.selected }
-    this.setData({ slots })
-    this.updateSelectionState()
+    this.applySelectionState(this.data.currentDateIndex, slots)
     try { wx.vibrateShort({ type: 'light' }) } catch (err) {}
   },
 
   selectAll() {
     const slots = { ...this.data.slots }
     this.data.currentSlots.forEach(slot => { slots[slot.id] = true })
-    this.setData({ slots })
-    this.updateSelectionState()
+    this.applySelectionState(this.data.currentDateIndex, slots)
   },
 
   clearSelection() {
     const slots = { ...this.data.slots }
     this.data.currentSlots.forEach(slot => { slots[slot.id] = false })
-    this.setData({ slots })
-    this.updateSelectionState()
-  },
-
-  updateSelectionState() {
-    const selectedCount = Object.values(this.data.slots).filter(Boolean).length
-    this.setCurrentSlots(this.data.currentDateIndex)
-    this.setData({ selectedCount })
+    this.applySelectionState(this.data.currentDateIndex, slots)
   },
 
   onNicknameInput(e) {
     this.setData({ nickname: e.detail.value })
+  },
+
+  onKeyboardFocus() {
+    this.setData({ keyboardActive: true })
+  },
+
+  onKeyboardBlur() {
+    this.setData({ keyboardActive: false })
   },
 
   async handleSubmit() {
@@ -228,7 +251,10 @@ Page({
   },
 
   showSuccessModal() {
-    this.setData({ showSuccess: true })
+    if (this.successCloseTimer) clearTimeout(this.successCloseTimer)
+    this.setData({ successMounted: true }, () => {
+      wx.nextTick(() => this.setData({ showSuccess: true }))
+    })
     try { wx.vibrateShort({ type: 'medium' }) } catch (err) {}
     notificationUtil.saveLocalNotification('vote_submitted', {
       eventName: this.data.event?.name || '聚会'
@@ -244,6 +270,16 @@ Page({
 
   closeSuccess() {
     this.setData({ showSuccess: false })
+    if (this.successCloseTimer) clearTimeout(this.successCloseTimer)
+    this.successCloseTimer = setTimeout(() => {
+      this.setData({ successMounted: false })
+      this.successCloseTimer = null
+    }, 220)
+  },
+
+  onUnload() {
+    if (this.dateSwitchTimer) clearTimeout(this.dateSwitchTimer)
+    if (this.successCloseTimer) clearTimeout(this.successCloseTimer)
   },
 
   preventMove() {},

@@ -1,4 +1,5 @@
 <view class="page-shell history-page">
+  <image class="grain-layer" src="/assets/textures/warm-grain.jpg" mode="aspectFill" aria-hidden="true"></image>
   <view class="history-content">
     <view class="history-header">
       <text class="eyebrow">历史</text>

@@ -1,14 +1,14 @@
 page {
-  --color-bg: #151311;
-  --color-surface: #1c1917;
-  --color-surface-raised: #24201d;
-  --color-coral: #ff7668;
-  --color-coral-strong: #ff685a;
+  --color-bg: #171412;
+  --color-surface: #1e1a17;
+  --color-surface-raised: #26201c;
+  --color-coral: #f27a6a;
+  --color-coral-strong: #e46a5a;
   --color-coral-soft: rgba(255, 118, 104, 0.14);
-  --color-text: #f7f1ec;
-  --color-text-secondary: #b8aea7;
-  --color-text-muted: #847d77;
-  --color-border: #3a342f;
+  --color-text: #f6f1eb;
+  --color-text-secondary: #beb5ae;
+  --color-text-muted: #8f8781;
+  --color-border: #3c3430;
   --color-success: #91b68d;
   --color-warning: #d8aa69;
   --color-danger: #ff8f84;
@@ -23,8 +23,12 @@ page {
   --space-5: 40rpx;
   --space-6: 48rpx;
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-in: cubic-bezier(0.55, 0, 1, 0.45);
+  --duration-instant: 80ms;
   --duration-fast: 140ms;
   --duration-base: 240ms;
+  --duration-sheet: 280ms;
 
   min-height: 100%;
   background: var(--color-bg);
@@ -48,11 +52,76 @@ button::after {
 .page-shell {
   min-height: 100vh;
   box-sizing: border-box;
-  background: var(--color-bg);
+  background-color: var(--color-bg);
+}
+
+.grain-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+}
+
+.home-content,
+.create-content,
+.vote-content,
+.result-content,
+.notifications-content,
+.profile-content,
+.history-content,
+.poster-preview,
+.poster-actions,
+.loading-state,
+.empty-state,
+.error-state {
+  position: relative;
+  z-index: 1;
 }
 
 .page-content {
   padding: 32rpx 40rpx calc(180rpx + env(safe-area-inset-bottom));
+}
+
+.core-flow-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 24rpx;
+}
+
+.core-flow-body {
+  min-width: 0;
+  flex: 1;
+}
+
+.core-back-button {
+  width: 96rpx;
+  height: 96rpx;
+  min-width: 96rpx;
+  min-height: 96rpx;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-surface);
+  border: 2rpx solid var(--color-border);
+  border-radius: 50%;
+}
+
+.core-back-icon {
+  width: 44rpx;
+  height: 44rpx;
+}
+
+.state-back-button {
+  position: fixed;
+  top: 96rpx;
+  top: calc(96rpx + constant(safe-area-inset-top));
+  top: calc(96rpx + env(safe-area-inset-top));
+  left: 44rpx;
+  z-index: 30;
 }
 
 .surface {
@@ -70,7 +139,7 @@ button::after {
 
 .page-title {
   color: var(--color-text);
-  font-size: 46rpx;
+  font-size: 58rpx;
   font-weight: 700;
   line-height: 1.2;
   letter-spacing: -1rpx;
@@ -87,7 +156,7 @@ button::after {
   display: flex;
   align-items: center;
   gap: 18rpx;
-  margin: 54rpx 0 24rpx;
+  margin: 72rpx 0 34rpx;
 }
 
 .section-heading::before {
@@ -107,7 +176,7 @@ button::after {
 
 .section-heading-text {
   flex-shrink: 0;
-  font-size: 34rpx;
+  font-size: 42rpx;
   font-weight: 700;
   line-height: 1.2;
 }
@@ -234,6 +303,16 @@ button::after {
   text-align: center;
 }
 
+.vote-page > .loading-state,
+.vote-page > .error-state,
+.result-page > .loading-state,
+.result-page > .error-state {
+  min-height: 100vh;
+  padding: 220rpx 44rpx 120rpx;
+  padding: calc(220rpx + constant(safe-area-inset-top)) 44rpx calc(120rpx + constant(safe-area-inset-bottom));
+  padding: calc(220rpx + env(safe-area-inset-top)) 44rpx calc(120rpx + env(safe-area-inset-bottom));
+}
+
 .state-title {
   color: var(--color-text);
   font-size: 32rpx;
@@ -267,14 +346,20 @@ button::after {
 
 @media (prefers-reduced-motion: reduce) {
   .enter,
-  .loading-dot {
+  .loading-dot,
+  .slots-grid,
+  .modal-backdrop,
+  .success-sheet,
+  .slot-sheet,
+  .about-sheet {
     animation: none !important;
+    transform: none !important;
   }
 
   button,
   .field-input,
   .field-textarea,
   .field-picker {
-    transition: none !important;
+    transition-duration: 0.01ms !important;
   }
 }

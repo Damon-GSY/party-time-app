@@ -1,9 +1,9 @@
 .home-page {
-  background: #151311;
+  background-color: var(--color-bg);
 }
 
 .home-content {
-  padding: 36rpx 40rpx calc(56rpx + env(safe-area-inset-bottom));
+  padding: calc(96rpx + env(safe-area-inset-top)) 44rpx calc(74rpx + env(safe-area-inset-bottom));
 }
 
 .home-header {
@@ -15,7 +15,7 @@
 
 .brand-title {
   display: block;
-  font-size: 52rpx;
+  font-size: 58rpx;
   font-weight: 700;
   line-height: 1.16;
   letter-spacing: 1rpx;
@@ -24,24 +24,30 @@
 .brand-subtitle {
   display: block;
   max-width: 430rpx;
-  margin-top: 12rpx;
+  margin-top: 10rpx;
   color: var(--color-text-secondary);
-  font-size: 24rpx;
+  font-size: 22rpx;
 }
 
 .new-event-button {
-  min-width: 154rpx;
-  min-height: 88rpx;
+  min-width: 192rpx;
+  min-height: 96rpx;
   margin: 0;
-  padding: 0 30rpx;
+  gap: 10rpx;
+  padding: 0 32rpx;
   display: flex;
   align-items: center;
   justify-content: center;
   background: var(--color-coral);
   color: #1a1412;
   border-radius: var(--radius-pill);
-  font-size: 28rpx;
+  font-size: 32rpx;
   font-weight: 700;
+}
+
+.new-event-icon {
+  width: 34rpx;
+  height: 34rpx;
 }
 
 .new-event-button:active {
@@ -49,25 +55,25 @@
 }
 
 .calendar {
-  margin-top: 54rpx;
+  margin-top: 48rpx;
   animation-delay: 70ms;
 }
 
 .calendar-month {
   color: var(--color-coral);
-  font-size: 34rpx;
+  font-size: 38rpx;
   font-weight: 700;
 }
 
 .calendar-week {
   display: flex;
   justify-content: space-between;
-  margin-top: 28rpx;
+  margin-top: 36rpx;
 }
 
 .calendar-day {
-  width: 78rpx;
-  min-height: 130rpx;
+  width: 88rpx;
+  min-height: 142rpx;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -76,19 +82,19 @@
 }
 
 .calendar-weekday {
-  font-size: 22rpx;
+  font-size: 26rpx;
 }
 
 .calendar-number {
-  width: 76rpx;
-  height: 76rpx;
-  margin-top: 12rpx;
+  width: 90rpx;
+  height: 90rpx;
+  margin-top: 14rpx;
   display: flex;
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
   border-radius: 50%;
-  font-size: 38rpx;
+  font-size: 48rpx;
   font-weight: 600;
 }
 
@@ -118,22 +124,21 @@
 }
 
 .focus-event {
-  gap: 26rpx;
-  min-height: 196rpx;
-  padding: 26rpx 0 34rpx;
+  gap: 30rpx;
+  min-height: 226rpx;
+  padding: 30rpx 0 38rpx;
   border-bottom: 2rpx solid var(--color-border);
 }
 
 .focus-event.is-pressed,
-.event-row.is-pressed,
 .event-row:active {
   transform: scale(0.98);
   opacity: 0.86;
 }
 
 .event-date-mark {
-  width: 112rpx;
-  height: 112rpx;
+  width: 136rpx;
+  height: 136rpx;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
@@ -144,26 +149,19 @@
 }
 
 .event-date-mark-small {
-  width: 92rpx;
-  height: 92rpx;
+  width: 128rpx;
+  height: 128rpx;
   border-color: var(--color-border);
 }
 
-.event-date-month {
-  color: var(--color-text-secondary);
-  font-size: 20rpx;
-  line-height: 1;
+.event-icon {
+  width: 58rpx;
+  height: 58rpx;
 }
 
-.event-date-day {
-  margin-top: 6rpx;
-  font-size: 34rpx;
-  font-weight: 700;
-  line-height: 1;
-}
-
-.event-date-mark-small .event-date-day {
-  font-size: 30rpx;
+.event-icon-small {
+  width: 54rpx;
+  height: 54rpx;
 }
 
 .event-body {
@@ -175,7 +173,7 @@
   display: block;
   overflow: hidden;
   color: var(--color-text);
-  font-size: 34rpx;
+  font-size: 42rpx;
   font-weight: 600;
   line-height: 1.3;
   text-overflow: ellipsis;
@@ -183,7 +181,7 @@
 }
 
 .event-title-small {
-  font-size: 30rpx;
+  font-size: 36rpx;
 }
 
 .event-progress,
@@ -191,7 +189,7 @@
   display: block;
   margin-top: 10rpx;
   color: var(--color-text-secondary);
-  font-size: 24rpx;
+  font-size: 27rpx;
 }
 
 .event-progress-strong {
@@ -201,10 +199,11 @@
 }
 
 .event-cta {
-  min-width: 168rpx;
-  min-height: 88rpx;
+  min-width: 218rpx;
+  min-height: 100rpx;
   margin: 0;
-  padding: 0 26rpx;
+  gap: 6rpx;
+  padding: 0 28rpx;
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -212,8 +211,13 @@
   background: var(--color-coral);
   color: #1a1412;
   border-radius: var(--radius-pill);
-  font-size: 26rpx;
+  font-size: 30rpx;
   font-weight: 700;
+}
+
+.event-cta-icon {
+  width: 34rpx;
+  height: 34rpx;
 }
 
 .event-list {
@@ -222,7 +226,7 @@
 
 .event-swipe-row {
   position: relative;
-  min-height: 150rpx;
+  min-height: 172rpx;
   border-bottom: 2rpx solid var(--color-border);
   overflow: hidden;
 }
@@ -231,15 +235,14 @@
   position: relative;
   z-index: 2;
   gap: 24rpx;
-  min-height: 150rpx;
+  min-height: 172rpx;
   background: var(--color-bg);
 }
 
-.event-state {
-  min-width: 74rpx;
-  color: var(--color-text-secondary);
-  font-size: 24rpx;
-  text-align: right;
+.event-state-icon {
+  width: 48rpx;
+  height: 48rpx;
+  flex-shrink: 0;
 }
 
 .delete-action {

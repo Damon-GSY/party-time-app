@@ -2,6 +2,13 @@ const util = require('../../utils/util')
 const user = require('../../utils/user')
 const app = getApp()
 
+function getEventIcon(name = '') {
+  if (/生日|蛋糕|周年/.test(name)) return '/assets/icons/cake-slice-coral.png'
+  if (/派对|庆祝|团建|年会/.test(name)) return '/assets/icons/party-popper-coral.png'
+  if (/聚餐|晚餐|午餐|火锅|烧烤/.test(name)) return '/assets/icons/utensils-coral.png'
+  return '/assets/icons/calendar-days-coral.png'
+}
+
 Page({
   data: {
     events: [],
@@ -84,6 +91,7 @@ Page({
           dateRangeText: startDate === endDate ? startDate : `${startDate} ~ ${endDate}`,
           expireText: util.formatExpireTime(event.expireAt),
           expired: util.isExpired(event.expireAt),
+          iconPath: getEventIcon(event.name),
           translateX: 0
         }
       }).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
@@ -113,6 +121,7 @@ Page({
           participantCount: 3,
           type: 'joined',
           createdAt: today.toISOString(),
+          iconPath: getEventIcon('周末聚餐'),
           translateX: 0
         }
         this.setData({

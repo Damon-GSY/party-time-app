@@ -3,7 +3,9 @@
 }
 
 .create-content {
-  padding: 34rpx 40rpx calc(190rpx + env(safe-area-inset-bottom));
+  padding: 96rpx 44rpx 206rpx;
+  padding: calc(96rpx + constant(safe-area-inset-top)) 44rpx calc(206rpx + constant(safe-area-inset-bottom));
+  padding: calc(96rpx + env(safe-area-inset-top)) 44rpx calc(206rpx + env(safe-area-inset-bottom));
 }
 
 .create-header {
@@ -12,7 +14,7 @@
 
 .form-field {
   position: relative;
-  margin-bottom: 46rpx;
+  margin-bottom: 58rpx;
 }
 
 .form-field:nth-child(2) { animation-delay: 40ms; }
@@ -80,6 +82,12 @@
   border-radius: 16rpx;
   font-size: 25rpx;
   font-weight: 600;
+  transition: color var(--duration-fast) var(--ease-standard), background-color var(--duration-fast) var(--ease-standard), transform var(--duration-instant) var(--ease-standard);
+}
+
+.segment:active,
+.choice:active {
+  transform: scale(0.97);
 }
 
 .segment.is-active {
@@ -106,6 +114,7 @@
   border: 2rpx solid var(--color-border);
   border-radius: var(--radius-md);
   font-size: 23rpx;
+  transition: color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard), background-color var(--duration-fast) var(--ease-standard), transform var(--duration-instant) var(--ease-standard);
 }
 
 .choice.is-active {
@@ -129,6 +138,13 @@
   padding: 20rpx 40rpx;
   background: var(--color-bg);
   border-top: 2rpx solid var(--color-border);
+  transition: transform 180ms var(--ease-in), opacity 140ms ease;
+}
+
+.create-footer.is-keyboard-hidden {
+  transform: translateY(100%);
+  opacity: 0;
+  pointer-events: none;
 }
 
 .create-submit {

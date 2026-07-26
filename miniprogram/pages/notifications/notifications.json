@@ -1,4 +1,4 @@
 {
   "usingComponents": {},
-  "navigationBarTitleText": "通知中心"
+  "navigationStyle": "custom"
 }

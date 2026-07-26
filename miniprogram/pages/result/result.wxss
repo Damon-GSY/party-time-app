@@ -3,7 +3,9 @@
 }
 
 .result-content {
-  padding: 34rpx 40rpx calc(190rpx + env(safe-area-inset-bottom));
+  padding: 96rpx 44rpx 206rpx;
+  padding: calc(96rpx + constant(safe-area-inset-top)) 44rpx calc(206rpx + constant(safe-area-inset-bottom));
+  padding: calc(96rpx + env(safe-area-inset-top)) 44rpx calc(206rpx + env(safe-area-inset-bottom));
 }
 
 .result-title-row {
@@ -68,10 +70,11 @@
 }
 
 .best-card {
-  padding: 34rpx;
-  background: var(--color-coral-soft);
-  border: 2rpx solid rgba(255, 118, 104, 0.48);
-  border-radius: var(--radius-lg);
+  padding: 44rpx;
+  background: var(--color-surface);
+  border: 2rpx solid rgba(242, 122, 106, 0.55);
+  border-left: 8rpx solid var(--color-coral);
+  border-radius: 28rpx;
 }
 
 .best-card.is-empty {
@@ -97,9 +100,19 @@
 
 .best-time {
   margin-top: 14rpx;
-  font-size: 34rpx;
+  font-size: 52rpx;
   font-weight: 700;
   line-height: 1.4;
+}
+
+.best-date,
+.best-range {
+  display: block;
+}
+
+.best-range {
+  margin-top: 4rpx;
+  white-space: nowrap;
 }
 
 .best-meta {
@@ -128,12 +141,11 @@
 
 .stats-row {
   margin-top: 24rpx;
-  padding: 24rpx 0;
+  padding: 32rpx 0;
   display: flex;
   align-items: stretch;
-  background: var(--color-surface);
-  border: 2rpx solid var(--color-border);
-  border-radius: var(--radius-lg);
+  border-top: 2rpx solid var(--color-border);
+  border-bottom: 2rpx solid var(--color-border);
 }
 
 .stat-item {
@@ -145,7 +157,7 @@
 
 .stat-value {
   color: var(--color-text);
-  font-size: 42rpx;
+  font-size: 60rpx;
   font-weight: 700;
 }
 
@@ -179,7 +191,7 @@
 }
 
 .heatmap-column {
-  width: 190rpx;
+  width: 192rpx;
   flex-shrink: 0;
 }
 
@@ -207,7 +219,7 @@
 
 .heatmap-cell {
   width: 100%;
-  min-height: 92rpx;
+  min-height: 104rpx;
   margin: 12rpx 0 0;
   padding: 12rpx;
   display: flex;
@@ -311,7 +323,7 @@
   bottom: 0;
   left: 0;
   z-index: 20;
-  padding: 20rpx 40rpx;
+  padding: 22rpx 44rpx;
   background: var(--color-bg);
   border-top: 2rpx solid var(--color-border);
 }
@@ -344,7 +356,7 @@
   inset: 0;
   background: rgba(0, 0, 0, 0.66);
   opacity: 0;
-  transition: opacity 220ms ease;
+  transition: opacity 180ms var(--ease-standard);
 }
 
 .slot-modal.is-open .modal-backdrop {
@@ -361,11 +373,13 @@
   border-radius: 36rpx 36rpx 0 0;
   border-top: 2rpx solid var(--color-border);
   transform: translateY(100%);
-  transition: transform 280ms var(--ease-out);
+  transition: transform 180ms var(--ease-in);
 }
 
 .slot-modal.is-open .slot-sheet {
   transform: translateY(0);
+  transition-duration: var(--duration-sheet);
+  transition-timing-function: var(--ease-out);
 }
 
 .slot-sheet-header {

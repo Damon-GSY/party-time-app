@@ -11,28 +11,34 @@
   ],
   "window": {
     "backgroundTextStyle": "dark",
-    "navigationBarBackgroundColor": "#151311",
+    "navigationBarBackgroundColor": "#171412",
     "navigationBarTitleText": "聚会时间",
     "navigationBarTextStyle": "white",
-    "backgroundColor": "#151311"
+    "backgroundColor": "#171412"
   },
   "tabBar": {
     "color": "#8a837d",
-    "selectedColor": "#ff7668",
-    "backgroundColor": "#151311",
+    "selectedColor": "#f27a6a",
+    "backgroundColor": "#171412",
     "borderStyle": "black",
     "list": [
       {
         "pagePath": "pages/index/index",
-        "text": "聚会"
+        "text": "聚会",
+        "iconPath": "assets/icons/calendar-days-muted.png",
+        "selectedIconPath": "assets/icons/calendar-days-coral.png"
       },
       {
         "pagePath": "pages/notifications/notifications",
-        "text": "消息"
+        "text": "消息",
+        "iconPath": "assets/icons/bell-muted.png",
+        "selectedIconPath": "assets/icons/bell-coral.png"
       },
       {
         "pagePath": "pages/profile/profile",
-        "text": "我的"
+        "text": "我的",
+        "iconPath": "assets/icons/user-round-muted.png",
+        "selectedIconPath": "assets/icons/user-round-coral.png"
       }
     ]
   },

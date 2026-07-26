@@ -1,4 +1,5 @@
 <view class="page-shell profile-page">
+  <image class="grain-layer" src="/assets/textures/warm-grain.jpg" mode="aspectFill" aria-hidden="true"></image>
   <view class="profile-content">
     <view class="profile-heading enter">
       <text class="eyebrow">我的</text>
@@ -31,14 +32,14 @@
 
     <view class="section-heading"><text class="section-heading-text">管理</text></view>
     <view class="menu-list">
-      <button class="menu-row" bindtap="goToHistory" data-type="created"><text>我的创建</text><text class="menu-detail">查看全部</text></button>
-      <button class="menu-row" bindtap="goToHistory" data-type="joined"><text>我的参与</text><text class="menu-detail">查看全部</text></button>
-      <button class="menu-row" bindtap="goToNotification"><text>通知中心</text><text class="menu-detail">提醒记录</text></button>
-      <button class="menu-row" bindtap="showAbout"><text>关于聚会时间</text><text class="menu-detail">v1.0.0</text></button>
+      <button class="menu-row" bindtap="goToHistory" data-type="created"><image class="menu-icon" src="/assets/icons/history-coral.png" mode="aspectFit" aria-hidden="true"></image><text class="menu-label">我的创建</text><text class="menu-detail">查看全部</text><image class="menu-chevron" src="/assets/icons/chevron-right-muted.png" mode="aspectFit" aria-hidden="true"></image></button>
+      <button class="menu-row" bindtap="goToHistory" data-type="joined"><image class="menu-icon" src="/assets/icons/send-coral.png" mode="aspectFit" aria-hidden="true"></image><text class="menu-label">我的参与</text><text class="menu-detail">查看全部</text><image class="menu-chevron" src="/assets/icons/chevron-right-muted.png" mode="aspectFit" aria-hidden="true"></image></button>
+      <button class="menu-row" bindtap="goToNotification"><image class="menu-icon" src="/assets/icons/bell-coral.png" mode="aspectFit" aria-hidden="true"></image><text class="menu-label">通知中心</text><text class="menu-detail">提醒记录</text><image class="menu-chevron" src="/assets/icons/chevron-right-muted.png" mode="aspectFit" aria-hidden="true"></image></button>
+      <button class="menu-row" bindtap="showAbout"><image class="menu-icon" src="/assets/icons/sparkles-coral.png" mode="aspectFit" aria-hidden="true"></image><text class="menu-label">关于聚会时间</text><text class="menu-detail">v1.0.0</text><image class="menu-chevron" src="/assets/icons/chevron-right-muted.png" mode="aspectFit" aria-hidden="true"></image></button>
     </view>
   </view>
 
-  <view class="about-modal {{showAboutModal ? 'is-open' : ''}}" catchtouchmove="preventMove">
+  <view wx:if="{{aboutMounted}}" class="about-modal {{showAboutModal ? 'is-open' : ''}}" catchtouchmove="preventMove">
     <view class="modal-backdrop" bindtap="hideAbout"></view>
     <view class="about-sheet">
       <text class="about-title">聚会时间</text>

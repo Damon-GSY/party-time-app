@@ -1,4 +1,5 @@
 <view class="page-shell poster-page">
+  <image class="grain-layer" src="/assets/textures/warm-grain.jpg" mode="aspectFill" aria-hidden="true"></image>
   <view class="loading-state" wx:if="{{loading}}"><view class="loading-dot"></view><text class="state-copy">正在生成海报</text></view>
   <block wx:else>
     <view class="poster-preview"><canvas type="2d" id="posterCanvas" class="poster-canvas" style="width: 375px; height: 667px;"></canvas></view>

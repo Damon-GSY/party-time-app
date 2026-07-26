@@ -1,5 +1,5 @@
 .profile-page { background: var(--color-bg); }
-.profile-content { padding: 36rpx 40rpx calc(60rpx + env(safe-area-inset-bottom)); }
+.profile-content { padding: calc(96rpx + env(safe-area-inset-top)) 44rpx calc(72rpx + env(safe-area-inset-bottom)); }
 .profile-heading { margin-bottom: 46rpx; }
 .identity-section { display: flex; align-items: center; gap: 28rpx; }
 .avatar-button { width: 124rpx; height: 124rpx; margin: 0; padding: 0; flex-shrink: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; background: var(--color-coral-soft); color: var(--color-coral); border: 2rpx solid rgba(255,118,104,.5); border-radius: 50%; }
@@ -15,14 +15,17 @@
 .stat-label { margin-top: 6rpx; color: var(--color-text-secondary); font-size: 23rpx; }
 .stat-divider { width: 2rpx; margin: 28rpx 0; background: var(--color-border); }
 .menu-list { border-top: 2rpx solid var(--color-border); }
-.menu-row { width: 100%; min-height: 112rpx; margin: 0; padding: 0; display: flex; align-items: center; justify-content: space-between; background: transparent; color: var(--color-text); border-bottom: 2rpx solid var(--color-border); border-radius: 0; font-size: 28rpx; text-align: left; }
+.menu-row { width: 100%; min-height: 128rpx; margin: 0; padding: 0; display: flex; align-items: center; gap: 18rpx; background: transparent; color: var(--color-text); border-bottom: 2rpx solid var(--color-border); border-radius: 0; font-size: 28rpx; text-align: left; }
+.menu-icon { width: 46rpx; height: 46rpx; flex-shrink: 0; }
+.menu-label { min-width: 0; flex: 1; }
 .menu-detail { color: var(--color-text-muted); font-size: 23rpx; font-weight: 400; }
+.menu-chevron { width: 38rpx; height: 38rpx; flex-shrink: 0; }
 .about-modal { position: fixed; inset: 0; z-index: 60; visibility: hidden; pointer-events: none; }
 .about-modal.is-open { visibility: visible; pointer-events: auto; }
-.modal-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,.66); opacity: 0; transition: opacity 220ms ease; }
+.modal-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,.66); opacity: 0; transition: opacity 180ms var(--ease-standard); }
 .about-modal.is-open .modal-backdrop { opacity: 1; }
-.about-sheet { position: absolute; right: 0; bottom: 0; left: 0; padding: 46rpx 40rpx calc(38rpx + env(safe-area-inset-bottom)); background: var(--color-surface-raised); border-top: 2rpx solid var(--color-border); border-radius: 36rpx 36rpx 0 0; transform: translateY(100%); transition: transform 280ms var(--ease-out); }
-.about-modal.is-open .about-sheet { transform: translateY(0); }
+.about-sheet { position: absolute; right: 0; bottom: 0; left: 0; padding: 46rpx 40rpx calc(38rpx + env(safe-area-inset-bottom)); background: var(--color-surface-raised); border-top: 2rpx solid var(--color-border); border-radius: 36rpx 36rpx 0 0; transform: translateY(100%); transition: transform 180ms var(--ease-in); }
+.about-modal.is-open .about-sheet { transform: translateY(0); transition-duration: var(--duration-sheet); transition-timing-function: var(--ease-out); }
 .about-title, .about-version, .about-copy, .about-features text { display: block; }
 .about-title { font-size: 38rpx; font-weight: 700; }
 .about-version { margin-top: 6rpx; color: var(--color-coral); font-size: 22rpx; }

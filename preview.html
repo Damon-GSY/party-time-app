@@ -6,15 +6,15 @@
   <title>聚会时间 · 交互预览</title>
   <style>
     :root {
-      --bg: #151311;
-      --surface: #1c1917;
-      --raised: #24201d;
-      --coral: #ff7668;
+      --bg: #171412;
+      --surface: #1e1a17;
+      --raised: #26201c;
+      --coral: #f27a6a;
       --coral-soft: rgba(255, 118, 104, .14);
-      --text: #f7f1ec;
-      --secondary: #b8aea7;
-      --muted: #847d77;
-      --border: #3a342f;
+      --text: #f6f1eb;
+      --secondary: #beb5ae;
+      --muted: #8f8781;
+      --border: #3c3430;
       --success: #91b68d;
       --danger: #ff8f84;
       --ease: cubic-bezier(.16, 1, .3, 1);
@@ -33,6 +33,7 @@
       outline: 3px solid var(--coral);
       outline-offset: 3px;
     }
+    [data-page-focus]:focus { outline: none; }
 
     .app {
       position: relative;
@@ -60,13 +61,16 @@
       display: none;
       overflow: auto;
       overscroll-behavior: contain;
-      background: var(--bg);
+      background-color: var(--bg);
+      background-image: url('./miniprogram/assets/textures/warm-grain.jpg');
+      background-size: cover;
+      background-repeat: no-repeat;
       scrollbar-width: none;
     }
     .screen::-webkit-scrollbar { display: none; }
-    .screen.active { display: block; animation: enter .24s var(--ease) both; }
-    .content { padding: 28px 22px 118px; }
-    .flow-content { padding: 24px 22px 132px; }
+    .screen.active { display: block; animation: enter .3s var(--ease) both; }
+    .content { padding: 50px 22px 132px; }
+    .flow-content { padding: 32px 22px 144px; }
 
     @keyframes enter {
       from { opacity: 0; transform: translateY(8px); }
@@ -74,52 +78,53 @@
     }
 
     .header-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
-    .brand { margin: 0; font-size: 31px; line-height: 1.12; letter-spacing: .5px; }
-    .brand-copy { margin: 7px 0 0; max-width: 230px; color: var(--secondary); font-size: 12px; line-height: 1.5; }
+    .brand { margin: 0; font-size: 32px; line-height: 1.12; letter-spacing: .5px; }
+    .brand-copy { margin: 6px 0 0; max-width: 230px; color: var(--secondary); font-size: 11px; line-height: 1.5; }
     .pill-button, .primary-button, .secondary-button, .small-button {
       min-height: 48px;
       border-radius: 999px;
       border: 1px solid var(--border);
       font-weight: 700;
-      transition: transform .14s var(--ease), opacity .14s ease, background .14s ease;
+      transition: transform .14s var(--ease), opacity .14s ease, background-color .14s ease, border-color .14s ease, color .14s ease;
     }
     .pill-button:active, .primary-button:active, .secondary-button:active, .small-button:active { transform: scale(.97); }
-    .pill-button { min-width: 84px; padding: 0 20px; border-color: var(--coral); background: var(--coral); color: #1a1412; }
+    .pill-button { min-width: 96px; min-height: 48px; padding: 0 20px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border-color: var(--coral); background: var(--coral); color: #1a1412; box-shadow: inset 0 1px rgba(255,255,255,.16), 0 8px 24px rgba(92,38,31,.16); }
+    .icon { width: 24px; height: 24px; object-fit: contain; flex: 0 0 auto; }
+    .button-icon { width: 18px; height: 18px; }
     .primary-button { width: 100%; padding: 0 22px; border-color: var(--coral); background: var(--coral); color: #1a1412; }
     .primary-button:disabled { border-color: #39332f; background: #39332f; color: #746c66; cursor: not-allowed; }
     .secondary-button { width: 100%; padding: 0 22px; background: var(--surface); color: var(--text); }
     .small-button { min-height: 44px; padding: 0 16px; background: transparent; color: var(--secondary); }
     .small-button.accent { border-color: rgba(255,118,104,.5); color: var(--coral); }
 
-    .calendar { margin-top: 34px; }
+    .calendar { margin-top: 22px; }
     .month { color: var(--coral); font-size: 20px; font-weight: 700; }
-    .week { display: flex; justify-content: space-between; margin-top: 20px; }
-    .day { width: 44px; color: var(--secondary); text-align: center; }
-    .weekday { display: block; font-size: 11px; }
-    .day-number { width: 42px; height: 42px; margin-top: 8px; display: grid; place-items: center; border-radius: 50%; font-size: 22px; font-weight: 600; }
+    .week { display: flex; justify-content: space-between; margin-top: 18px; }
+    .day { width: 46px; color: var(--secondary); text-align: center; }
+    .weekday { display: block; font-size: 13px; }
+    .day-number { width: 46px; height: 46px; margin-top: 7px; display: grid; place-items: center; border-radius: 50%; font-size: 24px; font-weight: 600; }
     .day.current .weekday { color: var(--coral); font-weight: 700; }
     .day.current .day-number { background: var(--coral); color: #1a1412; }
     .today-dot { width: 4px; height: 4px; margin: -8px auto 0; border-radius: 50%; background: #1a1412; }
 
-    .section-heading { display: flex; align-items: center; gap: 11px; margin: 38px 0 15px; }
-    .section-heading::before { content: ""; width: 4px; height: 23px; border-radius: 999px; background: var(--coral); }
+    .section-heading { display: flex; align-items: center; gap: 11px; margin: 39px 0 22px; }
+    .section-heading::before { content: ""; width: 4px; height: 24px; border-radius: 999px; background: var(--coral); }
     .section-heading::after { content: ""; height: 1px; flex: 1; background: var(--border); }
     .section-heading h2 { margin: 0; flex-shrink: 0; font-size: 21px; }
 
-    .focus-event, .event-row { display: flex; align-items: center; gap: 14px; }
-    .focus-event { min-height: 112px; padding: 15px 0 20px; border-bottom: 1px solid var(--border); }
-    .date-mark { width: 62px; height: 62px; flex: 0 0 auto; display: grid; place-content: center; border: 1px solid rgba(255,118,104,.55); border-radius: 50%; text-align: center; }
-    .date-mark.small { width: 52px; height: 52px; border-color: var(--border); }
-    .date-month { display: block; color: var(--secondary); font-size: 10px; }
-    .date-date { display: block; margin-top: 2px; font-size: 18px; font-weight: 700; }
+    .focus-event, .event-row { display: flex; align-items: center; gap: 15px; }
+    .focus-event { min-height: 114px; padding: 13px 0 18px; border-bottom: 1px solid var(--border); }
+    .date-mark { width: 68px; height: 68px; flex: 0 0 auto; display: grid; place-content: center; border: 1px solid rgba(242,122,106,.62); border-radius: 50%; text-align: center; }
+    .date-mark.small { width: 64px; height: 64px; border-color: var(--border); }
+    .date-mark .icon { width: 29px; height: 29px; }
     .event-body { min-width: 0; flex: 1; }
-    .event-title { display: block; overflow: hidden; font-size: 19px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
-    .event-meta { display: block; margin-top: 6px; color: var(--secondary); font-size: 12px; }
+    .event-title { display: block; overflow: hidden; font-size: 21px; font-weight: 650; text-overflow: ellipsis; white-space: nowrap; }
+    .event-meta { display: block; margin-top: 7px; color: var(--secondary); font-size: 13px; }
     .event-meta strong { color: var(--coral); }
-    .event-cta { min-width: 93px; min-height: 46px; padding: 0 14px; border: 0; border-radius: 999px; background: var(--coral); color: #1a1412; font-weight: 700; }
-    .event-row { min-height: 82px; border-bottom: 1px solid var(--border); }
+    .event-cta { min-width: 118px; min-height: 50px; padding: 0 16px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; border: 0; border-radius: 999px; background: var(--coral); color: #1a1412; font-size: 15px; font-weight: 700; box-shadow: inset 0 1px rgba(255,255,255,.16); }
+    .event-row { min-height: 86px; border-bottom: 1px solid var(--border); }
     .event-row-button { width: 100%; padding: 0; border: 0; background: transparent; color: inherit; text-align: left; }
-    .event-state { color: var(--muted); font-size: 12px; }
+    .event-state { width: 24px; height: 24px; object-fit: contain; }
 
     .bottom-nav {
       position: absolute;
@@ -127,29 +132,30 @@
       bottom: 0;
       left: 0;
       z-index: 20;
-      height: 78px;
+      min-height: 98px;
+      padding-bottom: max(14px, env(safe-area-inset-bottom));
       display: flex;
       align-items: stretch;
       background: rgba(21, 19, 17, .96);
       border-top: 1px solid var(--border);
     }
     .bottom-nav.hidden { display: none; }
-    .nav-button { flex: 1; border: 0; background: transparent; color: var(--muted); font-size: 13px; font-weight: 600; }
+    .nav-button { flex: 1; padding: 12px 0 0; border: 0; background: transparent; color: var(--muted); font-size: 12px; font-weight: 600; }
     .nav-button.active { color: var(--coral); }
-    .nav-button span { display: inline-block; padding-top: 8px; border-top: 2px solid transparent; }
-    .nav-button.active span { border-top-color: var(--coral); }
+    .nav-button .nav-icon { width: 27px; height: 27px; display: block; margin: 0 auto 5px; }
+    .nav-button span { display: block; }
 
-    .flow-header { display: flex; align-items: center; gap: 12px; margin-bottom: 26px; }
-    .back-button { min-width: 48px; min-height: 48px; padding: 0; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text); }
+    .flow-header { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 32px; }
+    .back-button { min-width: 48px; min-height: 48px; padding: 0; display: grid; place-items: center; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text); }
     .eyebrow { color: var(--coral); font-size: 11px; font-weight: 700; letter-spacing: 1px; }
-    .page-title { margin: 6px 0 0; font-size: 27px; line-height: 1.25; }
+    .page-title { margin: 6px 0 0; font-size: 29px; line-height: 1.25; }
     .page-copy { margin: 8px 0 0; color: var(--secondary); font-size: 13px; line-height: 1.55; }
-    .field { margin-top: 26px; }
+    .field { margin-top: 30px; }
     .field-label { display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px; font-size: 14px; font-weight: 600; }
     .required { color: var(--coral); font-size: 11px; }
     .optional, .field-hint { color: var(--muted); font-size: 11px; font-weight: 400; }
     .field-input, .field-textarea, .field-select {
-      width: 100%; min-height: 50px; padding: 12px 14px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); color: var(--text); font-size: 14px;
+      width: 100%; min-height: 54px; padding: 13px 15px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); color: var(--text); font-size: 16px; transition: border-color .14s ease, background-color .14s ease;
     }
     .field-textarea { min-height: 90px; resize: vertical; }
     .field-input::placeholder, .field-textarea::placeholder { color: var(--muted); }
@@ -158,41 +164,50 @@
     .error-text.visible { display: block; }
     .date-fields { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 10px; }
     .segmented { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); padding: 4px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
-    .segment { min-height: 44px; border: 0; border-radius: 9px; background: transparent; color: var(--secondary); font-size: 13px; font-weight: 600; }
-    .segment.active { background: var(--coral-soft); color: var(--coral); }
+    .segment { min-height: 46px; border: 0; border-radius: 9px; background: transparent; color: var(--secondary); font-size: 13px; font-weight: 600; transition: transform .14s var(--ease), color .14s ease, background-color .14s ease; }
+    .segment.active { background: #352421; color: var(--coral); }
     .choices { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 7px; }
-    .choice { min-height: 44px; padding: 0 4px; border: 1px solid var(--border); border-radius: 11px; background: var(--surface); color: var(--secondary); font-size: 12px; }
-    .choice.active { border-color: var(--coral); background: var(--coral-soft); color: var(--coral); }
+    .choice { min-height: 46px; padding: 0 4px; border: 1px solid var(--border); border-radius: 11px; background: var(--surface); color: var(--secondary); font-size: 12px; transition: transform .14s var(--ease), color .14s ease, background-color .14s ease, border-color .14s ease; }
+    .choice.active { border-color: var(--coral); background: #352421; color: var(--coral); }
 
     .fixed-action {
-      position: absolute; right: 0; bottom: 0; left: 0; z-index: 18; min-height: 82px; padding: 14px 22px 18px; display: flex; align-items: center; gap: 14px; background: var(--bg); border-top: 1px solid var(--border);
+      position: absolute; right: 0; bottom: 0; left: 0; z-index: 18; min-height: 92px; padding: 16px 22px max(18px, env(safe-area-inset-bottom)); display: flex; align-items: center; gap: 14px; background: rgba(23,20,18,.98); border-top: 1px solid var(--border); transition: transform .18s cubic-bezier(.55,0,1,.45), opacity .14s ease;
     }
+    .fixed-action.keyboard-hidden { transform: translateY(100%); opacity: 0; pointer-events: none; }
     .selection-total { min-width: 76px; display: flex; align-items: baseline; gap: 5px; }
-    .selection-total strong { color: var(--coral); font-size: 26px; }
+    .selection-total strong { color: var(--coral); font-size: 30px; font-variant-numeric: tabular-nums; }
     .selection-total span { color: var(--secondary); font-size: 11px; }
 
-    .date-tabs { display: flex; gap: 8px; margin-top: 18px; overflow-x: auto; scrollbar-width: none; }
-    .date-tab { min-width: 72px; min-height: 58px; padding: 8px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); color: var(--secondary); }
-    .date-tab.active { border-color: var(--coral); background: var(--coral-soft); color: var(--coral); }
+    .date-tabs { display: flex; gap: 8px; margin-top: 22px; overflow-x: auto; scrollbar-width: none; }
+    .date-tab { min-width: 68px; min-height: 66px; padding: 7px 6px; border: 1px solid transparent; border-radius: 14px; background: transparent; color: var(--secondary); transition: transform .14s var(--ease), color .14s ease, border-color .14s ease, background-color .14s ease; }
+    .date-tab:active { transform: scale(.97); }
+    .date-tab-weekday { display: block; font-size: 11px; }
+    .date-tab-day { width: 36px; height: 36px; margin: 5px auto 0; display: grid; place-items: center; border-radius: 50%; font-size: 14px; font-weight: 700; }
+    .date-tab.active { color: var(--coral); }
+    .date-tab.active .date-tab-day { background: var(--coral); color: #1b1412; }
     .toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 22px; }
     .toolbar-title { font-size: 15px; font-weight: 600; }
     .toolbar-copy { display: block; margin-top: 3px; color: var(--muted); font-size: 11px; }
     .toolbar-actions { display: flex; gap: 6px; }
-    .slots-grid { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 7px; margin-top: 16px; }
-    .slot { min-width: 0; min-height: 59px; padding: 7px 3px; border: 1px solid var(--border); border-radius: 11px; background: var(--surface); color: var(--secondary); }
+    .slots-grid { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 8px; margin-top: 18px; }
+    .slot { min-width: 0; min-height: 58px; padding: 7px 3px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); color: var(--secondary); transition: transform .14s var(--ease), color .14s ease, border-color .14s ease, background-color .14s ease; }
+    .slot:active { transform: scale(.96); }
     .slot.selected { border-color: var(--coral); background: var(--coral); color: #1a1412; }
     .slot-time, .slot-state { display: block; }
-    .slot-time { font-size: 12px; font-weight: 600; }
+    .slot-time { font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; }
     .slot-state { margin-top: 4px; font-size: 10px; opacity: .78; }
 
-    .best-card { margin-top: 16px; padding: 20px; border: 1px solid rgba(255,118,104,.5); border-radius: 17px; background: var(--coral-soft); }
+    .best-card { position: relative; margin-top: 16px; padding: 22px 20px 22px 24px; border: 1px solid rgba(242,122,106,.55); border-radius: 16px; background: var(--surface); overflow: hidden; }
+    .best-card::before { content: ""; position: absolute; inset: 18px auto 18px 0; width: 4px; border-radius: 999px; background: var(--coral); }
     .best-label { color: var(--coral); font-size: 11px; font-weight: 700; }
-    .best-time { display: block; margin-top: 9px; font-size: 20px; font-weight: 700; line-height: 1.45; }
+    .best-time { display: block; margin-top: 9px; font-size: 26px; font-weight: 700; line-height: 1.35; }
+    .best-date-line, .best-range-line { display: block; }
+    .best-range-line { margin-top: 2px; white-space: nowrap; font-variant-numeric: tabular-nums; }
     .best-meta { display: flex; justify-content: space-between; margin-top: 10px; color: var(--secondary); font-size: 13px; }
-    .stats { display: flex; margin-top: 14px; padding: 14px 0; border: 1px solid var(--border); border-radius: 16px; background: var(--surface); }
+    .stats { display: flex; margin-top: 14px; padding: 18px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
     .stat { flex: 1; text-align: center; }
     .stat + .stat { border-left: 1px solid var(--border); }
-    .stat strong { display: block; font-size: 25px; }
+    .stat strong { display: block; font-size: 30px; font-variant-numeric: tabular-nums; }
     .stat span { color: var(--muted); font-size: 11px; }
     .heatmap-scroll { margin-top: 14px; overflow-x: auto; }
     .heatmap { display: flex; gap: 8px; width: max-content; padding-bottom: 6px; }
@@ -208,8 +223,12 @@
     .participant strong, .participant span { display: block; }
     .participant span { margin-top: 3px; color: var(--muted); font-size: 11px; }
 
-    dialog { width: min(calc(100% - 32px), 390px); padding: 0; border: 1px solid var(--border); border-radius: 22px; background: var(--raised); color: var(--text); }
-    dialog::backdrop { background: rgba(0,0,0,.68); }
+    dialog { width: min(calc(100% - 32px), 390px); padding: 0; border: 1px solid var(--border); border-radius: 22px; background: var(--raised); color: var(--text); opacity: 0; transform: translateY(10px) scale(.98); transition: opacity .18s ease, transform .22s var(--ease), overlay .18s allow-discrete, display .18s allow-discrete; }
+    dialog[open] { opacity: 1; transform: translateY(0) scale(1); }
+    @starting-style { dialog[open] { opacity: 0; transform: translateY(10px) scale(.98); } }
+    dialog::backdrop { background: rgba(0,0,0,.68); opacity: 0; transition: opacity .18s ease, overlay .18s allow-discrete, display .18s allow-discrete; }
+    dialog[open]::backdrop { opacity: 1; }
+    @starting-style { dialog[open]::backdrop { opacity: 0; } }
     .dialog-content { padding: 25px 22px; }
     .dialog-title { margin: 0; font-size: 22px; }
     .dialog-copy { margin: 8px 0 20px; color: var(--secondary); font-size: 13px; line-height: 1.55; }
@@ -243,8 +262,8 @@
     <section class="screen active" id="screen-home" data-page="home" data-testid="home-screen">
       <div class="content">
         <div class="header-row">
-          <div><h1 class="brand">聚会时间</h1><p class="brand-copy">把大家的空闲，变成一个确定的时刻</p></div>
-          <button class="pill-button" type="button" data-testid="home-create" data-open="create">新建</button>
+          <div><h1 class="brand" tabindex="-1" data-page-focus>聚会时间</h1></div>
+          <button class="pill-button" type="button" data-testid="home-create" data-open="create"><img class="button-icon" src="./miniprogram/assets/icons/plus-dark.png?v=2" alt="">新建</button>
         </div>
         <div class="calendar" aria-label="本周日历">
           <div class="month" id="home-month">7月</div>
@@ -252,27 +271,27 @@
         </div>
         <div class="section-heading"><h2>进行中</h2></div>
         <article class="focus-event" data-testid="pending-event">
-          <div class="date-mark"><span class="date-month">7月</span><span class="date-date">31</span></div>
+          <div class="date-mark"><img class="icon" src="./miniprogram/assets/icons/utensils-coral.png?v=2" alt=""></div>
           <div class="event-body"><span class="event-title">周末聚餐</span><span class="event-meta"><strong>3 人</strong> 已填写</span><span class="event-meta">本周五</span></div>
-          <button class="event-cta" id="pending-vote" type="button" data-testid="pending-vote">填写时间</button>
+          <button class="event-cta" id="pending-vote" type="button" data-testid="pending-vote">填写时间<img class="button-icon" src="./miniprogram/assets/icons/chevron-right-dark.png?v=2" alt=""></button>
         </article>
         <div class="section-heading"><h2>最近聚会</h2></div>
         <button class="event-row-button" type="button" data-open-result="生日派对">
-          <span class="event-row"><span class="date-mark small"><span class="date-month">8月</span><span class="date-date">08</span></span><span class="event-body"><span class="event-title">生日派对</span><span class="event-meta">等待 2 人回应</span></span><span class="event-state">查看</span></span>
+          <span class="event-row"><span class="date-mark small"><img class="icon" src="./miniprogram/assets/icons/cake-slice-coral.png?v=2" alt=""></span><span class="event-body"><span class="event-title">生日派对</span><span class="event-meta">等待 2 人回应</span></span><img class="event-state" src="./miniprogram/assets/icons/chevron-right-muted.png?v=2" alt=""></span>
         </button>
         <button class="event-row-button" type="button" data-open-result="团建活动">
-          <span class="event-row"><span class="date-mark small"><span class="date-month">7月</span><span class="date-date">18</span></span><span class="event-body"><span class="event-title">团建活动</span><span class="event-meta">已确定时间</span></span><span class="event-state">完成</span></span>
+          <span class="event-row"><span class="date-mark small"><img class="icon" src="./miniprogram/assets/icons/party-popper-coral.png?v=2" alt=""></span><span class="event-body"><span class="event-title">团建活动</span><span class="event-meta">已确定时间</span></span><img class="event-state" src="./miniprogram/assets/icons/check-coral.png?v=2" alt=""></span>
         </button>
       </div>
     </section>
 
     <section class="screen" id="screen-create" data-page="create" data-testid="create-screen">
       <div class="flow-content">
-        <header class="flow-header"><button class="back-button" type="button" data-open="home" aria-label="返回聚会首页">返回</button><div><span class="eyebrow">新聚会</span><h1 class="page-title">先定范围，再让大家选时间</h1></div></header>
+        <header class="flow-header"><button class="back-button" type="button" data-open="home" aria-label="返回聚会首页"><img class="icon" src="./miniprogram/assets/icons/arrow-left-primary.png?v=2" alt=""></button><div><span class="eyebrow">新聚会</span><h1 class="page-title" tabindex="-1" data-page-focus>先定范围，再让大家选时间</h1></div></header>
         <p class="page-copy">只需要基本信息，创建后就能把投票分享出去。</p>
         <form id="create-form" novalidate>
           <div class="field"><label class="field-label" for="event-name">聚会名称 <span class="required">必填</span></label><input class="field-input" id="event-name" data-testid="event-name" maxlength="30" placeholder="例如：周末聚餐" required><span class="field-hint"><span id="name-count">0</span> / 30</span></div>
-          <div class="field"><span class="field-label">日期范围 <span class="required">必填</span></span><div class="date-fields"><label><span class="field-hint">开始日期</span><input class="field-input" id="start-date" data-testid="start-date" type="date" required></label><label><span class="field-hint">结束日期</span><input class="field-input" id="end-date" data-testid="end-date" type="date" required></label></div><span class="error-text" id="date-error" role="alert"></span></div>
+          <div class="field"><span class="field-label">日期范围 <span class="required">必填</span></span><div class="date-fields"><label><span class="field-hint">开始日期</span><input class="field-input" id="start-date" data-testid="start-date" type="date" aria-describedby="date-error" required></label><label><span class="field-hint">结束日期</span><input class="field-input" id="end-date" data-testid="end-date" type="date" aria-describedby="date-error" required></label></div><span class="error-text" id="date-error" role="alert"></span></div>
           <div class="field"><span class="field-label">时段粒度</span><div class="segmented" role="group" aria-label="时段粒度"><button class="segment" type="button" data-granularity="hour" aria-pressed="false">1 小时</button><button class="segment active" type="button" data-granularity="twoHours" aria-pressed="true">2 小时</button><button class="segment" type="button" data-granularity="halfDay" aria-pressed="false">6 小时</button></div><span class="field-hint">2 小时适合大多数聚会，也更容易完成投票。</span></div>
           <div class="field"><span class="field-label">投票有效期</span><div class="choices" role="group" aria-label="投票有效期"><button class="choice" type="button" data-expiry="24h" aria-pressed="false">24 小时</button><button class="choice" type="button" data-expiry="3days" aria-pressed="false">3 天</button><button class="choice active" type="button" data-expiry="7days" aria-pressed="true">7 天</button><button class="choice" type="button" data-expiry="never" aria-pressed="false">长期</button></div></div>
           <div class="field"><label class="field-label" for="event-note">备注 <span class="optional">选填</span></label><textarea class="field-textarea" id="event-note" placeholder="地点、人数或其他说明"></textarea></div>
@@ -283,7 +302,7 @@
 
     <section class="screen" id="screen-vote" data-page="vote" data-testid="vote-screen">
       <div class="flow-content">
-        <header class="flow-header"><button class="back-button" type="button" data-open="home" aria-label="返回聚会首页">返回</button><div><span class="eyebrow">填写时间</span><h1 class="page-title" id="vote-title">周末聚餐</h1><p class="page-copy" id="vote-range"></p></div></header>
+        <header class="flow-header"><button class="back-button" type="button" data-open="home" aria-label="返回聚会首页"><img class="icon" src="./miniprogram/assets/icons/arrow-left-primary.png?v=2" alt=""></button><div><span class="eyebrow">填写时间</span><h1 class="page-title" id="vote-title" tabindex="-1" data-page-focus>周末聚餐</h1><p class="page-copy" id="vote-range"></p></div></header>
         <div class="field"><label class="field-label" for="nickname">你的昵称 <span class="optional">选填</span></label><input class="field-input" id="nickname" data-testid="nickname" maxlength="20" placeholder="匿名参与也可以"></div>
         <div class="section-heading"><h2>选择有空的时段</h2></div>
         <p class="page-copy">可以跨日期多选；再次点击即可取消。</p>
@@ -296,7 +315,7 @@
 
     <section class="screen" id="screen-result" data-page="result" data-testid="result-screen">
       <div class="flow-content">
-        <header class="flow-header"><button class="back-button" type="button" data-open="home" aria-label="返回聚会首页">返回</button><div><span class="eyebrow">投票结果</span><h1 class="page-title" id="result-title">周末聚餐</h1><p class="page-copy" id="result-range"></p></div></header>
+        <header class="flow-header"><button class="back-button" type="button" data-open="home" aria-label="返回聚会首页"><img class="icon" src="./miniprogram/assets/icons/arrow-left-primary.png?v=2" alt=""></button><div><span class="eyebrow">投票结果</span><h1 class="page-title" id="result-title" tabindex="-1" data-page-focus>周末聚餐</h1><p class="page-copy" id="result-range"></p></div></header>
         <div class="section-heading"><h2>最佳时间</h2></div>
         <div class="best-card"><span class="best-label">当前重合最多</span><strong class="best-time" id="best-time"></strong><div class="best-meta"><span id="best-count"></span><span id="best-percent"></span></div></div>
         <div class="stats"><div class="stat"><strong id="participant-count">0</strong><span>参与人数</span></div><div class="stat"><strong id="highest-count">0</strong><span>最高票数</span></div></div>
@@ -310,10 +329,10 @@
       </div>
     </section>
 
-    <section class="screen" id="screen-messages" data-page="messages"><div class="content simple-page"><span class="eyebrow">消息</span><h1 class="page-title">本机动态</h1><p class="page-copy">这里只保存你在这台设备上的操作；订阅消息由微信服务通知送达。</p><div class="simple-list"><div class="simple-row"><strong>周末聚餐时间已提交</strong><span>已保存 4 个时段</span></div><div class="simple-row"><strong>团建活动结果通知已处理</strong><span>成功 3 人，失败 0 人</span></div></div></div></section>
-    <section class="screen" id="screen-profile" data-page="profile"><div class="content simple-page"><span class="eyebrow">我的</span><h1 class="page-title">你的聚会档案</h1><div class="stats"><div class="stat"><strong>3</strong><span>创建</span></div><div class="stat"><strong>7</strong><span>参与</span></div></div><div class="simple-list"><div class="simple-row"><strong>历史聚会</strong><span>查看已经结束的活动</span></div><div class="simple-row"><strong>提醒设置</strong><span>管理订阅消息</span></div></div></div></section>
+    <section class="screen" id="screen-messages" data-page="messages"><div class="content simple-page"><span class="eyebrow">消息</span><h1 class="page-title" tabindex="-1" data-page-focus>本机动态</h1><p class="page-copy">这里只保存你在这台设备上的操作；订阅消息由微信服务通知送达。</p><div class="simple-list"><div class="simple-row"><strong>周末聚餐时间已提交</strong><span>已保存 4 个时段</span></div><div class="simple-row"><strong>团建活动结果通知已处理</strong><span>成功 3 人，失败 0 人</span></div></div></div></section>
+    <section class="screen" id="screen-profile" data-page="profile"><div class="content simple-page"><span class="eyebrow">我的</span><h1 class="page-title" tabindex="-1" data-page-focus>你的聚会档案</h1><div class="stats"><div class="stat"><strong>3</strong><span>创建</span></div><div class="stat"><strong>7</strong><span>参与</span></div></div><div class="simple-list"><div class="simple-row"><strong>历史聚会</strong><span>查看已经结束的活动</span></div><div class="simple-row"><strong>提醒设置</strong><span>管理订阅消息</span></div></div></div></section>
 
-    <nav class="bottom-nav" id="bottom-nav" aria-label="主要导航"><button class="nav-button active" type="button" data-nav="home"><span>聚会</span></button><button class="nav-button" type="button" data-nav="messages"><span>消息</span></button><button class="nav-button" type="button" data-nav="profile"><span>我的</span></button></nav>
+    <nav class="bottom-nav" id="bottom-nav" aria-label="主要导航"><button class="nav-button active" type="button" data-nav="home"><img class="nav-icon" data-icon-base="calendar-days" src="./miniprogram/assets/icons/calendar-days-coral.png?v=2" alt=""><span>聚会</span></button><button class="nav-button" type="button" data-nav="messages"><img class="nav-icon" data-icon-base="bell" src="./miniprogram/assets/icons/bell-muted.png?v=2" alt=""><span>消息</span></button><button class="nav-button" type="button" data-nav="profile"><img class="nav-icon" data-icon-base="user-round" src="./miniprogram/assets/icons/user-round-muted.png?v=2" alt=""><span>我的</span></button></nav>
 
     <dialog id="success-dialog" data-testid="success-dialog"><div class="dialog-content"><h2 class="dialog-title">时间已提交</h2><p class="dialog-copy" id="success-copy"></p><div class="dialog-actions"><button class="primary-button" id="view-result" data-testid="view-result" type="button">查看结果</button><button class="secondary-button" id="continue-edit" type="button">继续修改</button></div></div></dialog>
     <dialog id="detail-dialog" data-testid="detail-dialog"><div class="dialog-content"><h2 class="dialog-title" id="detail-title"></h2><p class="dialog-copy" id="detail-copy"></p><div class="detail-users" id="detail-users"></div><button class="secondary-button" id="close-detail" type="button">关闭</button></div></dialog>
@@ -333,6 +352,7 @@
       currentDateIndex: 0,
       selected: new Set(),
       event: null,
+      previewResultName: '',
       responses: []
     }
 
@@ -378,12 +398,21 @@
       document.querySelectorAll('.screen').forEach(screen => screen.classList.toggle('active', screen.dataset.page === page))
       const primaryPages = ['home','messages','profile']
       document.getElementById('bottom-nav').classList.toggle('hidden', !primaryPages.includes(page))
-      document.querySelectorAll('[data-nav]').forEach(button => button.classList.toggle('active', button.dataset.nav === page))
+      document.querySelectorAll('[data-nav]').forEach(button => {
+        const selected = button.dataset.nav === page
+        button.classList.toggle('active', selected)
+        const icon = button.querySelector('[data-icon-base]')
+        if (icon) icon.src = `./miniprogram/assets/icons/${icon.dataset.iconBase}-${selected ? 'coral' : 'muted'}.png?v=2`
+      })
       document.body.dataset.page = page
       const active = document.querySelector(`.screen[data-page="${page}"]`)
       if (active) active.scrollTop = 0
       if (page === 'vote') renderVote()
       if (page === 'result') renderResult()
+      requestAnimationFrame(() => {
+        const focusTarget = active?.querySelector('[data-page-focus]')
+        if (focusTarget) focusTarget.focus({ preventScroll: true })
+      })
     }
 
     function renderHomeCalendar() {
@@ -418,6 +447,8 @@
       const errorNode = document.getElementById('date-error')
       errorNode.textContent = error
       errorNode.classList.toggle('visible', Boolean(error))
+      startInput.setAttribute('aria-invalid', String(Boolean(error)))
+      endInput.setAttribute('aria-invalid', String(Boolean(error)))
       createSubmit.disabled = !(nameInput.value.trim() && startInput.value && endInput.value && !error)
       return !createSubmit.disabled
     }
@@ -445,6 +476,7 @@
       if (!validateCreate()) return
       state.event = { name: nameInput.value.trim(), startDate: startInput.value, endDate: endInput.value, granularity: state.granularity, expiry: state.expiry, note: document.getElementById('event-note').value.trim() }
       state.responses = []
+      state.previewResultName = ''
       state.selected = new Set()
       state.currentDateIndex = 0
       showPage('vote')
@@ -455,32 +487,71 @@
       state.currentDateIndex = Math.min(state.currentDateIndex, dates.length - 1)
       document.getElementById('vote-title').textContent = state.event.name
       document.getElementById('vote-range').textContent = `${state.event.startDate} 至 ${state.event.endDate} · ${state.responses.length} 人已填写`
-      document.getElementById('vote-dates').innerHTML = dates.map((date, index) => {
-        const parsed = parseDate(date)
-        return `<button class="date-tab${index === state.currentDateIndex ? ' active' : ''}" type="button" role="tab" aria-selected="${index === state.currentDateIndex}" data-vote-date="${index}">${weekdayNames[parsed.getDay()]}<br>${parsed.getDate()} 日</button>`
-      }).join('')
-      document.querySelectorAll('[data-vote-date]').forEach(button => button.addEventListener('click', () => { state.currentDateIndex = Number(button.dataset.voteDate); renderVote() }))
+      const dateTabs = document.getElementById('vote-dates')
+      const dateKey = dates.join('|')
+      if (dateTabs.dataset.key !== dateKey) {
+        dateTabs.dataset.key = dateKey
+        dateTabs.innerHTML = dates.map((date, index) => {
+          const parsed = parseDate(date)
+          return `<button class="date-tab" type="button" role="tab" data-vote-date="${index}"><span class="date-tab-weekday">${weekdayNames[parsed.getDay()]}</span><span class="date-tab-day">${parsed.getDate()}</span></button>`
+        }).join('')
+        dateTabs.querySelectorAll('[data-vote-date]').forEach(button => button.addEventListener('click', () => {
+          state.currentDateIndex = Number(button.dataset.voteDate)
+          renderVote()
+        }))
+      }
+      dateTabs.querySelectorAll('[data-vote-date]').forEach((button, index) => {
+        const selected = index === state.currentDateIndex
+        button.classList.toggle('active', selected)
+        button.setAttribute('aria-selected', String(selected))
+        button.tabIndex = selected ? 0 : -1
+      })
       const currentDate = dates[state.currentDateIndex]
       const parsed = parseDate(currentDate)
       document.getElementById('current-day-title').textContent = `${weekdayNames[parsed.getDay()]} · ${parsed.getMonth() + 1}月${parsed.getDate()}日`
       const config = slotConfig(state.event.granularity)
       const currentCount = config.filter(slot => state.selected.has(`${currentDate}_${slot.index}`)).length
       document.getElementById('current-day-copy').textContent = `当天已选 ${currentCount} 个`
-      document.getElementById('slots-grid').innerHTML = config.map(slot => {
-        const id = `${currentDate}_${slot.index}`
+      const grid = document.getElementById('slots-grid')
+      const configKey = `${state.event.granularity}:${config.length}`
+      if (grid.dataset.key !== configKey) {
+        grid.dataset.key = configKey
+        grid.innerHTML = config.map(slot => `<button class="slot" type="button" data-slot-index="${slot.index}"><span class="slot-time">${slot.short}</span><span class="slot-state">可选</span></button>`).join('')
+        grid.querySelectorAll('[data-slot-index]').forEach(button => button.addEventListener('click', () => {
+          const date = eventDates()[state.currentDateIndex]
+          const id = `${date}_${button.dataset.slotIndex}`
+          state.selected.has(id) ? state.selected.delete(id) : state.selected.add(id)
+          renderVote()
+        }))
+      }
+      grid.querySelectorAll('[data-slot-index]').forEach((button, index) => {
+        const id = `${currentDate}_${config[index].index}`
         const selected = state.selected.has(id)
-        return `<button class="slot${selected ? ' selected' : ''}" type="button" data-slot="${id}" aria-pressed="${selected}"><span class="slot-time">${slot.short}</span><span class="slot-state">${selected ? '已选' : '可选'}</span></button>`
-      }).join('')
-      document.querySelectorAll('[data-slot]').forEach(button => button.addEventListener('click', () => {
-        const id = button.dataset.slot
-        state.selected.has(id) ? state.selected.delete(id) : state.selected.add(id)
-        renderVote()
-      }))
+        button.classList.toggle('selected', selected)
+        button.setAttribute('aria-pressed', String(selected))
+        button.setAttribute('aria-label', `${config[index].label}，${selected ? '已选择' : '未选择'}`)
+        button.querySelector('.slot-time').textContent = config[index].short
+        button.querySelector('.slot-state').textContent = selected ? '已选' : '可选'
+      })
       document.getElementById('selected-total').textContent = state.selected.size
       document.getElementById('vote-submit').disabled = state.selected.size === 0
       document.getElementById('clear-day').disabled = currentCount === 0
       document.getElementById('select-day').disabled = currentCount === config.length
     }
+
+    document.getElementById('vote-dates').addEventListener('keydown', event => {
+      const dates = eventDates()
+      if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key) || dates.length < 2) return
+      event.preventDefault()
+      if (event.key === 'Home') state.currentDateIndex = 0
+      else if (event.key === 'End') state.currentDateIndex = dates.length - 1
+      else {
+        const direction = event.key === 'ArrowRight' ? 1 : -1
+        state.currentDateIndex = (state.currentDateIndex + direction + dates.length) % dates.length
+      }
+      renderVote()
+      document.querySelector(`[data-vote-date="${state.currentDateIndex}"]`)?.focus()
+    })
 
     document.getElementById('clear-day').addEventListener('click', () => {
       const date = eventDates()[state.currentDateIndex]
@@ -521,7 +592,7 @@
 
     function renderResult() {
       const { counts, users, best } = resultStats()
-      document.getElementById('result-title').textContent = state.event.name
+      document.getElementById('result-title').textContent = state.previewResultName || state.event.name
       document.getElementById('result-range').textContent = `${state.event.startDate} 至 ${state.event.endDate}`
       let bestText = '等待第一个回应'
       if (best[0]) {
@@ -529,9 +600,10 @@
         const date = best[0].slice(0, separator)
         const index = Number(best[0].slice(separator + 1))
         const parsed = parseDate(date)
-        bestText = `${parsed.getMonth() + 1}月${parsed.getDate()}日 ${weekdayNames[parsed.getDay()]} · ${slotConfig(state.event.granularity)[index].label}`
+        const range = slotConfig(state.event.granularity)[index].label.replace('-', '–')
+        bestText = `<span class="best-date-line">${parsed.getMonth() + 1}月${parsed.getDate()}日 ${weekdayNames[parsed.getDay()]}</span><span class="best-range-line">${range}</span>`
       }
-      document.getElementById('best-time').textContent = bestText
+      document.getElementById('best-time').innerHTML = best[0] ? bestText : '等待第一个回应'
       document.getElementById('best-count').textContent = `${best[1]} 人有空`
       document.getElementById('best-percent').textContent = state.responses.length ? `${Math.round(best[1] / state.responses.length * 100)}%` : '0%'
       document.getElementById('participant-count').textContent = state.responses.length
@@ -563,7 +635,13 @@
       detailDialog.showModal()
     }
     document.getElementById('close-detail').addEventListener('click', () => detailDialog.close())
-    document.getElementById('edit-vote').addEventListener('click', () => showPage('vote'))
+    document.getElementById('edit-vote').addEventListener('click', () => {
+      if (state.previewResultName) {
+        state.event = { ...state.event, name: state.previewResultName }
+        state.previewResultName = ''
+      }
+      showPage('vote')
+    })
     document.getElementById('share-result').addEventListener('click', async () => {
       const message = `来帮我选「${state.event.name}」的时间`
       try { await navigator.clipboard.writeText(message); document.getElementById('share-result').textContent = '已复制' } catch (error) { document.getElementById('share-result').textContent = message }
@@ -571,8 +649,23 @@
 
     document.querySelectorAll('[data-open]').forEach(button => button.addEventListener('click', () => showPage(button.dataset.open)))
     document.querySelectorAll('[data-nav]').forEach(button => button.addEventListener('click', () => showPage(button.dataset.nav)))
-    document.getElementById('pending-vote').addEventListener('click', () => { state.currentDateIndex = 0; state.selected = new Set(); showPage('vote') })
-    document.querySelectorAll('[data-open-result]').forEach(button => button.addEventListener('click', () => { state.event.name = button.dataset.openResult; showPage('result') }))
+    document.getElementById('pending-vote').addEventListener('click', () => { state.previewResultName = ''; state.currentDateIndex = 0; state.selected = new Set(); showPage('vote') })
+    document.querySelectorAll('[data-open-result]').forEach(button => button.addEventListener('click', () => { state.previewResultName = button.dataset.openResult; showPage('result') }))
+
+    document.querySelectorAll('input, textarea').forEach(input => {
+      const action = input.closest('.screen')?.querySelector('.fixed-action')
+      if (!action) return
+      input.addEventListener('focus', () => action.classList.add('keyboard-hidden'))
+      input.addEventListener('blur', () => action.classList.remove('keyboard-hidden'))
+    })
+    ;[successDialog, detailDialog].forEach(dialog => dialog.addEventListener('click', event => {
+      if (event.target === dialog) dialog.close()
+    }))
+    document.addEventListener('keydown', event => {
+      if (event.key !== 'Escape') return
+      if (detailDialog.open) detailDialog.close()
+      else if (successDialog.open) successDialog.close()
+    })
 
     renderHomeCalendar()
     validateCreate()

@@ -11,6 +11,7 @@ Page({
     displayJoinedCount: 0,
     showOpenId: false,
     openIdText: '',
+    aboutMounted: false,
     showAboutModal: false
   },
 
@@ -98,12 +99,24 @@ Page({
 
   // 显示关于弹窗
   showAbout() {
-    this.setData({ showAboutModal: true })
+    if (this.aboutCloseTimer) clearTimeout(this.aboutCloseTimer)
+    this.setData({ aboutMounted: true }, () => {
+      wx.nextTick(() => this.setData({ showAboutModal: true }))
+    })
   },
 
   // 隐藏关于弹窗
   hideAbout() {
     this.setData({ showAboutModal: false })
+    if (this.aboutCloseTimer) clearTimeout(this.aboutCloseTimer)
+    this.aboutCloseTimer = setTimeout(() => {
+      this.setData({ aboutMounted: false })
+      this.aboutCloseTimer = null
+    }, 220)
+  },
+
+  onUnload() {
+    if (this.aboutCloseTimer) clearTimeout(this.aboutCloseTimer)
   },
 
   // 阻止滚动穿透

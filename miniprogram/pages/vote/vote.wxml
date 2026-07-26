@@ -1,16 +1,20 @@
 <view class="page-shell vote-page">
+  <image class="grain-layer" src="/assets/textures/warm-grain.jpg" mode="aspectFill" aria-hidden="true"></image>
   <view class="loading-state" wx:if="{{loading}}">
+    <button class="core-back-button state-back-button" bindtap="goBack" aria-label="返回聚会首页"><image class="core-back-icon" src="/assets/icons/arrow-left-primary.png" mode="aspectFit" aria-hidden="true"></image></button>
     <view class="loading-dot"></view>
     <text class="state-copy">正在打开时间表</text>
   </view>
 
   <view class="error-state" wx:elif="{{loadError}}">
+    <button class="core-back-button state-back-button" bindtap="goBack" aria-label="返回聚会首页"><image class="core-back-icon" src="/assets/icons/arrow-left-primary.png" mode="aspectFit" aria-hidden="true"></image></button>
     <text class="state-title">暂时无法打开活动</text>
     <text class="state-copy">活动可能已被删除，或网络暂时不可用。</text>
     <button class="secondary-button state-action" bindtap="retryLoad">重新加载</button>
   </view>
 
   <view class="error-state" wx:elif="{{expired}}">
+    <button class="core-back-button state-back-button" bindtap="goBack" aria-label="返回聚会首页"><image class="core-back-icon" src="/assets/icons/arrow-left-primary.png" mode="aspectFit" aria-hidden="true"></image></button>
     <text class="state-title">投票已经结束</text>
     <text class="state-copy">你仍然可以查看大家最终选出的时间。</text>
     <button class="primary-button state-action" bindtap="goToResult">查看结果</button>
@@ -18,11 +22,14 @@
 
   <block wx:else>
     <view class="vote-content">
-      <view class="vote-header enter">
-        <text class="eyebrow">填写时间</text>
-        <text class="page-title">{{event.name}}</text>
-        <text class="page-subtitle">{{event.dateRangeText}} · {{participantCount}} 人已填写</text>
-        <text class="event-note" wx:if="{{event.note}}">{{event.note}}</text>
+      <view class="vote-header core-flow-header enter">
+        <button class="core-back-button" bindtap="goBack" aria-label="返回聚会首页"><image class="core-back-icon" src="/assets/icons/arrow-left-primary.png" mode="aspectFit" aria-hidden="true"></image></button>
+        <view class="core-flow-body">
+          <text class="eyebrow">填写时间</text>
+          <text class="page-title">{{event.name}}</text>
+          <text class="page-subtitle">{{event.dateRangeText}} · {{participantCount}} 人已填写</text>
+          <text class="event-note" wx:if="{{event.note}}">{{event.note}}</text>
+        </view>
       </view>
 
       <view class="nickname-field enter">
@@ -33,6 +40,8 @@
           placeholder-class="placeholder"
           value="{{nickname}}"
           bindinput="onNicknameInput"
+          bindfocus="onKeyboardFocus"
+          bindblur="onKeyboardBlur"
           maxlength="20"
           aria-label="你的昵称，选填"
           cursor-spacing="150"
@@ -56,7 +65,7 @@
             aria-label="{{item.weekday}} {{item.day}} 日，{{currentDateIndex === index ? '当前日期' : '选择日期'}}"
           >
             <text class="date-weekday">{{item.weekday}}</text>
-            <text class="date-day">{{item.day}} 日</text>
+            <text class="date-day">{{item.day}}</text>
           </button>
         </view>
       </scroll-view>
@@ -88,7 +97,7 @@
       </view>
     </view>
 
-    <view class="vote-footer safe-footer">
+    <view class="vote-footer safe-footer {{keyboardActive ? 'is-keyboard-hidden' : ''}}">
       <view class="selected-summary">
         <text class="selected-number">{{selectedCount}}</text>
         <text class="selected-label">个时段</text>
@@ -100,10 +109,10 @@
       >{{submitting ? '正在提交' : '提交我的时间'}}</button>
     </view>
 
-    <view class="success-modal {{showSuccess ? 'is-open' : ''}}" catchtouchmove="preventMove">
+    <view wx:if="{{successMounted}}" class="success-modal {{showSuccess ? 'is-open' : ''}}" catchtouchmove="preventMove">
       <view class="modal-backdrop" bindtap="closeSuccess"></view>
       <view class="success-sheet" aria-role="dialog" aria-label="时间已提交">
-        <view class="success-icon"><icon type="success_no_circle" size="44" color="#ff7668" /></view>
+        <view class="success-icon"><image class="success-icon-image" src="/assets/icons/check-coral.png" mode="aspectFit" aria-hidden="true"></image></view>
         <text class="success-title">时间已提交</text>
         <text class="success-copy">已保存 {{selectedCount}} 个时段，你可以继续修改或查看当前结果。</text>
         <button class="primary-button modal-primary" bindtap="goToResult">查看结果</button>

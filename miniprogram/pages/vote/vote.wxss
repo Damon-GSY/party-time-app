@@ -3,7 +3,9 @@
 }
 
 .vote-content {
-  padding: 34rpx 40rpx calc(190rpx + env(safe-area-inset-bottom));
+  padding: 96rpx 44rpx 206rpx;
+  padding: calc(96rpx + constant(safe-area-inset-top)) 44rpx calc(206rpx + constant(safe-area-inset-bottom));
+  padding: calc(96rpx + env(safe-area-inset-top)) 44rpx calc(206rpx + env(safe-area-inset-bottom));
 }
 
 .event-note {
@@ -40,24 +42,27 @@
 }
 
 .date-tab {
-  width: 112rpx;
-  min-height: 102rpx;
+  width: 136rpx;
+  min-height: 132rpx;
   margin: 0;
   padding: 12rpx 8rpx;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: var(--color-surface);
+  background: transparent;
   color: var(--color-text-secondary);
-  border: 2rpx solid var(--color-border);
+  border: 2rpx solid transparent;
   border-radius: var(--radius-md);
+  transition: color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard), background-color var(--duration-fast) var(--ease-standard), transform var(--duration-instant) var(--ease-standard);
+}
+
+.date-tab:active {
+  transform: scale(0.97);
 }
 
 .date-tab.is-active {
-  background: var(--color-coral-soft);
   color: var(--color-coral);
-  border-color: var(--color-coral);
 }
 
 .date-weekday {
@@ -65,9 +70,20 @@
 }
 
 .date-day {
-  margin-top: 4rpx;
+  width: 72rpx;
+  height: 72rpx;
+  margin-top: 8rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
   font-size: 26rpx;
   font-weight: 600;
+}
+
+.date-tab.is-active .date-day {
+  background: var(--color-coral);
+  color: #1b1412;
 }
 
 .day-toolbar {
@@ -123,7 +139,7 @@
 .slots-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 12rpx;
+  gap: 16rpx;
   margin-top: 24rpx;
   transition: opacity 100ms ease, transform 100ms ease;
 }
@@ -131,11 +147,12 @@
 .slots-grid.is-hidden {
   opacity: 0;
   transform: translateY(8rpx);
+  pointer-events: none;
 }
 
 .slot-button {
   min-width: 0;
-  min-height: 108rpx;
+  min-height: 116rpx;
   margin: 0;
   padding: 12rpx 8rpx;
   display: flex;
@@ -145,7 +162,7 @@
   background: var(--color-surface);
   color: var(--color-text-secondary);
   border: 2rpx solid var(--color-border);
-  border-radius: var(--radius-md);
+  border-radius: 24rpx;
   transition: transform var(--duration-fast) var(--ease-out), background-color var(--duration-fast) ease, border-color var(--duration-fast) ease;
 }
 
@@ -176,7 +193,7 @@
   bottom: 0;
   left: 0;
   z-index: 20;
-  min-height: 130rpx;
+  min-height: 150rpx;
   padding: 20rpx 40rpx;
   box-sizing: border-box;
   display: flex;
@@ -184,6 +201,13 @@
   gap: 24rpx;
   background: var(--color-bg);
   border-top: 2rpx solid var(--color-border);
+  transition: transform 180ms var(--ease-in), opacity 140ms ease;
+}
+
+.vote-footer.is-keyboard-hidden {
+  transform: translateY(100%);
+  opacity: 0;
+  pointer-events: none;
 }
 
 .selected-summary {
@@ -195,7 +219,7 @@
 
 .selected-number {
   color: var(--color-coral);
-  font-size: 42rpx;
+  font-size: 58rpx;
   font-weight: 700;
 }
 
@@ -233,7 +257,7 @@
   inset: 0;
   background: rgba(0, 0, 0, 0.66);
   opacity: 0;
-  transition: opacity 220ms ease;
+  transition: opacity 180ms var(--ease-standard);
 }
 
 .success-modal.is-open .modal-backdrop {
@@ -250,11 +274,13 @@
   border-radius: 36rpx 36rpx 0 0;
   border-top: 2rpx solid var(--color-border);
   transform: translateY(100%);
-  transition: transform 280ms var(--ease-out);
+  transition: transform 180ms var(--ease-in);
 }
 
 .success-modal.is-open .success-sheet {
   transform: translateY(0);
+  transition-duration: var(--duration-sheet);
+  transition-timing-function: var(--ease-out);
 }
 
 .success-icon {
@@ -265,6 +291,11 @@
   justify-content: center;
   background: var(--color-coral-soft);
   border-radius: 50%;
+}
+
+.success-icon-image {
+  width: 54rpx;
+  height: 54rpx;
 }
 
 .success-title {

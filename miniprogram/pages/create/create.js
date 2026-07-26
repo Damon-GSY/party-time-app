@@ -79,6 +79,12 @@ Page({
     this.setData({ focusedField: '' })
   },
 
+  goBack() {
+    const pages = getCurrentPages()
+    if (pages.length > 1) wx.navigateBack()
+    else wx.switchTab({ url: '/pages/index/index' })
+  },
+
   // 检查是否可以提交
   checkCanSubmit() {
     const { name, startDate, endDate } = this.data
@@ -102,6 +108,7 @@ Page({
 
     this.setData({ submitting: true })
 
+    let awaitingRedirect = false
     try {
       const { name, startDate, endDate, granularity, expireType, note } = this.data
 
@@ -119,6 +126,7 @@ Page({
       })
 
       if (res.result && res.result.success) {
+        awaitingRedirect = true
         const eventId = res.result.eventId
 
         // 存储活动ID用于分享
@@ -144,6 +152,7 @@ Page({
     } catch (err) {
       // 开发环境模拟成功
       if (!wx.cloud) {
+        awaitingRedirect = true
         wx.showToast({
           title: '创建成功（模拟）',
           icon: 'success'
@@ -162,7 +171,7 @@ Page({
         icon: 'none'
       })
     } finally {
-      this.setData({ submitting: false })
+      if (!awaitingRedirect) this.setData({ submitting: false })
     }
   },
 

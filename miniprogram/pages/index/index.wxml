@@ -1,11 +1,14 @@
 <view class="page-shell home-page">
+  <image class="grain-layer" src="/assets/textures/warm-grain.jpg" mode="aspectFill" aria-hidden="true"></image>
   <view class="home-content">
     <view class="home-header enter">
       <view>
         <text class="brand-title">聚会时间</text>
-        <text class="brand-subtitle">把大家的空闲，变成一个确定的时刻</text>
       </view>
-      <button class="new-event-button" bindtap="goToCreate">新建</button>
+      <button class="new-event-button" bindtap="goToCreate">
+        <image class="new-event-icon" src="/assets/icons/plus-dark.png" mode="aspectFit" aria-hidden="true"></image>
+        <text>新建</text>
+      </button>
     </view>
 
     <view class="calendar enter">
@@ -50,15 +53,17 @@
           bindtouchend="onCardTouchEnd"
         >
           <view class="event-date-mark">
-            <text class="event-date-month">{{item.startMonth}}月</text>
-            <text class="event-date-day">{{item.startDay}}</text>
+            <image class="event-icon" src="{{item.iconPath}}" mode="aspectFit" aria-hidden="true"></image>
           </view>
           <view class="event-body">
             <text class="event-title">{{item.name}}</text>
             <text class="event-progress"><text class="event-progress-strong">{{item.participantCount || 0}} 人</text>已填写</text>
             <text class="event-meta">{{item.dateRangeText}}</text>
           </view>
-          <view class="event-cta" aria-hidden="true">填写时间</view>
+          <view class="event-cta" aria-hidden="true">
+            <text>填写时间</text>
+            <image class="event-cta-icon" src="/assets/icons/chevron-right-dark.png" mode="aspectFit"></image>
+          </view>
         </view>
       </view>
 
@@ -69,8 +74,8 @@
       <view class="event-list" wx:if="{{recentEvents.length > 0}}">
         <view class="event-swipe-row" wx:for="{{recentEvents}}" wx:key="_id">
           <view
-            class="event-row {{cardPressedId === item._id ? 'is-pressed' : ''}}"
-            style="transform: translateX({{item.translateX || 0}}rpx);"
+            class="event-row"
+            style="transform: translateX({{item.translateX || 0}}rpx) scale({{cardPressedId === item._id ? 0.98 : 1}}); opacity: {{cardPressedId === item._id ? 0.86 : 1}};"
             data-id="{{item._id}}"
             data-type="{{item.type}}"
             aria-role="button"
@@ -81,14 +86,13 @@
             bindtouchend="onSwipeEnd"
           >
             <view class="event-date-mark event-date-mark-small">
-              <text class="event-date-month">{{item.startMonth}}月</text>
-              <text class="event-date-day">{{item.startDay}}</text>
+              <image class="event-icon event-icon-small" src="{{item.iconPath}}" mode="aspectFit" aria-hidden="true"></image>
             </view>
             <view class="event-body">
               <text class="event-title event-title-small">{{item.name}}</text>
               <text class="event-meta">{{item.expired ? '已结束' : item.expireText}} · {{item.participantCount || 0}} 人参与</text>
             </view>
-            <text class="event-state">{{item.expired ? '完成' : '查看'}}</text>
+            <image class="event-state-icon" src="{{item.expired ? '/assets/icons/check-coral.png' : '/assets/icons/chevron-right-muted.png'}}" mode="aspectFit" aria-hidden="true"></image>
           </view>
           <button class="delete-action" wx:if="{{item.type === 'created'}}" data-id="{{item._id}}" bindtap="deleteEvent">删除</button>
         </view>
