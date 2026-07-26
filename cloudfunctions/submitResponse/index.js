@@ -1,105 +1,208 @@
 // 云函数 - 提交时间选择
 const cloud = require('wx-server-sdk')
+const crypto = require('crypto')
 
 cloud.init({
   env: cloud.DYNAMIC_CURRENT_ENV
 })
 
 const db = cloud.database()
+const DATE_PATTERN = /^(\d{4}-\d{2}-\d{2})_(\d+)$/
+const VALID_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/
+const SLOT_COUNTS = { hour: 24, twoHours: 12, halfDay: 4 }
+const TEMPLATE_NEW_PARTICIPANT = 'your_template_id_new_participant'
 
-exports.main = async (event, context) => {
-  const { eventId, nickname, slots } = event
-  const openid = cloud.getWXContext().OPENID
+function isValidEventId(value) {
+  return typeof value === 'string' && value.trim().length > 0 && value.length <= 128 && !/[\/\\]/.test(value)
+}
 
-  // 参数校验
-  if (!eventId || !slots || !Array.isArray(slots)) {
-    return {
-      success: false,
-      error: '参数错误'
+function isValidDateOnly(value) {
+  if (typeof value !== 'string' || !VALID_DATE_PATTERN.test(value)) return false
+  const [year, month, day] = value.split('-').map(Number)
+  const parsed = new Date(Date.UTC(year, month - 1, day))
+  return parsed.getUTCFullYear() === year && parsed.getUTCMonth() === month - 1 && parsed.getUTCDate() === day
+}
+
+function normalizeNickname(value) {
+  const nickname = typeof value === 'string' ? value.trim() : ''
+  if (nickname.length > 20) return { ok: false, error: '昵称不能超过20个字符' }
+  return { ok: true, value: nickname || '匿名用户' }
+}
+
+function getResponseDocumentId(eventId, openid) {
+  return crypto.createHash('sha256').update(`${eventId}\0${openid}`).digest('hex')
+}
+
+async function persistResponse({
+  responseId,
+  responseData,
+  existing,
+  collection = db.collection('responses'),
+  serverDate = () => db.serverDate()
+}) {
+  const existingCreatedAt = existing.find(item => item._id === responseId)?.createdAt || existing[0]?.createdAt
+  const document = {
+    ...responseData,
+    createdAt: existingCreatedAt || serverDate()
+  }
+
+  let action = 'updated'
+  if (existing.length > 0) {
+    await collection.doc(responseId).set({ data: document })
+  } else {
+    try {
+      await collection.add({ data: { _id: responseId, ...document } })
+      action = 'created'
+    } catch (addError) {
+      // 并发首次提交时只有一个 add 能创建确定性 ID；其余请求转为更新。
+      try {
+        await collection.doc(responseId).get()
+      } catch (getError) {
+        throw addError
+      }
+      await collection.doc(responseId).update({ data: responseData })
     }
   }
 
+  await Promise.all(existing
+    .filter(item => item._id !== responseId)
+    .map(item => collection.doc(item._id).remove()))
+  return action
+}
+
+function truncate(value, maxLength) {
+  const text = String(value || '')
+  return text.length > maxLength ? text.slice(0, maxLength) : text
+}
+
+async function notifyCreator({ eventId, creatorOpenId, participantName, eventName }) {
+  if (!creatorOpenId || TEMPLATE_NEW_PARTICIPANT.startsWith('your_template_id')) return
+  const now = new Date()
+  const result = await cloud.openapi.subscribeMessage.send({
+    touser: creatorOpenId,
+    templateId: TEMPLATE_NEW_PARTICIPANT,
+    page: `/pages/result/result?id=${eventId}`,
+    data: {
+      thing1: { value: truncate(participantName || '有人', 20) },
+      thing2: { value: truncate(eventName || '聚会', 20) },
+      time3: { value: `${now.getMonth() + 1}月${now.getDate()}日 ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}` }
+    }
+  })
   try {
-    // 检查活动是否存在且未过期
-    const eventRes = await db.collection('events').doc(eventId).get()
-    if (!eventRes.data) {
-      return {
-        success: false,
-        error: '活动不存在'
-      }
-    }
-
-    const eventData = eventRes.data
-    if (eventData.expireAt && new Date() > new Date(eventData.expireAt)) {
-      return {
-        success: false,
-        error: '活动已过期'
-      }
-    }
-
-    // 查找是否已有提交记录
-    const existingRes = await db.collection('responses')
-      .where({
+    await db.collection('notification_logs').add({
+      data: {
         eventId,
-        _openid: openid
-      })
+        type: 'new_participant',
+        toOpenId: creatorOpenId,
+        status: result.errcode === 0 ? 'sent' : (result.errcode === 43101 ? 'not_subscribed' : 'failed'),
+        content: { eventName, participantName },
+        createdAt: db.serverDate()
+      }
+    })
+  } catch (logError) {
+    console.warn('[submitResponse] 记录通知日志失败', logError)
+  }
+}
+
+function validateSubmission(eventData, submittedSlots, now = new Date()) {
+  if (!eventData || !isValidDateOnly(eventData.startDate) || !isValidDateOnly(eventData.endDate)) {
+    return { ok: false, error: '活动日期配置无效' }
+  }
+
+  const slotCount = SLOT_COUNTS[eventData.granularity]
+  if (!slotCount) return { ok: false, error: '活动时段粒度无效' }
+  if (eventData.expireAt) {
+    const expireAt = new Date(eventData.expireAt)
+    if (Number.isNaN(expireAt.getTime())) return { ok: false, error: '活动过期时间无效' }
+    if (now > expireAt) return { ok: false, error: '活动已过期' }
+  }
+
+  if (!Array.isArray(submittedSlots) || submittedSlots.length === 0) {
+    return { ok: false, error: '请至少选择一个时段' }
+  }
+
+  const uniqueSlots = [...new Set(submittedSlots)]
+  const startTimestamp = Date.parse(`${eventData.startDate}T00:00:00Z`)
+  const endTimestamp = Date.parse(`${eventData.endDate}T00:00:00Z`)
+  const maxSlots = ((endTimestamp - startTimestamp) / 86400000 + 1) * slotCount
+  if (uniqueSlots.length > maxSlots) return { ok: false, error: '选择的时段数量超出活动范围' }
+
+  for (const slotId of uniqueSlots) {
+    if (typeof slotId !== 'string') return { ok: false, error: '时段格式无效' }
+    const match = DATE_PATTERN.exec(slotId)
+    if (!match || !isValidDateOnly(match[1])) return { ok: false, error: `时段格式无效：${slotId}` }
+    const slotDate = match[1]
+    const slotIndex = Number(match[2])
+    if (slotDate < eventData.startDate || slotDate > eventData.endDate) {
+      return { ok: false, error: `时段日期超出活动范围：${slotId}` }
+    }
+    if (!Number.isInteger(slotIndex) || slotIndex < 0 || slotIndex >= slotCount) {
+      return { ok: false, error: `时段索引超出范围：${slotId}` }
+    }
+  }
+
+  return { ok: true, slots: uniqueSlots }
+}
+
+exports.main = async (event = {}) => {
+  const { eventId, nickname, slots } = event
+  if (!isValidEventId(eventId)) return { success: false, error: '活动ID无效' }
+
+  const nicknameResult = normalizeNickname(nickname)
+  if (!nicknameResult.ok) return { success: false, error: nicknameResult.error }
+
+  const openid = cloud.getWXContext().OPENID
+  if (!openid) return { success: false, error: '无法识别当前用户' }
+
+  try {
+    const eventRes = await db.collection('events').doc(eventId).get()
+    if (!eventRes.data) return { success: false, error: '活动不存在' }
+
+    const validation = validateSubmission(eventRes.data, slots)
+    if (!validation.ok) return { success: false, error: validation.error }
+
+    const existingRes = await db.collection('responses')
+      .where({ eventId, _openid: openid })
       .get()
-
-    const responseName = nickname || '匿名用户'
-
-    if (existingRes.data && existingRes.data.length > 0) {
-      // 更新已有记录
-      await db.collection('responses').doc(existingRes.data[0]._id).update({
-        data: {
-          nickname: responseName,
-          slots,
-          updatedAt: db.serverDate()
-        }
-      })
-    } else {
-      // 创建新记录
-      await db.collection('responses').add({
-        data: {
-          eventId,
-          nickname: responseName,
-          slots,
-          createdAt: db.serverDate(),
-          updatedAt: db.serverDate()
-        }
-      })
+    const existing = existingRes.data || []
+    const responseData = {
+      eventId,
+      _openid: openid,
+      nickname: nicknameResult.value,
+      slots: validation.slots,
+      updatedAt: db.serverDate()
     }
 
-    // 通知创建者：有人参与了投票
+    const responseId = getResponseDocumentId(eventId, openid)
+    const action = await persistResponse({ responseId, responseData, existing })
+
     try {
-      const creatorOpenId = eventData.createdBy || eventData._openid
-      // 排除自己通知自己
-      if (creatorOpenId && creatorOpenId !== openid) {
-        await cloud.callFunction({
-          name: 'sendNotification',
-          data: {
-            type: 'new_participant',
-            eventId,
-            toOpenId: creatorOpenId,
-            data: {
-              participantName: responseName,
-              eventName: eventData.name || '聚会'
-            }
-          }
+      const creatorOpenId = eventRes.data.createdBy || eventRes.data._openid
+      if (action === 'created' && creatorOpenId && creatorOpenId !== openid) {
+        await notifyCreator({
+          eventId,
+          creatorOpenId,
+          participantName: nicknameResult.value,
+          eventName: eventRes.data.name || '聚会'
         })
       }
     } catch (notifyErr) {
-      // 通知失败不影响主流程
       console.warn('[submitResponse] 通知创建者失败', notifyErr)
     }
 
-    return {
-      success: true
-    }
+    return { success: true, action, selectedCount: validation.slots.length }
   } catch (err) {
     console.error('提交失败', err)
-    return {
-      success: false,
-      error: err.message || '提交失败'
-    }
+    return { success: false, error: err.message || '提交失败' }
   }
+}
+
+exports._test = {
+  isValidEventId,
+  isValidDateOnly,
+  normalizeNickname,
+  getResponseDocumentId,
+  persistResponse,
+  truncate,
+  validateSubmission
 }

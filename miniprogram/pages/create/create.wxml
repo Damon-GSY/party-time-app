@@ -1,195 +1,91 @@
-<!--创建聚会页面-->
-<view class="container">
-  <!-- Lamp Effect -->
-  <view class="lamp-container">
-    <view class="lamp-beam"></view>
-    <view class="lamp-glow create-lamp-glow"></view>
+<view class="page-shell create-page">
+  <view class="create-content">
+    <view class="create-header enter">
+      <text class="eyebrow">新聚会</text>
+      <text class="page-title">先定范围，再让大家选时间</text>
+      <text class="page-subtitle">只需要基本信息，创建后就能把投票分享出去。</text>
+    </view>
+
+    <form bindsubmit="handleSubmit">
+      <view class="form-field enter">
+        <view class="field-label">
+          <text>聚会名称</text><text class="field-required">必填</text>
+        </view>
+        <input
+          class="field-input {{focusedField === 'name' ? 'is-focused' : ''}}"
+          name="name"
+          placeholder="例如：周末聚餐"
+          placeholder-class="placeholder"
+          value="{{name}}"
+          bindinput="onNameInput"
+          maxlength="30"
+          data-field="name"
+          aria-label="聚会名称，必填"
+          bindfocus="onInputFocus"
+          bindblur="onInputBlur"
+          cursor-spacing="24"
+        />
+        <text class="field-hint field-count">{{name.length || 0}} / 30</text>
+      </view>
+
+      <view class="form-field enter">
+        <view class="field-label">
+          <text>日期范围</text><text class="field-required">必填</text>
+        </view>
+        <view class="date-picker-row">
+          <picker class="date-picker-control" mode="date" value="{{startDate}}" start="{{today}}" bindchange="onStartDateChange" aria-label="开始日期，必填">
+            <view class="field-picker {{startDate ? '' : 'placeholder'}}">{{startDate || '开始日期'}}</view>
+          </picker>
+          <text class="date-separator">至</text>
+          <picker class="date-picker-control" mode="date" value="{{endDate}}" start="{{startDate || today}}" bindchange="onEndDateChange" aria-label="结束日期，必填">
+            <view class="field-picker {{endDate ? '' : 'placeholder'}}">{{endDate || '结束日期'}}</view>
+          </picker>
+        </view>
+        <text class="field-hint" wx:if="{{dateCount > 0 && !formError}}">共 {{dateCount}} 天</text>
+        <text class="form-error" wx:if="{{formError}}">{{formError}}</text>
+      </view>
+
+      <view class="form-field enter">
+        <view class="field-label"><text>时段粒度</text></view>
+        <view class="segmented-control">
+          <button class="segment {{granularity === 'hour' ? 'is-active' : ''}}" data-value="hour" bindtap="selectGranularity" aria-pressed="{{granularity === 'hour'}}" aria-label="1 小时时段，{{granularity === 'hour' ? '已选择' : '未选择'}}">1 小时</button>
+          <button class="segment {{granularity === 'twoHours' ? 'is-active' : ''}}" data-value="twoHours" bindtap="selectGranularity" aria-pressed="{{granularity === 'twoHours'}}" aria-label="2 小时时段，{{granularity === 'twoHours' ? '已选择' : '未选择'}}">2 小时</button>
+          <button class="segment {{granularity === 'halfDay' ? 'is-active' : ''}}" data-value="halfDay" bindtap="selectGranularity" aria-pressed="{{granularity === 'halfDay'}}" aria-label="6 小时时段，{{granularity === 'halfDay' ? '已选择' : '未选择'}}">6 小时</button>
+        </view>
+        <text class="field-hint">2 小时适合大多数聚会，也更容易完成投票。</text>
+      </view>
+
+      <view class="form-field enter">
+        <view class="field-label"><text>投票有效期</text></view>
+        <view class="choice-grid">
+          <button class="choice {{expireType === '24h' ? 'is-active' : ''}}" data-value="24h" bindtap="selectExpire" aria-pressed="{{expireType === '24h'}}">24 小时</button>
+          <button class="choice {{expireType === '3days' ? 'is-active' : ''}}" data-value="3days" bindtap="selectExpire" aria-pressed="{{expireType === '3days'}}">3 天</button>
+          <button class="choice {{expireType === '7days' ? 'is-active' : ''}}" data-value="7days" bindtap="selectExpire" aria-pressed="{{expireType === '7days'}}">7 天</button>
+          <button class="choice {{expireType === 'never' ? 'is-active' : ''}}" data-value="never" bindtap="selectExpire" aria-pressed="{{expireType === 'never'}}">长期</button>
+        </view>
+      </view>
+
+      <view class="form-field enter">
+        <view class="field-label"><text>备注</text><text class="field-optional">选填</text></view>
+        <textarea
+          class="field-textarea"
+          name="note"
+          placeholder="地点、人数或其他说明"
+          placeholder-class="placeholder"
+          value="{{note}}"
+          bindinput="onNoteInput"
+          maxlength="200"
+          cursor-spacing="140"
+          aria-label="备注，选填"
+        />
+        <text class="field-hint field-count">{{note.length || 0}} / 200</text>
+      </view>
+
+      <view class="create-footer safe-footer">
+        <button class="primary-button create-submit" form-type="submit" disabled="{{!canSubmit || submitting}}">
+          {{submitting ? '正在创建' : '创建并开始填写'}}
+        </button>
+      </view>
+    </form>
   </view>
-
-  <!-- 微弱 Beams -->
-  <view class="form-beams">
-    <view class="form-beam"></view>
-    <view class="form-beam"></view>
-  </view>
-
-  <form bindsubmit="handleSubmit">
-    <!-- 聚会名称 -->
-    <view class="form-section glass-form-section">
-      <view class="form-label">
-        <text class="label-text">聚会名称</text>
-        <text class="label-required">*</text>
-      </view>
-      <input
-        class="form-input"
-        name="name"
-        placeholder="例如：周末聚餐、生日派对、团建活动..."
-        value="{{name}}"
-        bindinput="onNameInput"
-        maxlength="30"
-        data-field="name"
-        bindfocus="onInputFocus"
-        bindblur="onInputBlur"
-      />
-      <view class="form-hint">{{name.length || 0}}/30</view>
-    </view>
-
-    <!-- 日期范围 -->
-    <view class="form-section glass-form-section">
-      <view class="form-label">
-        <text class="label-text">日期范围</text>
-        <text class="label-required">*</text>
-      </view>
-      <view class="date-picker">
-        <picker
-          mode="date"
-          value="{{startDate}}"
-          start="{{today}}"
-          bindchange="onStartDateChange"
-        >
-          <view class="picker-value {{startDate ? '' : 'placeholder'}}">
-            {{startDate || '开始日期'}}
-          </view>
-        </picker>
-        <view class="date-separator">至</view>
-        <picker
-          mode="date"
-          value="{{endDate}}"
-          start="{{startDate || today}}"
-          bindchange="onEndDateChange"
-        >
-          <view class="picker-value {{endDate ? '' : 'placeholder'}}">
-            {{endDate || '结束日期'}}
-          </view>
-        </picker>
-      </view>
-      <view class="form-hint" wx:if="{{dateCount > 0}}">
-        共 {{dateCount}} 天
-      </view>
-    </view>
-
-    <!-- 时段粒度 -->
-    <view class="form-section glass-form-section">
-      <view class="form-label">
-        <text class="label-text">时段粒度</text>
-      </view>
-      <view class="granularity-options">
-        <view
-          class="granularity-option {{granularity === 'hour' ? 'active' : ''}} spotlight-card glass-card"
-          bindtap="selectGranularity"
-          data-value="hour"
-          bindtouchmove="onOptionSpotlight"
-          bindtouchend="onOptionSpotlightEnd"
-        >
-          <view class="spotlight-overlay {{granSpotActive ? 'active' : ''}}" style="--spotlight-x: {{granSpotX}}; --spotlight-y: {{granSpotY}};"></view>
-          <view class="option-content">
-            <view class="option-title">1小时</view>
-            <view class="option-desc">精确安排</view>
-          </view>
-        </view>
-        <view
-          class="granularity-option {{granularity === 'twoHours' ? 'active' : ''}} spotlight-card glass-card"
-          bindtap="selectGranularity"
-          data-value="twoHours"
-          bindtouchmove="onOptionSpotlight"
-          bindtouchend="onOptionSpotlightEnd"
-        >
-          <view class="spotlight-overlay {{granSpotActive ? 'active' : ''}}" style="--spotlight-x: {{granSpotX}}; --spotlight-y: {{granSpotY}};"></view>
-          <view class="option-content">
-            <view class="option-title">2小时</view>
-            <view class="option-desc">推荐</view>
-          </view>
-        </view>
-        <view
-          class="granularity-option {{granularity === 'halfDay' ? 'active' : ''}} spotlight-card glass-card"
-          bindtap="selectGranularity"
-          data-value="halfDay"
-          bindtouchmove="onOptionSpotlight"
-          bindtouchend="onOptionSpotlightEnd"
-        >
-          <view class="spotlight-overlay {{granSpotActive ? 'active' : ''}}" style="--spotlight-x: {{granSpotX}}; --spotlight-y: {{granSpotY}};"></view>
-          <view class="option-content">
-            <view class="option-title">半天</view>
-            <view class="option-desc">快速选择</view>
-          </view>
-        </view>
-      </view>
-    </view>
-
-    <!-- 过期时间 -->
-    <view class="form-section glass-form-section">
-      <view class="form-label">
-        <text class="label-text">过期时间</text>
-      </view>
-      <view class="expire-options">
-        <view
-          class="expire-option {{expireType === '24h' ? 'active' : ''}} spotlight-card glass-card"
-          bindtap="selectExpire"
-          data-value="24h"
-          bindtouchmove="onOptionSpotlight"
-          bindtouchend="onOptionSpotlightEnd"
-        >
-          <view class="spotlight-overlay {{granSpotActive ? 'active' : ''}}" style="--spotlight-x: {{granSpotX}}; --spotlight-y: {{granSpotY}};"></view>
-          <view class="option-content">24小时</view>
-        </view>
-        <view
-          class="expire-option {{expireType === '3days' ? 'active' : ''}} spotlight-card glass-card"
-          bindtap="selectExpire"
-          data-value="3days"
-          bindtouchmove="onOptionSpotlight"
-          bindtouchend="onOptionSpotlightEnd"
-        >
-          <view class="spotlight-overlay {{granSpotActive ? 'active' : ''}}" style="--spotlight-x: {{granSpotX}}; --spotlight-y: {{granSpotY}};"></view>
-          <view class="option-content">3天</view>
-        </view>
-        <view
-          class="expire-option {{expireType === '7days' ? 'active' : ''}} spotlight-card glass-card"
-          bindtap="selectExpire"
-          data-value="7days"
-          bindtouchmove="onOptionSpotlight"
-          bindtouchend="onOptionSpotlightEnd"
-        >
-          <view class="spotlight-overlay {{granSpotActive ? 'active' : ''}}" style="--spotlight-x: {{granSpotX}}; --spotlight-y: {{granSpotY}};"></view>
-          <view class="option-content">7天</view>
-        </view>
-        <view
-          class="expire-option {{expireType === 'never' ? 'active' : ''}} spotlight-card glass-card"
-          bindtap="selectExpire"
-          data-value="never"
-          bindtouchmove="onOptionSpotlight"
-          bindtouchend="onOptionSpotlightEnd"
-        >
-          <view class="spotlight-overlay {{granSpotActive ? 'active' : ''}}" style="--spotlight-x: {{granSpotX}}; --spotlight-y: {{granSpotY}};"></view>
-          <view class="option-content">永久</view>
-        </view>
-      </view>
-    </view>
-
-    <!-- 备注 -->
-    <view class="form-section glass-form-section">
-      <view class="form-label">
-        <text class="label-text">备注说明</text>
-        <text class="label-optional">（可选）</text>
-      </view>
-      <textarea
-        class="form-textarea"
-        name="note"
-        placeholder="添加一些说明，比如活动地点、注意事项等..."
-        value="{{note}}"
-        bindinput="onNoteInput"
-        maxlength="200"
-      />
-      <view class="form-hint">{{note.length || 0}}/200</view>
-    </view>
-
-    <!-- 提交按钮 -->
-    <view class="form-actions">
-      <view class="border-beam submit-beam">
-        <view class="beam-content">
-          <button class="submit-btn glass-submit {{canSubmit ? '' : 'disabled'}}" form-type="submit" disabled="{{!canSubmit || submitting}}">
-            {{submitting ? '创建中...' : '创建聚会'}}
-          </button>
-        </view>
-      </view>
-    </view>
-  </form>
 </view>

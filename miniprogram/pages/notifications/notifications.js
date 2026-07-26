@@ -4,22 +4,32 @@ const STORAGE_KEY = 'notification_history'
 // 通知类型配置
 const TYPE_CONFIG = {
   new_participant: {
-    icon: '👤',
+    label: '参与',
     title: '新参与通知',
     desc: (data) => `${data.participantName || '有人'}参与了你的聚会「${data.eventName || '聚会'}」`
   },
+  vote_submitted: {
+    label: '投票',
+    title: '时间已提交',
+    desc: (data) => `你已提交「${data.eventName || '聚会'}」的可用时间`
+  },
   expiring_soon: {
-    icon: '⏰',
+    label: '到期',
     title: '即将过期',
     desc: (data) => `你的聚会「${data.eventName || '聚会'}」${data.expireTime || '即将过期'}`
   },
   result_ready: {
-    icon: '🎉',
+    label: '结果',
     title: '时间已确定',
     desc: (data) => `聚会「${data.eventName || '聚会'}」的最佳时间：${data.bestTime || '查看详情'}`
   },
+  result_notified: {
+    label: '发送',
+    title: '结果通知已处理',
+    desc: (data) => `「${data.eventName || '聚会'}」通知成功 ${data.successCount || 0} 人，失败 ${data.failCount || 0} 人`
+  },
   subscribe_success: {
-    icon: '✅',
+    label: '系统',
     title: '订阅成功',
     desc: (data) => `已开启「${data.name || '通知'}」提醒`
   }
@@ -42,6 +52,7 @@ Page({
       // 格式化时间显示
       const now = Date.now()
       notifications.forEach(n => {
+        n.label = n.label || TYPE_CONFIG[n.type]?.label || '通知'
         n.timeText = this.formatTime(n.timestamp, now)
       })
       this.setData({ notifications })
@@ -52,11 +63,11 @@ Page({
 
   // 添加通知记录（供其他页面调用）
   addNotification(type, data = {}) {
-    const config = TYPE_CONFIG[type] || { icon: '📢', title: '通知', desc: () => '' }
+    const config = TYPE_CONFIG[type] || { label: '通知', title: '通知', desc: () => '' }
     const notification = {
       id: `${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
       type,
-      icon: config.icon,
+      label: config.label,
       title: config.title,
       description: config.desc(data),
       data,
@@ -107,7 +118,7 @@ Page({
       title: '确认清空',
       content: '确定要清空所有通知记录吗？',
       confirmText: '清空',
-      confirmColor: '#e94560'
+      confirmColor: '#ff7668'
     })
 
     if (!res.confirm) return

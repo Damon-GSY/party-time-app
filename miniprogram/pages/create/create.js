@@ -1,6 +1,5 @@
 const util = require('../../utils/util')
 const notificationUtil = require('../../utils/notification')
-const { initSpotlight } = require('../../utils/ui-effects')
 
 Page({
   data: {
@@ -14,31 +13,22 @@ Page({
     note: '',
     canSubmit: false,
     submitting: false,
-    createdEventId: '', // 存储创建成功的活动ID，用于分享
-    showForm: false,    // 控制入场动画
-    focusedField: '',    // 当前聚焦的输入字段
-    granSpotX: '50%',
-    granSpotY: '50%',
-    granSpotActive: false,
+    createdEventId: '',
+    focusedField: '',
+    formError: ''
   },
 
   onLoad() {
     // 设置今天的日期
     const today = util.formatDate(new Date())
 
-    // 下一帧触发入场动画，确保 DOM 已渲染
-    this.setData({ today }, () => {
-      setTimeout(() => {
-        this.setData({ showForm: true })
-      }, 50)
-    })
+    this.setData({ today })
   },
 
   // 输入聚会名称
   onNameInput(e) {
     const name = e.detail.value
-    this.setData({ name })
-    this.checkCanSubmit()
+    this.setData({ name }, () => this.checkCanSubmit())
   },
 
   // 选择开始日期
@@ -51,33 +41,13 @@ Page({
       endDate = startDate
     }
 
-    this.setData({ startDate, endDate })
-    this.calculateDateCount()
-    this.checkCanSubmit()
+    this.setData({ startDate, endDate }, () => this.checkCanSubmit())
   },
 
   // 选择结束日期
   onEndDateChange(e) {
     const endDate = e.detail.value
-    this.setData({ endDate })
-    this.calculateDateCount()
-    this.checkCanSubmit()
-  },
-
-  // 计算日期天数
-  calculateDateCount() {
-    const { startDate, endDate } = this.data
-    if (!startDate || !endDate) {
-      this.setData({ dateCount: 0 })
-      return
-    }
-
-    const start = new Date(startDate)
-    const end = new Date(endDate)
-    const diff = end - start
-    const days = Math.floor(diff / (24 * 60 * 60 * 1000)) + 1
-
-    this.setData({ dateCount: days })
+    this.setData({ endDate }, () => this.checkCanSubmit())
   },
 
   // 选择时段粒度
@@ -109,27 +79,19 @@ Page({
     this.setData({ focusedField: '' })
   },
 
-  // Spotlight 选项卡片追光
-  onOptionSpotlight(e) {
-    const touch = e.touches[0]
-    const query = this.createSelectorQuery()
-    query.select('.spotlight-card').boundingClientRect(rect => {
-      if (!rect) return
-      const x = ((touch.clientX - rect.left) / rect.width * 100).toFixed(1)
-      const y = ((touch.clientY - rect.top) / rect.height * 100).toFixed(1)
-      this.setData({ granSpotX: x + '%', granSpotY: y + '%', granSpotActive: true })
-    }).exec()
-  },
-
-  onOptionSpotlightEnd() {
-    this.setData({ granSpotActive: false })
-  },
-
   // 检查是否可以提交
   checkCanSubmit() {
     const { name, startDate, endDate } = this.data
-    const canSubmit = name.trim() && startDate && endDate
-    this.setData({ canSubmit })
+    const startTimestamp = startDate ? Date.parse(`${startDate}T00:00:00Z`) : NaN
+    const endTimestamp = endDate ? Date.parse(`${endDate}T00:00:00Z`) : NaN
+    const dateCount = Number.isFinite(startTimestamp) && Number.isFinite(endTimestamp)
+      ? Math.floor((endTimestamp - startTimestamp) / 86400000) + 1
+      : 0
+    let formError = ''
+    if (startDate && endDate && endDate < startDate) formError = '结束日期不能早于开始日期'
+    else if (dateCount > 31) formError = '日期范围最多 31 天'
+    const canSubmit = Boolean(name.trim() && startDate && endDate && !formError)
+    this.setData({ dateCount, canSubmit, formError })
   },
 
   // 提交表单

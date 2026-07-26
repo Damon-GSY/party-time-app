@@ -15,8 +15,41 @@ const EXPIRE_WINDOW_HOURS = 24
 
 // 每次检查最大处理数量（防止超时）
 const MAX_EVENTS_PER_RUN = 50
+const TEMPLATE_EXPIRING_SOON = 'your_template_id_expiring_soon'
+
+function truncate(value, maxLength) {
+  const text = String(value || '')
+  return text.length > maxLength ? text.slice(0, maxLength) : text
+}
+
+async function sendExpiringNotification({ eventId, creatorOpenId, eventName, expireTime }) {
+  if (TEMPLATE_EXPIRING_SOON.startsWith('your_template_id')) return false
+  const result = await cloud.openapi.subscribeMessage.send({
+    touser: creatorOpenId,
+    templateId: TEMPLATE_EXPIRING_SOON,
+    page: `/pages/result/result?id=${eventId}`,
+    data: {
+      thing1: { value: truncate(eventName || '聚会', 20) },
+      time2: { value: truncate(expireTime || '即将过期', 20) }
+    }
+  })
+  await db.collection('notification_logs').add({
+    data: {
+      eventId,
+      type: 'expiring_soon',
+      toOpenId: creatorOpenId,
+      status: result.errcode === 0 ? 'sent' : (result.errcode === 43101 ? 'not_subscribed' : 'failed'),
+      content: { eventName, expireTime },
+      createdAt: db.serverDate()
+    }
+  })
+  return result.errcode === 0
+}
 
 exports.main = async (event, context) => {
+  if (cloud.getWXContext().OPENID) {
+    return { checked: 0, notified: 0, errors: 1, error: '仅允许定时任务调用' }
+  }
   console.log('[checkExpiring] 开始检查即将过期的活动')
 
   const now = new Date()
@@ -27,12 +60,11 @@ exports.main = async (event, context) => {
   let errorCount = 0
 
   try {
-    // 查询所有将在 24 小时内过期、且创建者已订阅的活动
+    // 查询所有将在 24 小时内过期的活动。未订阅用户由微信接口安全拒绝。
     // 使用 createdAt 排序确保分页一致性
     const eventsRes = await db.collection('events')
       .where({
-        expireAt: _.gte(now.toISOString()).and(_.lte(windowEnd.toISOString())),
-        'notifications.creatorSubscribed': true
+        expireAt: _.gte(now.toISOString()).and(_.lte(windowEnd.toISOString()))
       })
       .orderBy('expireAt', 'asc')
       .limit(MAX_EVENTS_PER_RUN)
@@ -82,28 +114,18 @@ exports.main = async (event, context) => {
           expireTimeText = `${Math.floor(diffHours / 24)}天`
         }
 
-        // 调用 sendNotification 云函数
-        const sendResult = await cloud.callFunction({
-          name: 'sendNotification',
-          data: {
-            type: 'expiring_soon',
-            eventId,
-            toOpenId: creatorOpenId,
-            data: {
-              eventName,
-              expireTime: `${expireTimeText}后过期`
-            }
-          }
+        const sent = await sendExpiringNotification({
+          eventId,
+          creatorOpenId,
+          eventName,
+          expireTime: `${expireTimeText}后过期`
         })
 
-        if (sendResult.result && sendResult.result.success) {
+        if (sent) {
           notifiedCount++
           console.log(`[checkExpiring] 已通知创建者 ${creatorOpenId}，活动：${eventName}`)
         } else {
-          console.warn(`[checkExpiring] 通知发送失败`, {
-            eventId,
-            error: sendResult.result?.error
-          })
+          console.warn('[checkExpiring] 通知未送达', { eventId })
         }
       } catch (err) {
         errorCount++

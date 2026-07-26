@@ -9,9 +9,6 @@ Page({
     stats: { createdCount: 0, joinedCount: 0 },
     displayCreatedCount: 0,
     displayJoinedCount: 0,
-    menuSpotX: '50%',
-    menuSpotY: '50%',
-    menuSpotActive: false,
     showOpenId: false,
     openIdText: '',
     showAboutModal: false
@@ -96,7 +93,7 @@ Page({
 
   // 通知设置（预留）
   goToNotification() {
-    wx.showToast({ title: '功能开发中', icon: 'none' })
+    wx.switchTab({ url: '/pages/notifications/notifications' })
   },
 
   // 显示关于弹窗
@@ -111,22 +108,6 @@ Page({
 
   // 阻止滚动穿透
   preventMove() {},
-
-  // Spotlight 菜单追光效果
-  onMenuSpotlight(e) {
-    const touch = e.touches[0]
-    const query = this.createSelectorQuery()
-    query.select('.menu-item.spotlight-card').boundingClientRect(rect => {
-      if (!rect) return
-      const x = ((touch.clientX - rect.left) / rect.width * 100).toFixed(1)
-      const y = ((touch.clientY - rect.top) / rect.height * 100).toFixed(1)
-      this.setData({ menuSpotX: x + '%', menuSpotY: y + '%', menuSpotActive: true })
-    }).exec()
-  },
-
-  onMenuSpotlightEnd() {
-    this.setData({ menuSpotActive: false })
-  },
 
   // 分享
   onShareAppMessage() {

@@ -1,4 +1,4 @@
-// 云函数 - 获取用户的活动列表
+// 云函数 - 获取用户创建或参与的活动列表
 const cloud = require('wx-server-sdk')
 
 cloud.init({
@@ -7,74 +7,105 @@ cloud.init({
 
 const db = cloud.database()
 const _ = db.command
+const QUERY_PAGE_SIZE = 100
 
-exports.main = async (event, context) => {
+function normalizePagination(event = {}) {
+  const rawLimit = Number(event.limit)
+  const rawSkip = Number(event.skip)
+  return {
+    limit: Number.isInteger(rawLimit) ? Math.min(Math.max(rawLimit, 1), 50) : 20,
+    skip: Number.isInteger(rawSkip) ? Math.max(rawSkip, 0) : 0
+  }
+}
+
+function eventTimestamp(value) {
+  const timestamp = new Date(value || 0).getTime()
+  return Number.isNaN(timestamp) ? 0 : timestamp
+}
+
+function mergeEvents(createdEvents, joinedEvents, openid) {
+  const eventMap = new Map()
+  for (const event of [...createdEvents, ...joinedEvents]) {
+    if (!event || !event._id) continue
+    const owned = event.createdBy === openid || event._openid === openid
+    const next = { ...event, type: owned ? 'created' : 'joined' }
+    const current = eventMap.get(event._id)
+    if (!current || next.type === 'created') eventMap.set(event._id, next)
+  }
+  return [...eventMap.values()].sort((a, b) => eventTimestamp(b.createdAt) - eventTimestamp(a.createdAt))
+}
+
+function toListEvent(event, participantCount) {
+  return {
+    _id: event._id,
+    name: event.name,
+    startDate: event.startDate,
+    endDate: event.endDate,
+    granularity: event.granularity,
+    expireType: event.expireType,
+    expireAt: event.expireAt || null,
+    note: event.note || '',
+    createdAt: event.createdAt,
+    type: event.type,
+    participantCount
+  }
+}
+
+async function fetchAll(collectionName, where, fields) {
+  const rows = []
+  let skip = 0
+  while (true) {
+    let query = db.collection(collectionName).where(where).skip(skip).limit(QUERY_PAGE_SIZE)
+    if (fields) query = query.field(fields)
+    const result = await query.get()
+    const page = result.data || []
+    rows.push(...page)
+    if (page.length < QUERY_PAGE_SIZE) break
+    skip += page.length
+  }
+  return rows
+}
+
+exports.main = async (event = {}) => {
   const openid = cloud.getWXContext().OPENID
-  const { limit = 20, skip = 0 } = event
+  if (!openid) return { success: false, error: '无法识别当前用户' }
+  const { limit, skip } = normalizePagination(event)
 
   try {
-    // 获取用户创建的活动
-    const createdRes = await db.collection('events')
-      .where({
-        createdBy: openid
-      })
-      .orderBy('createdAt', 'desc')
-      .skip(skip)
-      .limit(Math.min(limit, 50))
-      .get()
+    const [createdByRows, legacyOpenIdRows, responses] = await Promise.all([
+      fetchAll('events', { createdBy: openid }),
+      fetchAll('events', { _openid: openid }),
+      fetchAll('responses', { _openid: openid }, { eventId: true })
+    ])
 
-    // 获取用户参与的活动ID
-    const responsesRes = await db.collection('responses')
-      .where({
-        _openid: openid
-      })
-      .field({ eventId: true })
-      .get()
-
-    const joinedEventIds = [...new Set(responsesRes.data.map(r => r.eventId))]
-
+    const joinedEventIds = [...new Set(responses.map(item => item.eventId).filter(Boolean))]
     let joinedEvents = []
-    if (joinedEventIds.length > 0) {
-      // 批量获取参与的活动
-      const MAX_BATCH = 10 // 云开发 where in 限制
-      for (let i = 0; i < joinedEventIds.length; i += MAX_BATCH) {
-        const batchIds = joinedEventIds.slice(i, i + MAX_BATCH)
-        const joinedRes = await db.collection('events')
-          .where({
-            _id: _.in(batchIds)
-          })
-          .get()
-        joinedEvents = joinedEvents.concat(joinedRes.data)
-      }
+    for (let index = 0; index < joinedEventIds.length; index += 10) {
+      const batchIds = joinedEventIds.slice(index, index + 10)
+      const result = await db.collection('events').where({ _id: _.in(batchIds) }).get()
+      joinedEvents.push(...(result.data || []))
     }
 
-    // 合并并标记类型
-    const allEvents = [
-      ...createdRes.data.map(e => ({ ...e, type: 'created' })),
-      ...joinedEvents.map(e => ({ ...e, type: 'joined' }))
-    ]
-
-    // 去重（如果同时是创建者和参与者）
-    const eventMap = new Map()
-    allEvents.forEach(e => {
-      if (!eventMap.has(e._id) || e.type === 'created') {
-        eventMap.set(e._id, e)
-      }
-    })
-
-    // 按创建时间排序
-    const events = Array.from(eventMap.values())
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    const merged = mergeEvents([...createdByRows, ...legacyOpenIdRows], joinedEvents, openid)
+    const page = merged.slice(skip, skip + limit)
+    const events = await Promise.all(page.map(async item => {
+      const countResult = await db.collection('responses').where({ eventId: item._id }).count()
+      return toListEvent(item, countResult.total || 0)
+    }))
 
     return {
       success: true,
-      data: events
+      data: events,
+      pagination: { limit, skip, total: merged.length, hasMore: skip + events.length < merged.length }
     }
   } catch (err) {
     console.error('获取活动列表失败', err)
-    return {
-      success: false,
-      error: err.message
-    }
+    return { success: false, error: err.message || '获取活动列表失败' }
   }
+}
+
+exports._test = {
+  normalizePagination,
+  mergeEvents,
+  toListEvent
 }

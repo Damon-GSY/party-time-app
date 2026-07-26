@@ -1,393 +1,277 @@
 const util = require('../../utils/util')
 const user = require('../../utils/user')
-const notificationUtil = require('../../utils/notification')
-const { textGenerate, initSpotlight } = require('../../utils/ui-effects')
 const app = getApp()
 
 Page({
   data: {
     events: [],
+    pendingEvents: [],
+    recentEvents: [],
     loading: false,
+    loadError: false,
     initialized: false,
-    guideExpanded: true, // 使用说明默认展开
+    currentMonth: '',
+    calendarDays: [],
     swipeStartX: 0,
     swipeStartY: 0,
-    activeSwipeId: null, // 当前滑开的卡片ID
-    cardPulse: false, // 卡片脉冲动画状态
-    cardPressedId: null, // 当前按下的卡片ID
-    userAvatar: '', // 用户头像
-    unreadCount: 0, // 未读通知数
-    titleChars: [],
-    spotlightX: '50%',
-    spotlightY: '50%',
-    spotlightActive: false
+    activeSwipeId: null,
+    cardPressedId: null,
+    userAvatar: ''
   },
 
   onLoad() {
-    // onLoad 时加载一次
-    this.setData({ titleChars: textGenerate('聚会时间') })
+    this.initCalendar()
     this.loadUserAvatar()
     this.loadEvents()
   },
 
   onShow() {
-    // onShow 时只在已初始化的情况下刷新（从其他页面返回时）
     this.loadUserAvatar()
-    if (this.data.initialized) {
-      this.loadEvents()
-    }
-    // 重置滑动状态
+    if (this.data.initialized) this.loadEvents()
     this.closeAllSwipe()
   },
 
-  // 加载用户头像
+  initCalendar() {
+    const today = new Date()
+    const mondayOffset = (today.getDay() + 6) % 7
+    const monday = new Date(today)
+    monday.setDate(today.getDate() - mondayOffset)
+    const weekNames = ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+    const calendarDays = weekNames.map((weekday, index) => {
+      const date = new Date(monday)
+      date.setDate(monday.getDate() + index)
+      return {
+        weekday,
+        day: date.getDate(),
+        current: util.formatDate(date) === util.formatDate(today)
+      }
+    })
+
+    this.setData({ currentMonth: `${today.getMonth() + 1}月`, calendarDays })
+  },
+
   loadUserAvatar() {
     const info = app.globalData.userInfo || user.getUserInfo()
     this.setData({ userAvatar: info.avatarUrl || '' })
   },
 
-  // 跳转到个人资料页
-  goToProfile() {
-    wx.navigateTo({
-      url: '/pages/profile/profile'
-    })
-  },
-
   onPullDownRefresh() {
     this.closeAllSwipe()
-    this.loadEvents().then(() => {
-      wx.stopPullDownRefresh()
-    })
+    this.loadEvents().finally(() => wx.stopPullDownRefresh())
   },
 
-  // 加载聚会列表
   async loadEvents() {
-    this.setData({ loading: true })
+    this.setData({ loading: true, loadError: false })
 
     try {
-      const db = wx.cloud.database()
-
-      // 获取我创建的聚会
-      const createdRes = await db.collection('events')
-        .where({
-          _openid: '{openid}' // 云开发会自动替换
-        })
-        .orderBy('createdAt', 'desc')
-        .limit(20)
-        .get()
-
-      // 获取我参与的聚会
-      const responsesRes = await db.collection('responses')
-        .where({
-          _openid: '{openid}'
-        })
-        .field({ eventId: true })
-        .get()
-
-      const joinedEventIds = [...new Set(responsesRes.data.map(r => r.eventId))]
-
-      let joinedEvents = []
-      if (joinedEventIds.length > 0) {
-        // 批量获取参与的聚会
-        const joinedRes = await db.collection('events')
-          .where({
-            _id: db.command.in(joinedEventIds)
-          })
-          .get()
-        joinedEvents = joinedRes.data
+      if (!wx.cloud) throw new Error('cloud unavailable')
+      const response = await wx.cloud.callFunction({
+        name: 'getMyEvents',
+        data: { limit: 20 }
+      })
+      if (!response.result?.success) {
+        throw new Error(response.result?.error || '活动加载失败')
       }
 
-      // 合并并标记类型
-      const allEvents = [
-        ...createdRes.data.map(e => ({ ...e, type: 'created', translateX: 0 })),
-        ...joinedEvents.map(e => ({ ...e, type: 'joined', translateX: 0 }))
-      ]
-
-      // 去重（如果同时是创建者和参与者）
-      const eventMap = new Map()
-      allEvents.forEach(e => {
-        if (!eventMap.has(e._id) || e.type === 'created') {
-          eventMap.set(e._id, e)
-        }
-      })
-
-      // 处理数据
-      const processedEvents = Array.from(eventMap.values()).map(event => {
+      const events = (response.result.data || []).map(event => {
         const startDate = util.formatDateShort(event.startDate)
         const endDate = util.formatDateShort(event.endDate)
-        const dateRangeText = startDate === endDate ? startDate : `${startDate} ~ ${endDate}`
-
+        const date = new Date(event.startDate)
         return {
           ...event,
-          dateRangeText,
+          startMonth: date.getMonth() + 1,
+          startDay: date.getDate(),
+          dateRangeText: startDate === endDate ? startDate : `${startDate} ~ ${endDate}`,
           expireText: util.formatExpireTime(event.expireAt),
-          expired: util.isExpired(event.expireAt)
+          expired: util.isExpired(event.expireAt),
+          translateX: 0
         }
-      })
+      }).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
 
-      // 按创建时间排序
-      processedEvents.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      const pendingEvents = events.filter(event => event.type === 'joined' && !event.expired)
+      const pendingIds = new Set(pendingEvents.map(event => event._id))
+      const recentEvents = events.filter(event => !pendingIds.has(event._id))
 
       this.setData({
-        events: processedEvents,
+        events,
+        pendingEvents,
+        recentEvents,
         loading: false,
         initialized: true
       })
     } catch (err) {
-      // 加载失败，使用模拟数据
-      this.setData({ loading: false })
-
-      // 开发环境使用模拟数据
       if (!wx.cloud) {
+        const today = new Date()
+        const demo = {
+          _id: 'demo1',
+          name: '周末聚餐',
+          startMonth: today.getMonth() + 1,
+          startDay: today.getDate(),
+          dateRangeText: util.formatDateShort(today),
+          expireText: '5天后过期',
+          expired: false,
+          participantCount: 3,
+          type: 'joined',
+          createdAt: today.toISOString(),
+          translateX: 0
+        }
         this.setData({
-          events: [
-            {
-              _id: 'demo1',
-              name: '周末聚餐',
-              startDate: '2024-03-23',
-              endDate: '2024-03-24',
-              dateRangeText: '3月23日 周六 ~ 3月24日 周日',
-              expireText: '5天后过期',
-              expired: false,
-              participantCount: 5,
-              type: 'created',
-              createdAt: new Date().toISOString(),
-              translateX: 0
-            }
-          ]
+          events: [demo],
+          pendingEvents: [demo],
+          recentEvents: [],
+          loading: false,
+          loadError: false,
+          initialized: true
         })
+        return
       }
+
+      console.error('[index] load events failed', err)
+      this.setData({ loading: false, loadError: true, initialized: true })
     }
   },
 
-  // 刷新
   refreshEvents() {
     this.closeAllSwipe()
-    this.loadEvents()
+    return this.loadEvents()
   },
 
-  // 跳转到创建页面
   goToCreate() {
-    wx.navigateTo({
-      url: '/pages/create/create'
-    })
+    wx.navigateTo({ url: '/pages/create/create' })
   },
 
-  // 跳转到聚会详情
+  goToProfile() {
+    wx.switchTab({ url: '/pages/profile/profile' })
+  },
+
+  goToNotifications() {
+    wx.switchTab({ url: '/pages/notifications/notifications' })
+  },
+
   goToEvent(e) {
     const { id, type } = e.currentTarget.dataset
-
-    // 如果正在滑动，不触发点击
-    const event = this.data.events.find(ev => ev._id === id)
-    if (event && event.translateX !== 0) {
+    const event = this.data.events.find(item => item._id === id)
+    if (!event) return
+    if (event.translateX !== 0) {
       this.closeSwipe(id)
       return
     }
 
-    // 触发卡片脉冲动画
-    this.setData({ cardPulse: true })
-    setTimeout(() => {
-      this.setData({ cardPulse: false })
-    }, 400)
-
-    // 延迟跳转以展示脉冲动画
-    setTimeout(() => {
-      // 如果已过期或是我创建的，跳转到结果页
-      // 否则跳转到填写页
-      const targetUrl = (event.expired || type === 'created')
-        ? `/pages/result/result?id=${id}`
-        : `/pages/vote/vote?id=${id}`
-
-      // 使用 redirectTo 防止页面栈溢出，失败时回退到 navigateTo
-      wx.redirectTo({
-        url: targetUrl,
-        fail: () => {
-          wx.navigateTo({ url: targetUrl })
-        }
-      })
-    }, 150)
+    const url = event.expired || type === 'created'
+      ? `/pages/result/result?id=${id}`
+      : `/pages/vote/vote?id=${id}`
+    wx.navigateTo({ url })
   },
 
-  // 卡片按下反馈
   onCardTouchStart(e) {
-    const { id } = e.currentTarget.dataset
-    this.setData({ cardPressedId: id })
+    this.setData({ cardPressedId: e.currentTarget.dataset.id })
   },
 
-  // 卡片触摸结束
   onCardTouchEnd() {
     this.setData({ cardPressedId: null })
   },
 
-  // 折叠/展开使用说明
-  toggleGuide() {
-    this.setData({
-      guideExpanded: !this.data.guideExpanded
-    })
-  },
-
-  // 左滑开始
   onSwipeStart(e) {
     const { clientX, clientY } = e.touches[0]
-    this.setData({
-      swipeStartX: clientX,
-      swipeStartY: clientY
-    })
+    this.setData({ swipeStartX: clientX, swipeStartY: clientY })
   },
 
-  // 左滑结束
   onSwipeEnd(e) {
     const { id, type } = e.currentTarget.dataset
-    const { swipeStartX, swipeStartY, activeSwipeId } = this.data
+    if (type !== 'created') return
     const { clientX, clientY } = e.changedTouches[0]
-
-    // 计算滑动距离
-    const deltaX = clientX - swipeStartX
-    const deltaY = clientY - swipeStartY
-
-    // 如果垂直滑动大于水平滑动，忽略（滚动手势）
-    if (Math.abs(deltaY) > Math.abs(deltaX)) {
-      return
-    }
-
-    // 只有创建者创建的聚会才能删除
-    if (type !== 'created') {
-      return
-    }
-
-    // 左滑超过 60rpx 显示删除按钮
-    if (deltaX < -60) {
-      this.openSwipe(id)
-    } else if (deltaX > 30) {
-      // 右滑关闭
-      this.closeSwipe(id)
-    } else if (activeSwipeId && activeSwipeId !== id) {
-      // 点击其他卡片时关闭已打开的
-      this.closeAllSwipe()
-    }
+    const deltaX = clientX - this.data.swipeStartX
+    const deltaY = clientY - this.data.swipeStartY
+    if (Math.abs(deltaY) > Math.abs(deltaX)) return
+    if (deltaX < -60) this.openSwipe(id)
+    else if (deltaX > 30) this.closeSwipe(id)
   },
 
-  // 打开滑动
   openSwipe(id) {
-    const events = this.data.events.map(e => {
-      if (e._id === id) {
-        return { ...e, translateX: -140 }
-      }
-      return { ...e, translateX: 0 }
+    const translate = event => ({
+      ...event,
+      translateX: event._id === id ? -140 : 0
     })
-    this.setData({ events, activeSwipeId: id })
+    this.setData({
+      events: this.data.events.map(translate),
+      pendingEvents: this.data.pendingEvents.map(translate),
+      recentEvents: this.data.recentEvents.map(translate),
+      activeSwipeId: id
+    })
   },
 
-  // 关闭滑动
   closeSwipe(id) {
-    const events = this.data.events.map(e => {
-      if (e._id === id) {
-        return { ...e, translateX: 0 }
-      }
-      return e
+    const translate = event => event._id === id
+      ? { ...event, translateX: 0 }
+      : event
+    this.setData({
+      events: this.data.events.map(translate),
+      pendingEvents: this.data.pendingEvents.map(translate),
+      recentEvents: this.data.recentEvents.map(translate),
+      activeSwipeId: null
     })
-    this.setData({ events, activeSwipeId: null })
   },
 
-  // 关闭所有滑动
   closeAllSwipe() {
-    const events = this.data.events.map(e => ({ ...e, translateX: 0 }))
-    this.setData({ events, activeSwipeId: null })
+    const translate = event => ({ ...event, translateX: 0 })
+    this.setData({
+      events: this.data.events.map(translate),
+      pendingEvents: this.data.pendingEvents.map(translate),
+      recentEvents: this.data.recentEvents.map(translate),
+      activeSwipeId: null
+    })
   },
 
-  // 删除聚会
   async deleteEvent(e) {
     const { id } = e.currentTarget.dataset
-
-    const res = await wx.showModal({
-      title: '确认删除',
-      content: '删除后无法恢复，确定要删除这个聚会吗？',
+    const modal = await wx.showModal({
+      title: '删除聚会？',
+      content: '删除后无法恢复。',
       confirmText: '删除',
-      confirmColor: '#ef4444'
+      confirmColor: '#ff7668'
     })
-
-    if (!res.confirm) {
+    if (!modal.confirm) {
       this.closeSwipe(id)
       return
     }
 
     try {
-      wx.showLoading({ title: '删除中...' })
-
-      if (wx.cloud) {
-        const db = wx.cloud.database()
-        // 删除活动
-        await db.collection('events').doc(id).remove()
-        // 删除所有响应
-        await db.collection('responses').where({
-          eventId: id
-        }).remove()
-      }
-
-      wx.hideLoading()
-      wx.showToast({
-        title: '已删除',
-        icon: 'success'
+      wx.showLoading({ title: '删除中' })
+      const response = await wx.cloud.callFunction({
+        name: 'deleteEvent',
+        data: { eventId: id }
       })
-
-      // 从列表中移除
-      const events = this.data.events.filter(e => e._id !== id)
-      this.setData({ events, activeSwipeId: null })
-
+      if (!response.result?.success) throw new Error(response.result?.error || '删除失败')
+      const events = this.data.events.filter(event => event._id !== id)
+      const pendingEvents = this.data.pendingEvents.filter(event => event._id !== id)
+      const recentEvents = this.data.recentEvents.filter(event => event._id !== id)
+      this.setData({ events, pendingEvents, recentEvents, activeSwipeId: null })
+      wx.showToast({ title: '已删除', icon: 'success' })
     } catch (err) {
-      wx.hideLoading()
-      wx.showToast({
-        title: '删除失败',
-        icon: 'none'
-      })
+      wx.showToast({ title: err.message || '删除失败', icon: 'none' })
       this.closeSwipe(id)
+    } finally {
+      wx.hideLoading()
     }
   },
 
-  // 长按卡片菜单
   onCardLongPress(e) {
     const { id, type } = e.currentTarget.dataset
-    const itemList = ['复制链接', '生成海报']
+    const itemList = ['复制邀请路径', '生成海报']
     if (type === 'created') itemList.push('删除')
-
     wx.showActionSheet({
       itemList,
-      success: (res) => {
-        switch(res.tapIndex) {
-          case 0: // 复制链接
-            wx.setClipboardData({ data: `pages/vote/vote?id=${id}` })
-            break
-          case 1: // 生成海报
-            wx.navigateTo({ url: `/pages/poster/poster?id=${id}` })
-            break
-          case 2: // 删除
-            this.deleteEvent({ currentTarget: { dataset: { id } } })
-            break
-        }
+      success: ({ tapIndex }) => {
+        if (tapIndex === 0) wx.setClipboardData({ data: `pages/vote/vote?id=${id}` })
+        if (tapIndex === 1) wx.navigateTo({ url: `/pages/poster/poster?id=${id}` })
+        if (tapIndex === 2) this.deleteEvent({ currentTarget: { dataset: { id } } })
       }
     })
   },
 
-  // Spotlight 追光
-  onSpotlightMove(e) {
-    const query = this.createSelectorQuery()
-    query.select('.event-card.spotlight-card').boundingClientRect(rect => {
-      if (!rect) return
-      const touch = e.touches[0]
-      const x = ((touch.clientX - rect.left) / rect.width * 100).toFixed(1)
-      const y = ((touch.clientY - rect.top) / rect.height * 100).toFixed(1)
-      this.setData({ spotlightX: x + '%', spotlightY: y + '%', spotlightActive: true })
-    }).exec()
-  },
-
-  onSpotlightEnd() {
-    this.setData({ spotlightActive: false })
-  },
-
-  // 分享
   onShareAppMessage() {
     return {
-      title: '聚会时间 - 轻松找到大家都有空的时间',
+      title: '聚会时间 — 找到大家都有空的时刻',
       path: '/pages/index/index'
     }
   }

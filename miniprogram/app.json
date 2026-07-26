@@ -11,10 +11,30 @@
   ],
   "window": {
     "backgroundTextStyle": "dark",
-    "navigationBarBackgroundColor": "#1a1a2e",
+    "navigationBarBackgroundColor": "#151311",
     "navigationBarTitleText": "聚会时间",
     "navigationBarTextStyle": "white",
-    "backgroundColor": "#16213e"
+    "backgroundColor": "#151311"
+  },
+  "tabBar": {
+    "color": "#8a837d",
+    "selectedColor": "#ff7668",
+    "backgroundColor": "#151311",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "聚会"
+      },
+      {
+        "pagePath": "pages/notifications/notifications",
+        "text": "消息"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "text": "我的"
+      }
+    ]
   },
   "cloud": true,
   "style": "v2",

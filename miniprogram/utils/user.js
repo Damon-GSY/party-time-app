@@ -10,8 +10,13 @@ const STORAGE_KEY = 'userInfo'
 const getUserInfo = () => {
   try {
     const info = wx.getStorageSync(STORAGE_KEY)
-    if (info && info.nickName) {
-      return info
+    if (info && typeof info === 'object') {
+      return {
+        nickName: '',
+        avatarUrl: '',
+        customNickname: '',
+        ...info
+      }
     }
   } catch (e) {
     // ignore
@@ -65,37 +70,15 @@ const getUserStats = async () => {
   }
 
   try {
-    const db = wx.cloud.database()
-
-    // 查询创建的聚会数量
-    const createdRes = await db.collection('events')
-      .where({ _openid: '{openid}' })
-      .count()
-
-    // 查询参与的聚会数量
-    const responsesRes = await db.collection('responses')
-      .where({ _openid: '{openid}' })
-      .field({ eventId: true })
-      .get()
-
-    // 去重
-    const joinedEventIds = [...new Set(responsesRes.data.map(r => r.eventId))]
-    // 减去自己创建的（避免重复计数）
-    let joinedOnly = joinedEventIds.length
-    if (createdRes.total > 0 && joinedEventIds.length > 0) {
-      const createdIds = (await db.collection('events')
-        .where({
-          _openid: '{openid}',
-          _id: db.command.in(joinedEventIds)
-        })
-        .field({ _id: true })
-        .get()).data.map(e => e._id)
-      joinedOnly = joinedEventIds.length - createdIds.length
-    }
-
+    const response = await wx.cloud.callFunction({
+      name: 'getMyEvents',
+      data: { limit: 50 }
+    })
+    if (!response.result?.success) throw new Error(response.result?.error || '统计加载失败')
+    const events = response.result.data || []
     return {
-      createdCount: createdRes.total,
-      joinedCount: joinedOnly
+      createdCount: events.filter(event => event.type === 'created').length,
+      joinedCount: events.filter(event => event.type === 'joined').length
     }
   } catch (e) {
     console.error('getUserStats failed:', e)

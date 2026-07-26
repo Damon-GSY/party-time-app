@@ -25,29 +25,48 @@ const formatDateShort = (date) => {
   return `${month}月${day}日 ${weekDay}`
 }
 
+const SLOT_RULES = {
+  hour: { count: 24, hoursPerSlot: 1 },
+  twoHours: { count: 12, hoursPerSlot: 2 },
+  halfDay: {
+    count: 4,
+    hoursPerSlot: 6,
+    periods: ['深夜', '上午', '下午', '晚上']
+  }
+}
+
 /**
- * 格式化时间段
- * @param {number} hour - 时段索引（halfDay时为0-3，其他粒度为小时数）
+ * 返回统一的时段配置。
+ * slotId 始终保存 0 开始的 index；startHour 只负责显示，避免两小时粒度
+ * 把 index=5 错误显示成 05:00。
+ */
+const getTimeSlotConfig = (granularity = 'twoHours') => {
+  const normalized = SLOT_RULES[granularity] ? granularity : 'twoHours'
+  const rule = SLOT_RULES[normalized]
+
+  return Array.from({ length: rule.count }, (_, index) => {
+    const startHour = index * rule.hoursPerSlot
+    const endHour = startHour + rule.hoursPerSlot
+    const range = `${String(startHour).padStart(2, '0')}:00-${String(endHour).padStart(2, '0')}:00`
+    const period = rule.periods ? `${rule.periods[index]} ` : ''
+
+    return {
+      index,
+      startHour,
+      label: `${period}${range}`,
+      shortLabel: rule.periods ? rule.periods[index] : `${String(startHour).padStart(2, '0')}:00`
+    }
+  })
+}
+
+/**
+ * 格式化时间段。
+ * @param {number} slotIndex - slotId 中保存的时段索引
  * @param {string} granularity - 粒度类型
  */
-const formatTimeSlot = (hour, granularity) => {
-  switch (granularity) {
-    case 'hour':
-      return `${String(hour).padStart(2, '0')}:00-${String(hour + 1).padStart(2, '0')}:00`
-    case 'twoHours':
-      return `${String(hour).padStart(2, '0')}:00-${String(hour + 2).padStart(2, '0')}:00`
-    case 'halfDay':
-      // hour 是索引 0-3，对应4个半天时段
-      const halfDayLabels = [
-        '上午 00:00-12:00',
-        '下午 12:00-18:00',
-        '晚上 18:00-24:00',
-        '深夜 00:00-06:00'
-      ]
-      return halfDayLabels[hour] || halfDayLabels[0]
-    default:
-      return `${String(hour).padStart(2, '0')}:00-${String(hour + 1).padStart(2, '0')}:00`
-  }
+const formatTimeSlot = (slotIndex, granularity) => {
+  const slots = getTimeSlotConfig(granularity)
+  return slots[Number(slotIndex)]?.label || slots[0].label
 }
 
 /**
@@ -70,36 +89,12 @@ const generateDateRange = (startDate, endDate) => {
  * 生成时间槽（从0点开始，覆盖全天24小时）
  * 注意：halfDay 粒度使用索引 0-3，与 formatTimeSlot 保持一致
  */
-const generateTimeSlots = (granularity) => {
-  const slots = []
-
-  switch (granularity) {
-    case 'hour':
-      // 24个时段，每小时一个
-      for (let i = 0; i < 24; i++) {
-        slots.push({ hour: i, label: formatTimeSlot(i, 'hour') })
-      }
-      break
-    case 'twoHours':
-      // 12个时段，每2小时一个
-      for (let i = 0; i < 24; i += 2) {
-        slots.push({ hour: i, label: formatTimeSlot(i, 'twoHours') })
-      }
-      break
-    case 'halfDay':
-      // 4个时段，使用索引 0-3（与 formatTimeSlot 一致）
-      for (let i = 0; i < 4; i++) {
-        slots.push({ hour: i, label: formatTimeSlot(i, 'halfDay') })
-      }
-      break
-    default:
-      for (let i = 0; i < 24; i += 2) {
-        slots.push({ hour: i, label: formatTimeSlot(i, 'twoHours') })
-      }
-  }
-
-  return slots
-}
+const generateTimeSlots = (granularity) => getTimeSlotConfig(granularity).map(slot => ({
+  hour: slot.index,
+  label: slot.label,
+  shortLabel: slot.shortLabel,
+  startHour: slot.startHour
+}))
 
 /**
  * 生成唯一的slotId
@@ -202,24 +197,24 @@ const getAvatarColor = (nickname) => {
   }
   hash = Math.abs(hash)
 
-  // 预设渐变色方案（8 种）
-  const gradients = [
-    'linear-gradient(135deg, #e94560, #ff6b6b)',
-    'linear-gradient(135deg, #4facfe, #00f2fe)',
-    'linear-gradient(135deg, #43e97b, #38f9d7)',
-    'linear-gradient(135deg, #fa709a, #fee140)',
-    'linear-gradient(135deg, #a18cd1, #fbc2eb)',
-    'linear-gradient(135deg, #fccb90, #d57eeb)',
-    'linear-gradient(135deg, #667eea, #764ba2)',
-    'linear-gradient(135deg, #f093fb, #f5576c)'
+  const colors = [
+    '#9f5f57',
+    '#6d7f91',
+    '#738b74',
+    '#9a7758',
+    '#786f91',
+    '#8b6b7a',
+    '#617f7c',
+    '#8d665e'
   ]
 
-  return gradients[hash % gradients.length]
+  return colors[hash % colors.length]
 }
 
 module.exports = {
   formatDate,
   formatDateShort,
+  getTimeSlotConfig,
   formatTimeSlot,
   generateDateRange,
   generateTimeSlots,

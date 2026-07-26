@@ -1,230 +1,133 @@
-<!--统计结果页面 - 热力图和推荐-->
-<view class="page-container">
-  <!-- 加载状态 -->
-  <view class="loading-screen" wx:if="{{loading}}">
-    <view class="loading-animation">
-      <view class="loading-ring"></view>
-      <view class="loading-ring"></view>
-    </view>
-    <text class="loading-text">加载统计数据...</text>
+<view class="page-shell result-page">
+  <view class="loading-state" wx:if="{{loading}}">
+    <view class="loading-dot"></view>
+    <text class="state-copy">正在汇总大家的时间</text>
   </view>
 
-  <!-- 主内容 -->
+  <view class="error-state" wx:elif="{{loadError}}">
+    <text class="state-title">暂时无法加载结果</text>
+    <text class="state-copy">请检查网络后重试。</text>
+    <button class="secondary-button state-action" bindtap="retryLoad">重新加载</button>
+  </view>
+
   <block wx:else>
-    <!-- 头部信息 -->
-    <view class="header-section fade-in">
-      <view class="event-header">
-        <text class="event-name">{{event.name}}</text>
-        <view class="event-badges">
-          <view class="badge {{event.expired ? 'expired' : ''}}">
-            {{event.expired ? '已过期' : event.expireText}}
-          </view>
+    <view class="result-content">
+      <view class="result-header enter">
+        <view class="result-title-row">
+          <text class="page-title">{{event.name}}</text>
+          <text class="status-pill {{event.expired ? 'is-expired' : ''}}">{{event.expired ? '已结束' : event.expireText}}</text>
+        </view>
+        <text class="page-subtitle">{{event.dateRangeText}}</text>
+        <text class="event-note" wx:if="{{event.note}}">{{event.note}}</text>
+      </view>
+
+      <view class="created-notice" wx:if="{{justCreated}}">
+        <text class="created-title">聚会创建好了</text>
+        <text class="created-copy">先填写自己的时间，再分享给朋友。</text>
+      </view>
+
+      <view class="section-heading">
+        <text class="section-heading-text">最佳时间</text>
+      </view>
+
+      <view class="best-card" wx:if="{{bestSlot.timeText}}">
+        <text class="best-label">当前重合最多</text>
+        <text class="best-time">{{bestSlot.timeText}}</text>
+        <view class="best-meta">
+          <text class="best-count">{{bestSlot.count}} 人有空</text>
+          <text class="best-percent">{{bestSlot.percent}}%</text>
         </view>
       </view>
-      <view class="event-meta">
-        <text class="meta-item">📅 {{event.dateRangeText}}</text>
-      </view>
-      <text class="event-note" wx:if="{{event.note}}">{{event.note}}</text>
-    </view>
 
-    <!-- 统计卡片 -->
-    <view class="stats-cards fade-in" style="animation-delay: 0.1s;">
-      <view class="stat-card-wrapper shimmer-border">
-        <view class="stat-card glass-stat-card">
-          <view class="stat-value">
-            <text class="stat-number">{{displayParticipantCount}}</text>
-          </view>
+      <view class="best-card is-empty" wx:else>
+        <text class="best-label">还没有投票</text>
+        <text class="best-time">等待第一个回应</text>
+        <text class="best-empty-copy">分享活动后，结果会自动出现在这里。</text>
+      </view>
+
+      <view class="stats-row">
+        <view class="stat-item">
+          <text class="stat-value">{{participantCount}}</text>
           <text class="stat-label">参与人数</text>
         </view>
-      </view>
-      <view class="stat-card-wrapper shimmer-border">
-        <view class="stat-card glass-stat-card">
-          <view class="stat-value">
-            <text class="stat-number">{{displayBestCount}}</text>
-          </view>
+        <view class="stat-divider"></view>
+        <view class="stat-item">
+          <text class="stat-value">{{bestSlot.count || 0}}</text>
           <text class="stat-label">最高票数</text>
         </view>
       </view>
-    </view>
 
-    <!-- 最佳时段推荐 - 醒目卡片 -->
-    <view class="recommend-section fade-in" style="animation-delay: 0.15s;">
-      <view class="recommend-beam-wrapper border-beam golden-beam" wx:if="{{bestSlot.timeText}}">
-        <view class="beam-content">
-          <view class="recommend-card recommend-highlight recommend-bounce">
-            <view class="recommend-icon-wrap">
-              <text class="recommend-trophy">🏆</text>
-            </view>
-            <view class="recommend-content">
-              <text class="recommend-label">最佳推荐时段</text>
-              <text class="recommend-time">{{bestSlot.timeText}}</text>
-              <view class="recommend-meta">
-                <text class="recommend-count">{{bestSlot.count}} 人有空</text>
-                <text class="recommend-percent" wx:if="{{bestSlot.percent > 0}}">({{bestSlot.percent}}%)</text>
+      <block wx:if="{{participantCount > 0}}">
+        <view class="section-heading">
+          <text class="section-heading-text">时段分布</text>
+        </view>
+        <text class="heatmap-help">横向查看其他日期，点击格子查看参与者。</text>
+
+        <scroll-view scroll-x class="heatmap-scroll" enhanced show-scrollbar="false">
+          <view class="heatmap-columns">
+            <view class="heatmap-column" wx:for="{{dates}}" wx:key="date">
+              <view class="heatmap-date">
+                <text class="heatmap-weekday">{{item.weekday}}</text>
+                <text class="heatmap-day">{{item.dateText}}</text>
               </view>
+              <button
+                class="heatmap-cell level-{{item.level}}"
+                wx:for="{{item.slots}}"
+                wx:key="slotId"
+                bindtap="showSlotDetail"
+                data-slot-id="{{item.slotId}}"
+                data-date="{{item.date}}"
+                data-index="{{item.slotIndex}}"
+                aria-label="{{item.timeLabel}}，{{item.count}} 人有空"
+              >
+                <text class="heatmap-time">{{item.shortLabel}}</text>
+                <text class="heatmap-count">{{item.count}} 人</text>
+              </button>
+            </view>
+          </view>
+        </scroll-view>
+
+        <view class="section-heading">
+          <text class="section-heading-text">参与者</text>
+        </view>
+        <view class="participants-list">
+          <view class="participant-row" wx:for="{{participants}}" wx:key="_id">
+            <view class="participant-avatar" style="background: {{item.avatarColor}};">{{item.initial}}</view>
+            <view class="participant-body">
+              <text class="participant-name">{{item.nickname}}</text>
+              <text class="participant-meta">选择了 {{item.slotCount}} 个时段</text>
             </view>
           </view>
         </view>
-      </view>
-      <!-- 空状态 -->
-      <view class="recommend-card recommend-empty" wx:else>
-        <view class="recommend-icon-wrap">
-          <text class="recommend-empty-icon">🗳️</text>
-        </view>
-        <view class="recommend-content">
-          <text class="recommend-label">暂无数据</text>
-          <text class="recommend-time">等待参与者投票</text>
-          <text class="recommend-hint">分享给好友开始投票吧～</text>
-        </view>
+      </block>
+
+      <view class="action-grid">
+        <button class="secondary-button action-button" open-type="share">分享活动</button>
+        <button class="secondary-button action-button" bindtap="goToPoster">生成海报</button>
+        <button class="secondary-button action-button" bindtap="notifyParticipants" wx:if="{{notificationsConfigured && isCreator && participantCount > 0 && bestSlot.timeText}}" disabled="{{notifying}}">{{notifying ? '发送中' : '通知参与者'}}</button>
+        <button class="danger-button action-button" bindtap="deleteEvent" wx:if="{{isCreator}}" disabled="{{deleting}}">{{deleting ? '删除中' : '删除聚会'}}</button>
       </view>
     </view>
 
-    <!-- 热力图 - 仅有人参与时显示 -->
-    <view class="heatmap-section fade-in" style="animation-delay: 0.2s;" wx:if="{{participantCount > 0}}">
-      <view class="section-header">
-        <text class="section-title">时段热力图</text>
-      </view>
-
-      <!-- 清晰图例条 -->
-      <view class="legend-bar">
-        <text class="legend-label">人数：</text>
-        <view class="legend-gradient">
-          <view class="legend-step" wx:for="{{legendSteps}}" wx:key="value" style="background: {{item.color}};">
-            <text class="legend-value">{{item.value}}</text>
-          </view>
-        </view>
-        <text class="legend-hint">点击格子查看详情</text>
-      </view>
-
-      <!-- 日期标签 -->
-      <view class="date-labels">
-        <view class="date-label" wx:for="{{dates}}" wx:key="date">
-          <text class="label-weekday">{{item.weekday}}</text>
-          <text class="label-day">{{item.day}}日</text>
-        </view>
-      </view>
-
-      <!-- 时间轴 + 热力格子 -->
-      <view class="heatmap-wrapper">
-        <view class="time-column">
-          <text class="time-text" wx:for="{{timeLabels}}" wx:key="*this">{{item}}</text>
-        </view>
-
-        <!-- 热力格子 - 加大尺寸 -->
-        <view class="heatmap-grid">
-          <view class="heatmap-column" wx:for="{{dates}}" wx:key="date">
-            <view
-              class="heatmap-cell level-{{item.level}} glass-heatmap-cell"
-              wx:for="{{item.slots}}"
-              wx:key="slotId"
-              bindtap="showSlotDetail"
-              data-date="{{item.date}}"
-              data-hour="{{item.timeSlot}}"
-              hover-class="heatmap-cell-hover"
-            >
-              <text class="cell-count" wx:if="{{item.count > 0}}">{{item.count}}</text>
-            </view>
-          </view>
-        </view>
-      </view>
+    <view class="result-footer safe-footer" wx:if="{{!event.expired}}">
+      <button class="primary-button result-primary" bindtap="goToVote">填写或修改时间</button>
     </view>
 
-    <!-- 空状态引导 -->
-    <view class="empty-participants fade-in" style="animation-delay: 0.2s;" wx:if="{{participantCount === 0}}">
-      <view class="empty-icon breathe-float">
-        <text>👥</text>
-      </view>
-      <text class="empty-title">还没有人参与</text>
-      <text class="empty-desc">分享给好友，让大家一起选时间吧！</text>
-      <button class="empty-share-btn shimmer-btn" open-type="share">
-        <text>📤 立即分享</text>
-      </button>
-    </view>
-
-    <!-- 参与者列表 -->
-    <view class="participants-section fade-in" style="animation-delay: 0.25s;" wx:if="{{participants.length > 0}}">
-      <view class="section-header">
-        <text class="section-title">参与者 ({{participants.length}}人)</text>
-      </view>
-      <view class="participants-list">
-        <view
-          class="participant-card slide-in-bounce"
-          wx:for="{{participants}}"
-          wx:key="_id"
-          style="animation-delay: {{0.05 * index}}s;"
-        >
-          <view class="participant-avatar avatar-bounce" style="background: {{item.avatarColor || 'linear-gradient(135deg, var(--primary-color), var(--primary-light))'}}">
-            <text>{{item.nickname[0]}}</text>
-          </view>
-          <view class="participant-info">
-            <text class="participant-name">{{item.nickname}}</text>
-            <text class="participant-slots">选择了 {{item.slotCount}} 个时段</text>
-          </view>
-          <view class="participant-badge badge-sparkle" wx:if="{{item.slotCount >= 5}}">
-            <text>🌟</text>
-          </view>
-        </view>
-      </view>
-    </view>
-
-    <!-- 操作按钮 -->
-    <view class="action-section fade-in" style="animation-delay: 0.3s;">
-      <!-- 通知参与者按钮（仅创建者可见，且有参与者时） -->
-      <button
-        class="notify-btn {{notifying ? 'notifying' : ''}}"
-        bindtap="notifyParticipants"
-        wx:if="{{isCreator && participantCount > 1 && bestSlot.timeText}}"
-        disabled="{{notifying}}"
-      >
-        <text class="btn-icon">🔔</text>
-        <text>{{notifying ? '发送中...' : '通知参与者'}}</text>
-      </button>
-      <button class="share-btn" open-type="share">
-        <text class="btn-icon">🔗</text>
-        <text>分享结果</text>
-      </button>
-      <button class="poster-btn" bindtap="goToPoster">
-        <text class="btn-icon">🖼️</text>
-        <text>生成海报</text>
-      </button>
-      <button class="vote-btn" bindtap="goToVote" wx:if="{{!event.expired}}">
-        <text class="btn-icon">✏️</text>
-        <text>填写/修改</text>
-      </button>
-    </view>
-
-    <!-- 刚创建成功的提示 -->
-    <view class="created-tip fade-in" style="animation-delay: 0.35s;" wx:if="{{justCreated}}">
-      <view class="tip-content">
-        <text class="tip-icon">🎉</text>
-        <text class="tip-text">聚会创建成功！快分享给好友吧</text>
-      </view>
-    </view>
-
-    <!-- 时段详情弹窗 -->
-    <view class="slot-modal {{showSlotModal ? 'show' : ''}}" catchtouchmove="preventMove">
+    <view class="slot-modal {{showSlotModal ? 'is-open' : ''}}" catchtouchmove="preventMove">
       <view class="modal-backdrop" bindtap="closeSlotModal"></view>
-      <view class="modal-content glass-modal">
-        <view class="modal-header">
-          <text class="modal-title">{{selectedSlotInfo.dateText}} {{selectedSlotInfo.timeText}}</text>
-          <view class="modal-header-right">
-            <text class="modal-count">{{selectedSlotInfo.count}} 人有空</text>
-            <view class="modal-close" bindtap="closeSlotModal" aria-label="关闭">×</view>
+      <view class="slot-sheet" aria-role="dialog" aria-label="时段参与详情">
+        <view class="slot-sheet-header">
+          <view>
+            <text class="slot-sheet-title">{{selectedSlotInfo.dateText}}</text>
+            <text class="slot-sheet-time">{{selectedSlotInfo.timeText}}</text>
           </view>
+          <button class="close-button" bindtap="closeSlotModal">关闭</button>
         </view>
-        <view class="modal-body">
-          <view class="participant-list" wx:if="{{selectedSlotInfo.users.length > 0}}">
-            <view class="participant-item" wx:for="{{selectedSlotInfo.users}}" wx:key="*this">
-              <view class="participant-avatar small">
-                <text>{{item[0]}}</text>
-              </view>
-              <text class="participant-name">{{item}}</text>
-            </view>
-          </view>
-          <view class="no-data" wx:else>
-            <text>暂无人选择此时段</text>
-          </view>
+        <text class="slot-sheet-count">{{selectedSlotInfo.count}} 人有空</text>
+        <view class="slot-user-list" wx:if="{{selectedSlotInfo.users.length > 0}}">
+          <text class="slot-user" wx:for="{{selectedSlotInfo.users}}" wx:key="*this">{{item}}</text>
         </view>
+        <text class="no-slot-users" wx:else>暂时没有人选择这个时段</text>
       </view>
     </view>
   </block>

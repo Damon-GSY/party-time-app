@@ -29,46 +29,19 @@ Page({
   async loadEventData(eventId) {
     try {
       if (wx.cloud) {
-        const db = wx.cloud.database()
-
-        // 获取活动信息
-        const eventRes = await db.collection('events').doc(eventId).get()
-        if (!eventRes.data) throw new Error('活动不存在')
-        const event = eventRes.data
-
-        // 获取参与人数
-        const countRes = await db.collection('responses')
-          .where({ eventId })
-          .count()
-
-        // 获取所有响应（用于找最佳时段）
-        const responsesRes = await db.collection('responses')
-          .where({ eventId })
-          .get()
-        const responses = responsesRes.data || []
-
-        // 找最佳时段
-        const slotCounts = {}
-        responses.forEach(r => {
-          const slots = r.slots || r.availableSlots || []
-          slots.forEach(slotId => {
-            slotCounts[slotId] = (slotCounts[slotId] || 0) + 1
-          })
+        const response = await wx.cloud.callFunction({
+          name: 'getEventResult',
+          data: { eventId }
         })
-
+        if (!response.result?.success) throw new Error(response.result?.error || '活动不存在')
+        const { event, participantCount, bestSlots = [] } = response.result.data
         let bestSlot = null
-        let maxCount = 0
-        Object.keys(slotCounts).forEach(slotId => {
-          if (slotCounts[slotId] > maxCount) {
-            maxCount = slotCounts[slotId]
-            const [date, hour] = slotId.split('_')
-            const weekDays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
-            const d = new Date(date)
-            const dateText = `${d.getMonth() + 1}月${d.getDate()}日 ${weekDays[d.getDay()]}`
-            const timeText = util.formatTimeSlot(parseInt(hour), event.granularity || 'twoHours')
-            bestSlot = `${dateText} ${timeText}`
-          }
-        })
+        if (bestSlots[0]) {
+          const parsed = util.parseSlotId(bestSlots[0].slotId)
+          const date = new Date(parsed.date)
+          const dateText = `${date.getMonth() + 1}月${date.getDate()}日 ${['周日', '周一', '周二', '周三', '周四', '周五', '周六'][date.getDay()]}`
+          bestSlot = `${dateText} ${util.formatTimeSlot(parsed.hour, event.granularity || 'twoHours')}`
+        }
 
         // 格式化日期范围
         const startDate = util.formatDateShort(event.startDate)
@@ -77,7 +50,7 @@ Page({
 
         this.setData({
           event: { ...event, dateRangeText },
-          participantCount: countRes.total,
+          participantCount,
           bestSlot
         }, () => {
           this.drawPoster()
@@ -86,7 +59,7 @@ Page({
         // 模拟数据
         this.setData({
           event: {
-            name: '周末聚餐 🍲',
+            name: '周末聚餐',
             dateRangeText: '3月23日 ~ 3月24日',
             note: '地点待定，选好时间后大家一起商量～'
           },
@@ -129,7 +102,7 @@ Page({
           // 1. 绘制背景
           this.drawBackground(ctx)
 
-          // 2. 绘制装饰元素
+          // 2. 绘制结构线
           this.drawDecorations(ctx)
 
           // 3. 右上角小程序名称
@@ -147,7 +120,7 @@ Page({
           this.drawEventName(ctx, event.name)
 
           // 6. 日期范围
-          this.drawSingleText(ctx, `📅 ${event.dateRangeText}`, 32, 240, 16, '#b8b8c8', 'left')
+          this.drawSingleText(ctx, event.dateRangeText, 32, 240, 16, '#b8aea7', 'left')
 
           // 7. 分隔线
           ctx.strokeStyle = 'rgba(233, 69, 96, 0.3)'
@@ -170,10 +143,7 @@ Page({
             this.drawNote(ctx, event.note)
           }
 
-          // 11. 小程序码占位区域
-          this.drawQRCodePlaceholder(ctx)
-
-          // 12. 底部提示
+          // 11. 底部提示
           this.drawBottomText(ctx)
 
           this.setData({ loading: false })
@@ -185,50 +155,27 @@ Page({
     }
   },
 
-  // 绘制渐变背景
+  // 绘制背景
   drawBackground(ctx) {
-    const gradient = ctx.createLinearGradient(0, 0, POSTER_WIDTH, POSTER_HEIGHT)
-    gradient.addColorStop(0, '#1a1a2e')
-    gradient.addColorStop(0.4, '#16213e')
-    gradient.addColorStop(1, '#0f3460')
-
     this.roundRect(ctx, 0, 0, POSTER_WIDTH, POSTER_HEIGHT, 0)
-    ctx.fillStyle = gradient
+    ctx.fillStyle = '#151311'
     ctx.fill()
   },
 
   // 绘制装饰元素
   drawDecorations(ctx) {
-    // 顶部渐变光晕
-    const glow = ctx.createRadialGradient(POSTER_WIDTH * 0.7, 60, 10, POSTER_WIDTH * 0.7, 60, 160)
-    glow.addColorStop(0, 'rgba(233, 69, 96, 0.15)')
-    glow.addColorStop(1, 'rgba(233, 69, 96, 0)')
-    ctx.fillStyle = glow
-    ctx.fillRect(0, 0, POSTER_WIDTH, 200)
-
-    // 底部渐变光晕
-    const glow2 = ctx.createRadialGradient(POSTER_WIDTH * 0.3, POSTER_HEIGHT - 200, 10, POSTER_WIDTH * 0.3, POSTER_HEIGHT - 200, 180)
-    glow2.addColorStop(0, 'rgba(255, 107, 107, 0.1)')
-    glow2.addColorStop(1, 'rgba(255, 107, 107, 0)')
-    ctx.fillStyle = glow2
-    ctx.fillRect(0, POSTER_HEIGHT - 300, POSTER_WIDTH, 300)
-
-    // 装饰圆点
-    ctx.fillStyle = 'rgba(233, 69, 96, 0.08)'
+    ctx.strokeStyle = '#3a342f'
+    ctx.lineWidth = 1
     ctx.beginPath()
-    ctx.arc(POSTER_WIDTH - 60, 120, 40, 0, Math.PI * 2)
-    ctx.fill()
-
-    ctx.fillStyle = 'rgba(255, 107, 107, 0.06)'
-    ctx.beginPath()
-    ctx.arc(40, POSTER_HEIGHT - 350, 50, 0, Math.PI * 2)
-    ctx.fill()
+    ctx.moveTo(32, 72)
+    ctx.lineTo(POSTER_WIDTH - 32, 72)
+    ctx.stroke()
   },
 
   // 绘制活动名称
   drawEventName(ctx, name) {
     ctx.font = 'bold 28px -apple-system, BlinkMacSystemFont, sans-serif'
-    ctx.fillStyle = '#ffffff'
+    ctx.fillStyle = '#f7f1ec'
     ctx.textAlign = 'left'
     ctx.textBaseline = 'top'
 
@@ -257,27 +204,27 @@ Page({
     ctx.stroke()
 
     ctx.font = 'bold 28px -apple-system, BlinkMacSystemFont, sans-serif'
-    ctx.fillStyle = '#e94560'
+    ctx.fillStyle = '#ff7668'
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
     ctx.fillText(String(participantCount), 32 + cardWidth / 2, y + 36)
 
     ctx.font = '12px -apple-system, BlinkMacSystemFont, sans-serif'
-    ctx.fillStyle = '#b8b8c8'
+    ctx.fillStyle = '#b8aea7'
     ctx.fillText('参与人数', 32 + cardWidth / 2, y + 62)
 
     // 投票状态卡片
     const card2X = 32 + cardWidth + 12
     this.roundRect(ctx, card2X, y, cardWidth, cardHeight, 12)
-    ctx.fillStyle = 'rgba(74, 222, 128, 0.1)'
+    ctx.fillStyle = 'rgba(145, 182, 141, 0.12)'
     ctx.fill()
-    ctx.strokeStyle = 'rgba(74, 222, 128, 0.2)'
+    ctx.strokeStyle = 'rgba(145, 182, 141, 0.3)'
     ctx.lineWidth = 1
     ctx.stroke()
 
-    ctx.font = '22px -apple-system, BlinkMacSystemFont, sans-serif'
-    ctx.fillStyle = '#4ade80'
-    ctx.fillText('🗳️ 进行中', card2X + cardWidth / 2, y + cardHeight / 2)
+    ctx.font = 'bold 18px -apple-system, BlinkMacSystemFont, sans-serif'
+    ctx.fillStyle = '#91b68d'
+    ctx.fillText('进行中', card2X + cardWidth / 2, y + cardHeight / 2)
   },
 
   // 绘制最佳时段推荐
@@ -288,32 +235,27 @@ Page({
 
     // 推荐卡片背景
     this.roundRect(ctx, 32, y, cardWidth, cardHeight, 16)
-    ctx.fillStyle = 'rgba(251, 191, 36, 0.08)'
+    ctx.fillStyle = 'rgba(255, 118, 104, 0.12)'
     ctx.fill()
-    ctx.strokeStyle = 'rgba(251, 191, 36, 0.25)'
+    ctx.strokeStyle = 'rgba(255, 118, 104, 0.45)'
     ctx.lineWidth = 1
     ctx.stroke()
 
-    // 奖杯图标 + 标签
-    ctx.font = '28px -apple-system, BlinkMacSystemFont, sans-serif'
-    ctx.fillStyle = '#fbbf24'
+    ctx.font = '12px -apple-system, BlinkMacSystemFont, sans-serif'
+    ctx.fillStyle = '#ff7668'
     ctx.textAlign = 'left'
     ctx.textBaseline = 'top'
-    ctx.fillText('🏆', 52, y + 16)
-
-    ctx.font = '12px -apple-system, BlinkMacSystemFont, sans-serif'
-    ctx.fillStyle = '#fbbf24'
-    ctx.fillText('最佳推荐时段', 90, y + 20)
+    ctx.fillText('最佳推荐时段', 52, y + 20)
 
     // 时段文字
     ctx.font = 'bold 18px -apple-system, BlinkMacSystemFont, sans-serif'
-    ctx.fillStyle = '#ffffff'
-    ctx.fillText(bestSlot, 90, y + 42)
+    ctx.fillStyle = '#f7f1ec'
+    ctx.fillText(bestSlot, 52, y + 42)
 
     // 人数
     ctx.font = '14px -apple-system, BlinkMacSystemFont, sans-serif'
-    ctx.fillStyle = '#b8b8c8'
-    ctx.fillText(`${participantCount}人中有最佳匹配`, 90, y + 70)
+    ctx.fillStyle = '#b8aea7'
+    ctx.fillText(`${participantCount}人参与`, 52, y + 70)
   },
 
   // 绘制备注
@@ -322,7 +264,7 @@ Page({
     const maxWidth = POSTER_WIDTH - 100
 
     ctx.font = '13px -apple-system, BlinkMacSystemFont, sans-serif'
-    ctx.fillStyle = 'rgba(136, 136, 160, 0.8)'
+    ctx.fillStyle = '#847d77'
     ctx.textAlign = 'center'
     ctx.textBaseline = 'top'
 
@@ -332,31 +274,6 @@ Page({
       ctx.fillText(line, POSTER_WIDTH / 2, lineY)
       lineY += 22
     })
-  },
-
-  // 绘制小程序码占位区域
-  drawQRCodePlaceholder(ctx) {
-    const size = 80
-    const x = POSTER_WIDTH / 2 - size / 2
-    const y = 575
-
-    // 白色背景
-    this.roundRect(ctx, x, y, size, size, 12)
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.95)'
-    ctx.fill()
-
-    // 占位图标
-    ctx.font = '36px -apple-system, BlinkMacSystemFont, sans-serif'
-    ctx.fillStyle = '#1a1a2e'
-    ctx.textAlign = 'center'
-    ctx.textBaseline = 'middle'
-    ctx.fillText('📱', POSTER_WIDTH / 2, y + size / 2)
-
-    // 说明文字
-    ctx.font = '11px -apple-system, BlinkMacSystemFont, sans-serif'
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.5)'
-    ctx.textBaseline = 'top'
-    ctx.fillText('小程序码', POSTER_WIDTH / 2, y + size + 8)
   },
 
   // 绘制底部提示文字
@@ -370,10 +287,10 @@ Page({
     ctx.stroke()
 
     ctx.font = '13px -apple-system, BlinkMacSystemFont, sans-serif'
-    ctx.fillStyle = 'rgba(184, 184, 200, 0.6)'
+    ctx.fillStyle = '#847d77'
     ctx.textAlign = 'center'
     ctx.textBaseline = 'bottom'
-    ctx.fillText('长按识别小程序码参与投票', POSTER_WIDTH / 2, POSTER_HEIGHT - 24)
+    ctx.fillText('在聚会时间小程序中参与投票', POSTER_WIDTH / 2, POSTER_HEIGHT - 24)
   },
 
   // 绘制文字（封装）

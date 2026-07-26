@@ -1,29 +1,19 @@
-const { getEffectsConfig } = require('./utils/performance')
-
 App({
   onLaunch() {
-    // 初始化云开发环境
     if (wx.cloud) {
-      wx.cloud.init({
-        env: 'party-time-xxx', // 替换为你的云开发环境ID
-        traceUser: true
-      })
+      const options = { traceUser: true }
+      if (wx.cloud.DYNAMIC_CURRENT_ENV) options.env = wx.cloud.DYNAMIC_CURRENT_ENV
+      wx.cloud.init(options)
+      this.getOpenId()
+    } else {
+      this.generateFallbackId()
     }
-
-    // 获取用户openid
-    this.getOpenId()
-
-    // 获取用户信息（从缓存）
     this.initUserInfo()
-
-    // 初始化 UI 效果配置
-    this.globalData.effectsConfig = getEffectsConfig()
   },
 
   globalData: {
     openId: '',
-    userInfo: null,
-    effectsConfig: null
+    userInfo: null
   },
 
   // 初始化用户信息
@@ -51,16 +41,18 @@ App({
     return updated
   },
 
-  getOpenId() {
-    wx.cloud.callFunction({
-      name: 'login',
-      success: res => {
-        this.globalData.openId = res.result.openid
-      },
-      fail: () => {
-        // 如果login云函数未创建，使用匿名ID
-        this.globalData.openId = 'anonymous_' + Date.now()
-      }
-    })
+  async getOpenId() {
+    try {
+      const response = await wx.cloud.callFunction({ name: 'login' })
+      if (!response.result?.openid) throw new Error('登录结果缺少 openid')
+      this.globalData.openId = response.result.openid
+    } catch (err) {
+      console.warn('[app] cloud login failed', err)
+      this.generateFallbackId()
+    }
+  },
+
+  generateFallbackId() {
+    this.globalData.openId = `temporary_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
   }
 })
