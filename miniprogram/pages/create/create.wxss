@@ -9,18 +9,19 @@
 }
 
 .create-header {
-  margin-bottom: 54rpx;
+  margin-bottom: 42rpx;
 }
 
 .form-field {
   position: relative;
-  margin-bottom: 58rpx;
+  margin-bottom: 48rpx;
 }
 
 .form-field:nth-child(2) { animation-delay: 40ms; }
 .form-field:nth-child(3) { animation-delay: 80ms; }
 .form-field:nth-child(4) { animation-delay: 120ms; }
 .form-field:nth-child(5) { animation-delay: 160ms; }
+.form-field:nth-child(6) { animation-delay: 200ms; }
 
 .field-count {
   display: block;
@@ -127,6 +128,72 @@
 .field-hint {
   display: block;
   margin-top: 12rpx;
+}
+
+.time-window {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 58rpx minmax(0, 1fr);
+  align-items: stretch;
+}
+
+.time-picker-control {
+  min-width: 0;
+}
+
+.time-picker-card {
+  min-height: 132rpx;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 22rpx 24rpx;
+  background: var(--color-surface);
+  border: 2rpx solid var(--color-border);
+  border-radius: var(--radius-md);
+  transition: border-color var(--duration-fast) var(--ease-standard), transform var(--duration-instant) var(--ease-standard);
+}
+
+.time-picker-card:active {
+  border-color: var(--color-coral);
+  transform: scale(0.98);
+}
+
+.time-picker-kicker {
+  color: var(--color-text-muted);
+  font-size: 20rpx;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.time-picker-value {
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  font-size: 38rpx;
+  font-weight: 700;
+}
+
+.time-window-rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10rpx;
+  color: var(--color-text-muted);
+  font-size: 20rpx;
+}
+
+.time-window-line {
+  width: 30rpx;
+  height: 2rpx;
+  background: var(--color-border-strong);
+}
+
+.time-window-summary {
+  margin-top: 14rpx;
+  display: flex;
+  justify-content: space-between;
+  color: var(--color-text-muted);
+  font-size: 22rpx;
 }
 
 .create-footer {

@@ -10,6 +10,7 @@ const DAY_MS = 24 * 60 * 60 * 1000
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/
 const VALID_GRANULARITIES = new Set(['hour', 'twoHours', 'halfDay'])
 const VALID_EXPIRE_TYPES = new Set(['24h', '3days', '7days', 'never'])
+const SLOT_DURATION_MINUTES = { hour: 60, twoHours: 120, halfDay: 360 }
 
 function parseDateOnly(value) {
   if (typeof value !== 'string' || !DATE_PATTERN.test(value)) return null
@@ -33,6 +34,25 @@ function formatLocalDate(date) {
   return `${year}-${month}-${day}`
 }
 
+function normalizeDailyTimeWindow(window, granularity) {
+  if (window === undefined) return { startMinute: 0, endMinute: 1440 }
+  if (!window || typeof window !== 'object' || Array.isArray(window)) return null
+  const { startMinute, endMinute } = window
+  const duration = SLOT_DURATION_MINUTES[granularity]
+  if (
+    !Number.isInteger(startMinute) ||
+    !Number.isInteger(endMinute) ||
+    startMinute < 0 ||
+    endMinute > 1440 ||
+    startMinute >= endMinute ||
+    startMinute % duration !== 0 ||
+    endMinute % duration !== 0
+  ) {
+    return null
+  }
+  return { startMinute, endMinute }
+}
+
 function validateCreateInput(input, now = new Date()) {
   const name = typeof input.name === 'string' ? input.name.trim() : ''
   const note = typeof input.note === 'string' ? input.note.trim() : ''
@@ -48,6 +68,8 @@ function validateCreateInput(input, now = new Date()) {
   if (note.length > 200) return { ok: false, error: '备注不能超过200个字符' }
   if (!VALID_GRANULARITIES.has(granularity)) return { ok: false, error: '无效的时段粒度' }
   if (!VALID_EXPIRE_TYPES.has(expireType)) return { ok: false, error: '无效的过期类型' }
+  const dailyTimeWindow = normalizeDailyTimeWindow(input.dailyTimeWindow, granularity)
+  if (!dailyTimeWindow) return { ok: false, error: '每日可选时段无效' }
 
   const startTimestamp = parseDateOnly(startDate)
   const endTimestamp = parseDateOnly(endDate)
@@ -62,7 +84,7 @@ function validateCreateInput(input, now = new Date()) {
 
   return {
     ok: true,
-    value: { name, note, startDate, endDate, granularity, expireType, dayCount }
+    value: { name, note, startDate, endDate, granularity, dailyTimeWindow, expireType, dayCount }
   }
 }
 
@@ -82,6 +104,7 @@ function buildEventDocument(value, openid, createdAt, now = new Date()) {
     startDate: value.startDate,
     endDate: value.endDate,
     granularity: value.granularity,
+    dailyTimeWindow: value.dailyTimeWindow,
     expireType: value.expireType,
     expireAt: expireAt ? expireAt.toISOString() : null,
     note: value.note,
@@ -115,6 +138,7 @@ exports.main = async (event = {}) => {
 
 exports._test = {
   parseDateOnly,
+  normalizeDailyTimeWindow,
   validateCreateInput,
   calculateExpireAt,
   buildEventDocument

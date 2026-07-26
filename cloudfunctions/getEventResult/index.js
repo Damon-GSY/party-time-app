@@ -7,6 +7,12 @@ cloud.init({
 
 const db = cloud.database()
 const QUERY_PAGE_SIZE = 100
+const SLOT_RULES = {
+  hour: { count: 24, durationMinutes: 60 },
+  twoHours: { count: 12, durationMinutes: 120 },
+  halfDay: { count: 4, durationMinutes: 360 }
+}
+const SLOT_ID_PATTERN = /^(\d{4}-\d{2}-\d{2})_(\d+)$/
 
 function isValidEventId(value) {
   return typeof value === 'string' && value.trim().length > 0 && value.length <= 128 && !/[\/\\]/.test(value)
@@ -16,6 +22,40 @@ function isEventCreator(event, openid) {
   return Boolean(event && openid && (event.createdBy === openid || event._openid === openid))
 }
 
+function normalizeDailyTimeWindow(event) {
+  const rule = SLOT_RULES[event?.granularity]
+  if (!rule) return null
+  if (event.dailyTimeWindow === undefined) return { startMinute: 0, endMinute: 1440 }
+  const window = event.dailyTimeWindow
+  if (
+    !window ||
+    typeof window !== 'object' ||
+    !Number.isInteger(window.startMinute) ||
+    !Number.isInteger(window.endMinute) ||
+    window.startMinute < 0 ||
+    window.endMinute > 1440 ||
+    window.startMinute >= window.endMinute ||
+    window.startMinute % rule.durationMinutes !== 0 ||
+    window.endMinute % rule.durationMinutes !== 0
+  ) {
+    return null
+  }
+  return { startMinute: window.startMinute, endMinute: window.endMinute }
+}
+
+function isSlotAllowed(event, slotId) {
+  const rule = SLOT_RULES[event?.granularity]
+  const window = normalizeDailyTimeWindow(event)
+  const match = typeof slotId === 'string' ? SLOT_ID_PATTERN.exec(slotId) : null
+  if (!rule || !window || !match) return false
+  const slotDate = match[1]
+  const slotIndex = Number(match[2])
+  if (slotDate < event.startDate || slotDate > event.endDate) return false
+  if (!Number.isInteger(slotIndex) || slotIndex < 0 || slotIndex >= rule.count) return false
+  const slotStart = slotIndex * rule.durationMinutes
+  return slotStart >= window.startMinute && slotStart + rule.durationMinutes <= window.endMinute
+}
+
 function sanitizeEvent(event) {
   return {
     _id: event._id,
@@ -23,6 +63,7 @@ function sanitizeEvent(event) {
     startDate: event.startDate,
     endDate: event.endDate,
     granularity: event.granularity,
+    dailyTimeWindow: normalizeDailyTimeWindow(event),
     expireType: event.expireType,
     expireAt: event.expireAt || null,
     note: event.note || '',
@@ -30,11 +71,12 @@ function sanitizeEvent(event) {
   }
 }
 
-function sanitizeResponse(response) {
+function sanitizeResponse(response, event) {
+  const slots = Array.isArray(response.slots) ? [...new Set(response.slots)] : []
   return {
     _id: response._id,
     nickname: response.nickname || '匿名用户',
-    slots: Array.isArray(response.slots) ? [...new Set(response.slots)] : [],
+    slots: event ? slots.filter(slotId => isSlotAllowed(event, slotId)) : slots,
     createdAt: response.createdAt,
     updatedAt: response.updatedAt
   }
@@ -58,10 +100,11 @@ function dedupeResponses(responses) {
   return [...byIdentity.values()]
 }
 
-function aggregateResponses(responses) {
+function aggregateResponses(responses, event) {
   const slotStats = {}
   for (const response of responses) {
-    const uniqueSlots = new Set(Array.isArray(response.slots) ? response.slots : [])
+    const slots = Array.isArray(response.slots) ? response.slots : []
+    const uniqueSlots = new Set(event ? slots.filter(slotId => isSlotAllowed(event, slotId)) : slots)
     for (const slotId of uniqueSlots) slotStats[slotId] = (slotStats[slotId] || 0) + 1
   }
   const bestSlots = Object.entries(slotStats)
@@ -95,12 +138,13 @@ exports.main = async (event = {}) => {
   try {
     const eventRes = await db.collection('events').doc(eventId).get()
     if (!eventRes.data) return { success: false, error: '活动不存在' }
+    if (!normalizeDailyTimeWindow(eventRes.data)) return { success: false, error: '活动每日可选时段配置无效' }
 
     const rawResponses = dedupeResponses(await fetchAllResponses(eventId))
     const openid = cloud.getWXContext().OPENID
     const myRawResponse = rawResponses.find(response => response._openid === openid)
-    const responses = rawResponses.map(sanitizeResponse)
-    const { slotStats, bestSlots } = aggregateResponses(responses)
+    const responses = rawResponses.map(response => sanitizeResponse(response, eventRes.data))
+    const { slotStats, bestSlots } = aggregateResponses(responses, eventRes.data)
 
     return {
       success: true,
@@ -111,7 +155,7 @@ exports.main = async (event = {}) => {
         bestSlots,
         participantCount: responses.length,
         isCreator: isEventCreator(eventRes.data, openid),
-        myResponse: myRawResponse ? sanitizeResponse(myRawResponse) : null
+        myResponse: myRawResponse ? sanitizeResponse(myRawResponse, eventRes.data) : null
       }
     }
   } catch (err) {
@@ -123,6 +167,8 @@ exports.main = async (event = {}) => {
 exports._test = {
   isValidEventId,
   isEventCreator,
+  normalizeDailyTimeWindow,
+  isSlotAllowed,
   sanitizeEvent,
   sanitizeResponse,
   dedupeResponses,

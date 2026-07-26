@@ -56,6 +56,30 @@ test('legacy generateTimeSlots follows the same index contract', () => {
   }
 })
 
+test('event time windows filter visible slots without changing global slot indexes', () => {
+  const event = {
+    granularity: 'twoHours',
+    dailyTimeWindow: { startMinute: 600, endMinute: 1320 }
+  }
+  const slots = util.getEventTimeSlotConfig(event)
+
+  assert.deepEqual(slots.map(slot => slot.index), [5, 6, 7, 8, 9, 10])
+  assert.equal(slots[0].label, '10:00-12:00')
+  assert.equal(slots.at(-1).label, '20:00-22:00')
+  assert.equal(util.formatEventTimeWindow(event), '10:00–22:00')
+})
+
+test('legacy events keep full-day slots and granularity changes align outward', () => {
+  assert.equal(util.getEventTimeSlotConfig({ granularity: 'hour' }).length, 24)
+  assert.equal(util.getEventTimeSlotConfig({ granularity: 'twoHours' }).length, 12)
+  assert.equal(util.getEventTimeSlotConfig({ granularity: 'halfDay' }).length, 4)
+  assert.deepEqual(util.alignTimeWindow(10, 22, 'halfDay'), {
+    startHour: 6,
+    endHour: 24,
+    hoursPerSlot: 6
+  })
+})
+
 test('month calendar always renders six Monday-first weeks with one current day', () => {
   const days = util.generateMonthCalendar(new Date(2026, 6, 26, 12))
 

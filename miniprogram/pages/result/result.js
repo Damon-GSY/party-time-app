@@ -68,9 +68,9 @@ Page({
     const first = util.formatDate(today)
     const second = util.formatDate(tomorrow)
     const responses = [
-      { _id: 'r1', nickname: '小明', slots: [`${first}_4`, `${first}_5`, `${second}_4`] },
-      { _id: 'r2', nickname: '小红', slots: [`${first}_4`, `${first}_6`, `${second}_4`] },
-      { _id: 'r3', nickname: '小李', slots: [`${first}_4`, `${second}_5`] }
+      { _id: 'r1', nickname: '小明', slots: [`${first}_5`, `${first}_6`, `${second}_5`] },
+      { _id: 'r2', nickname: '小红', slots: [`${first}_5`, `${first}_7`, `${second}_5`] },
+      { _id: 'r3', nickname: '小李', slots: [`${first}_5`, `${second}_6`] }
     ]
     const slotStats = {}
     responses.forEach(response => response.slots.forEach(slotId => {
@@ -86,6 +86,7 @@ Page({
         startDate: first,
         endDate: second,
         granularity: 'twoHours',
+        dailyTimeWindow: { startMinute: 600, endMinute: 1320 },
         note: '地点待定，选好时间后一起确认。',
         expireAt: null
       },
@@ -100,7 +101,7 @@ Page({
   processData(result) {
     const { event, responses = [], slotStats = {}, bestSlots = [], participantCount = 0 } = result
     const granularity = event.granularity || 'twoHours'
-    const slotConfig = util.getTimeSlotConfig(granularity)
+    const slotConfig = util.getEventTimeSlotConfig(event)
     const slotUsers = {}
     responses.forEach(response => {
       ;(response.slots || []).forEach(slotId => {
@@ -163,7 +164,7 @@ Page({
         ...event,
         expired: util.isExpired(event.expireAt),
         expireText: util.formatExpireTime(event.expireAt),
-        dateRangeText: startText === endText ? startText : `${startText} ~ ${endText}`
+        dateRangeText: `${startText === endText ? startText : `${startText} ~ ${endText}`} · 每天 ${util.formatEventTimeWindow(event)}`
       },
       participantCount,
       bestSlot,
@@ -176,9 +177,9 @@ Page({
   },
 
   showSlotDetail(e) {
-    const { slotId, date, index } = e.currentTarget.dataset
+    const { slotId, date } = e.currentTarget.dataset
     const dateEntry = this.data.dates.find(item => item.date === date)
-    const slot = dateEntry?.slots[Number(index)]
+    const slot = dateEntry?.slots.find(item => item.slotId === slotId)
     if (!slot) return
     if (this.slotCloseTimer) clearTimeout(this.slotCloseTimer)
     this.setData({

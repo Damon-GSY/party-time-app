@@ -9,6 +9,13 @@ Page({
     today: '',
     dateCount: 0,
     granularity: 'twoHours',
+    startHour: 10,
+    endHour: 22,
+    startHourOptions: [],
+    endHourOptions: [],
+    startHourIndex: 0,
+    endHourIndex: 0,
+    dailySlotCount: 6,
     expireType: '7days',
     note: '',
     canSubmit: false,
@@ -22,7 +29,22 @@ Page({
     // 设置今天的日期
     const today = util.formatDate(new Date())
 
-    this.setData({ today })
+    this.setData({ today, ...this.buildTimeWindowData('twoHours', 10, 22) })
+  },
+
+  buildTimeWindowData(granularity, startHour, endHour) {
+    const aligned = util.alignTimeWindow(startHour, endHour, granularity)
+    const { startOptions, endOptions } = util.getTimeWindowOptions(granularity)
+    return {
+      granularity,
+      startHour: aligned.startHour,
+      endHour: aligned.endHour,
+      startHourOptions: startOptions,
+      endHourOptions: endOptions,
+      startHourIndex: Math.max(0, startOptions.findIndex(option => option.value === aligned.startHour)),
+      endHourIndex: Math.max(0, endOptions.findIndex(option => option.value === aligned.endHour)),
+      dailySlotCount: (aligned.endHour - aligned.startHour) / aligned.hoursPerSlot
+    }
   },
 
   // 输入聚会名称
@@ -53,7 +75,27 @@ Page({
   // 选择时段粒度
   selectGranularity(e) {
     const granularity = e.currentTarget.dataset.value
-    this.setData({ granularity })
+    this.setData(this.buildTimeWindowData(granularity, this.data.startHour, this.data.endHour))
+  },
+
+  onStartHourChange(e) {
+    const option = this.data.startHourOptions[Number(e.detail.value)]
+    if (!option) return
+    const hoursPerSlot = util.getSlotDurationHours(this.data.granularity)
+    const endHour = option.value >= this.data.endHour
+      ? Math.min(24, option.value + hoursPerSlot)
+      : this.data.endHour
+    this.setData(this.buildTimeWindowData(this.data.granularity, option.value, endHour))
+  },
+
+  onEndHourChange(e) {
+    const option = this.data.endHourOptions[Number(e.detail.value)]
+    if (!option) return
+    const hoursPerSlot = util.getSlotDurationHours(this.data.granularity)
+    const startHour = option.value <= this.data.startHour
+      ? Math.max(0, option.value - hoursPerSlot)
+      : this.data.startHour
+    this.setData(this.buildTimeWindowData(this.data.granularity, startHour, option.value))
   },
 
   // 选择过期时间
@@ -110,7 +152,7 @@ Page({
 
     let awaitingRedirect = false
     try {
-      const { name, startDate, endDate, granularity, expireType, note } = this.data
+      const { name, startDate, endDate, granularity, startHour, endHour, expireType, note } = this.data
 
       // 调用云函数创建聚会
       const res = await wx.cloud.callFunction({
@@ -120,6 +162,10 @@ Page({
           startDate,
           endDate,
           granularity,
+          dailyTimeWindow: {
+            startMinute: startHour * 60,
+            endMinute: endHour * 60
+          },
           expireType,
           note: note.trim()
         }

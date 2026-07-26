@@ -50,6 +50,29 @@
       </view>
 
       <view class="form-field enter">
+        <view class="field-label"><text>每日可选时段</text><text class="field-required">必填</text></view>
+        <view class="time-window">
+          <picker class="time-picker-control" mode="selector" range="{{startHourOptions}}" range-key="label" value="{{startHourIndex}}" bindchange="onStartHourChange" aria-label="每天开始时间，必填">
+            <view class="time-picker-card">
+              <text class="time-picker-kicker">开始</text>
+              <text class="time-picker-value">{{startHourOptions[startHourIndex].label}}</text>
+            </view>
+          </picker>
+          <view class="time-window-rail" aria-hidden="true"><text>至</text><view class="time-window-line"></view></view>
+          <picker class="time-picker-control" mode="selector" range="{{endHourOptions}}" range-key="label" value="{{endHourIndex}}" bindchange="onEndHourChange" aria-label="每天结束时间，必填">
+            <view class="time-picker-card">
+              <text class="time-picker-kicker">结束</text>
+              <text class="time-picker-value">{{endHourOptions[endHourIndex].label}}</text>
+            </view>
+          </picker>
+        </view>
+        <view class="time-window-summary">
+          <text>每天开放 {{dailySlotCount}} 个时段</text>
+          <text>{{startHourOptions[startHourIndex].label}}—{{endHourOptions[endHourIndex].label}}</text>
+        </view>
+      </view>
+
+      <view class="form-field enter">
         <view class="field-label"><text>时段粒度</text></view>
         <view class="segmented-control">
           <button class="segment {{granularity === 'hour' ? 'is-active' : ''}}" data-value="hour" bindtap="selectGranularity" aria-pressed="{{granularity === 'hour'}}" aria-label="1 小时时段，{{granularity === 'hour' ? '已选择' : '未选择'}}">1 小时</button>

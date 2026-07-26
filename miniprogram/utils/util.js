@@ -59,6 +59,92 @@ const getTimeSlotConfig = (granularity = 'twoHours') => {
   })
 }
 
+const formatHour = hour => `${String(hour).padStart(2, '0')}:00`
+const getSlotDurationHours = (granularity = 'twoHours') => {
+  const normalized = SLOT_RULES[granularity] ? granularity : 'twoHours'
+  return SLOT_RULES[normalized].hoursPerSlot
+}
+
+/**
+ * 规范化活动每天的可选时间窗口。
+ * 旧活动没有 startHour/endHour 时继续按全天处理，避免破坏既有投票。
+ */
+const normalizeEventTimeWindow = (event = {}) => {
+  const granularity = SLOT_RULES[event.granularity] ? event.granularity : 'twoHours'
+  const hoursPerSlot = SLOT_RULES[granularity].hoursPerSlot
+  const window = event.dailyTimeWindow
+  if (window === undefined) {
+    return {
+      startMinute: 0,
+      endMinute: 1440,
+      startHour: 0,
+      endHour: 24,
+      hoursPerSlot,
+      valid: true
+    }
+  }
+  const startMinute = window?.startMinute
+  const endMinute = window?.endMinute
+  const minutesPerSlot = hoursPerSlot * 60
+  const isValid = Number.isInteger(startMinute) &&
+    Number.isInteger(endMinute) &&
+    startMinute >= 0 &&
+    endMinute <= 1440 &&
+    startMinute < endMinute &&
+    startMinute % minutesPerSlot === 0 &&
+    endMinute % minutesPerSlot === 0
+
+  return {
+    startMinute: isValid ? startMinute : 0,
+    endMinute: isValid ? endMinute : 1440,
+    startHour: isValid ? startMinute / 60 : 0,
+    endHour: isValid ? endMinute / 60 : 24,
+    hoursPerSlot,
+    valid: isValid
+  }
+}
+
+/**
+ * 将任意时间范围向外吸附到新粒度，确保切换粒度后仍覆盖用户原来的意图。
+ */
+const alignTimeWindow = (startHour, endHour, granularity = 'twoHours') => {
+  const normalized = SLOT_RULES[granularity] ? granularity : 'twoHours'
+  const hoursPerSlot = SLOT_RULES[normalized].hoursPerSlot
+  let alignedStart = Math.max(0, Math.min(24 - hoursPerSlot, Math.floor(Number(startHour) / hoursPerSlot) * hoursPerSlot))
+  let alignedEnd = Math.max(hoursPerSlot, Math.min(24, Math.ceil(Number(endHour) / hoursPerSlot) * hoursPerSlot))
+  if (!Number.isFinite(alignedStart)) alignedStart = 0
+  if (!Number.isFinite(alignedEnd)) alignedEnd = 24
+  if (alignedEnd <= alignedStart) alignedEnd = Math.min(24, alignedStart + hoursPerSlot)
+  return { startHour: alignedStart, endHour: alignedEnd, hoursPerSlot }
+}
+
+const getTimeWindowOptions = (granularity = 'twoHours') => {
+  const normalized = SLOT_RULES[granularity] ? granularity : 'twoHours'
+  const hoursPerSlot = SLOT_RULES[normalized].hoursPerSlot
+  return {
+    startOptions: Array.from({ length: 24 / hoursPerSlot }, (_, index) => {
+      const value = index * hoursPerSlot
+      return { value, label: formatHour(value) }
+    }),
+    endOptions: Array.from({ length: 24 / hoursPerSlot }, (_, index) => {
+      const value = (index + 1) * hoursPerSlot
+      return { value, label: formatHour(value) }
+    })
+  }
+}
+
+const getEventTimeSlotConfig = (event = {}) => {
+  const granularity = SLOT_RULES[event.granularity] ? event.granularity : 'twoHours'
+  const { startHour, endHour } = normalizeEventTimeWindow({ ...event, granularity })
+  return getTimeSlotConfig(granularity)
+    .filter(slot => slot.startHour >= startHour && slot.startHour < endHour)
+}
+
+const formatEventTimeWindow = (event = {}) => {
+  const { startHour, endHour } = normalizeEventTimeWindow(event)
+  return `${formatHour(startHour)}–${formatHour(endHour)}`
+}
+
 /**
  * 格式化时间段。
  * @param {number} slotIndex - slotId 中保存的时段索引
@@ -249,6 +335,12 @@ module.exports = {
   formatDate,
   formatDateShort,
   getTimeSlotConfig,
+  getEventTimeSlotConfig,
+  getTimeWindowOptions,
+  getSlotDurationHours,
+  normalizeEventTimeWindow,
+  alignTimeWindow,
+  formatEventTimeWindow,
   formatTimeSlot,
   generateDateRange,
   generateMonthCalendar,

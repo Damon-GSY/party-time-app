@@ -32,9 +32,9 @@
       font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
       -webkit-font-smoothing: antialiased;
     }
-    button, input, textarea { font: inherit; }
+    button, input, textarea, select { font: inherit; }
     button { cursor: pointer; }
-    button:focus-visible, input:focus-visible, textarea:focus-visible {
+    button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible {
       outline: 3px solid var(--coral);
       outline-offset: 3px;
     }
@@ -77,6 +77,9 @@
     .screen.active { display: block; animation: enter .3s var(--ease); }
     .content { padding: 50px 22px 132px; }
     .flow-content { padding: 32px 22px 144px; }
+    #screen-create .flow-content { padding-top: 24px; }
+    #screen-create .flow-header { margin-bottom: 22px; }
+    #screen-create .field { margin-top: 22px; }
     #screen-vote .flow-content, #screen-result .flow-content { padding-right: 14px; padding-left: 14px; }
 
     @keyframes enter {
@@ -196,6 +199,10 @@
     .error-text { display: none; margin-top: 7px; color: var(--danger); font-size: 12px; }
     .error-text.visible { display: block; }
     .date-fields { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 10px; }
+    .time-fields { display: grid; grid-template-columns: minmax(0,1fr) 28px minmax(0,1fr); align-items: end; }
+    .time-field-label { min-width: 0; }
+    .time-connector { min-height: 54px; display: grid; place-items: center; color: var(--muted); font-size: 11px; }
+    .time-summary { display: flex; justify-content: space-between; gap: 12px; }
     .segmented { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); padding: 4px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
     .segment { min-height: 46px; border: 0; border-radius: 9px; background: transparent; color: var(--secondary); font-size: 13px; font-weight: 600; transition: transform .14s var(--ease), color .14s ease, background-color .14s ease; }
     .segment.active { background: var(--coral-soft); color: var(--coral); }
@@ -350,6 +357,7 @@
         <form id="create-form" novalidate>
           <div class="field"><label class="field-label" for="event-name">聚会名称 <span class="required">必填</span></label><input class="field-input" id="event-name" data-testid="event-name" maxlength="30" placeholder="例如：周末聚餐" required><span class="field-hint"><span id="name-count">0</span> / 30</span></div>
           <div class="field"><span class="field-label">日期范围 <span class="required">必填</span></span><div class="date-fields"><label><span class="field-hint">开始日期</span><input class="field-input" id="start-date" data-testid="start-date" type="date" aria-describedby="date-error" required></label><label><span class="field-hint">结束日期</span><input class="field-input" id="end-date" data-testid="end-date" type="date" aria-describedby="date-error" required></label></div><span class="error-text" id="date-error" role="alert"></span></div>
+          <div class="field"><span class="field-label">每日可选时段 <span class="required">必填</span></span><div class="time-fields"><label class="time-field-label" for="start-hour"><span class="field-hint">开始时间</span><select class="field-select" id="start-hour" data-testid="start-hour" aria-describedby="time-window-summary"></select></label><span class="time-connector" aria-hidden="true">至</span><label class="time-field-label" for="end-hour"><span class="field-hint">结束时间</span><select class="field-select" id="end-hour" data-testid="end-hour" aria-describedby="time-window-summary"></select></label></div><span class="field-hint time-summary" id="time-window-summary" aria-live="polite"><span id="time-slot-count"></span><span id="time-window-copy"></span></span></div>
           <div class="field"><span class="field-label">时段粒度</span><div class="segmented" role="group" aria-label="时段粒度"><button class="segment" type="button" data-granularity="hour" aria-pressed="false">1 小时</button><button class="segment active" type="button" data-granularity="twoHours" aria-pressed="true">2 小时</button><button class="segment" type="button" data-granularity="halfDay" aria-pressed="false">6 小时</button></div><span class="field-hint">2 小时适合大多数聚会，也更容易完成投票。</span></div>
           <div class="field"><span class="field-label">投票有效期</span><div class="choices" role="group" aria-label="投票有效期"><button class="choice" type="button" data-expiry="24h" aria-pressed="false">24 小时</button><button class="choice" type="button" data-expiry="3days" aria-pressed="false">3 天</button><button class="choice active" type="button" data-expiry="7days" aria-pressed="true">7 天</button><button class="choice" type="button" data-expiry="never" aria-pressed="false">长期</button></div></div>
           <div class="field"><label class="field-label" for="event-note">备注 <span class="optional">选填</span></label><textarea class="field-textarea" id="event-note" placeholder="地点、人数或其他说明"></textarea></div>
@@ -408,6 +416,7 @@
     const state = {
       page: 'home',
       granularity: 'twoHours',
+      dailyTimeWindow: { startMinute: 600, endMinute: 1320 },
       expiry: '7days',
       currentDateIndex: 0,
       calendarExpanded: false,
@@ -424,21 +433,24 @@
     state.calendarMonthIndex = today.getMonth()
     const defaultStart = addDays(today, 5)
     const defaultEnd = addDays(today, 6)
-    state.event = { name: '周末聚餐', startDate: formatDate(defaultStart), endDate: formatDate(defaultEnd), granularity: 'twoHours', note: '地点待定，选好时间后一起确认。' }
+    state.event = { name: '周末聚餐', startDate: formatDate(defaultStart), endDate: formatDate(defaultEnd), granularity: 'twoHours', dailyTimeWindow: { startMinute: 600, endMinute: 1320 }, note: '地点待定，选好时间后一起确认。' }
     state.responses = [
       { nickname: '小明', slots: [`${state.event.startDate}_4`, `${state.event.startDate}_5`, `${state.event.endDate}_4`] },
       { nickname: '小红', slots: [`${state.event.startDate}_4`, `${state.event.startDate}_6`, `${state.event.endDate}_4`] },
       { nickname: '小李', slots: [`${state.event.startDate}_4`, `${state.event.endDate}_5`] }
     ]
 
-    function slotConfig(granularity) {
+    function slotConfig(granularity, dailyTimeWindow = { startMinute: 0, endMinute: 1440 }) {
       const config = granularity === 'hour' ? { count: 24, step: 1 } : granularity === 'halfDay' ? { count: 4, step: 6, periods: ['深夜','上午','下午','晚上'] } : { count: 12, step: 2 }
       return Array.from({ length: config.count }, (_, index) => {
         const start = index * config.step
         const end = start + config.step
         return { index, label: `${config.periods ? `${config.periods[index]} ` : ''}${pad(start)}:00-${pad(end)}:00`, short: config.periods ? config.periods[index] : `${pad(start)}:00` }
-      })
+      }).filter(slot => slot.index * config.step * 60 >= dailyTimeWindow.startMinute && (slot.index + 1) * config.step * 60 <= dailyTimeWindow.endMinute)
     }
+
+    const eventSlotConfig = () => slotConfig(state.event.granularity, state.event.dailyTimeWindow)
+    const formatWindowMinute = minute => `${pad(minute / 60)}:00`
 
     function eventDates() {
       const dates = []
@@ -550,11 +562,48 @@
     const nameInput = document.getElementById('event-name')
     const startInput = document.getElementById('start-date')
     const endInput = document.getElementById('end-date')
+    const startHourSelect = document.getElementById('start-hour')
+    const endHourSelect = document.getElementById('end-hour')
     const createSubmit = document.getElementById('create-submit')
     startInput.min = formatDate(today)
     endInput.min = formatDate(today)
     startInput.value = formatDate(today)
     endInput.value = formatDate(addDays(today, 1))
+
+    function configureTimeWindow() {
+      const step = state.granularity === 'hour' ? 60 : state.granularity === 'halfDay' ? 360 : 120
+      let startMinute = Math.floor(state.dailyTimeWindow.startMinute / step) * step
+      let endMinute = Math.ceil(state.dailyTimeWindow.endMinute / step) * step
+      startMinute = Math.max(0, Math.min(1440 - step, startMinute))
+      endMinute = Math.max(step, Math.min(1440, endMinute))
+      if (endMinute <= startMinute) endMinute = Math.min(1440, startMinute + step)
+      state.dailyTimeWindow = { startMinute, endMinute }
+      startHourSelect.innerHTML = Array.from({ length: 1440 / step }, (_, index) => {
+        const value = index * step
+        return `<option value="${value}">${formatWindowMinute(value)}</option>`
+      }).join('')
+      endHourSelect.innerHTML = Array.from({ length: 1440 / step }, (_, index) => {
+        const value = (index + 1) * step
+        return `<option value="${value}">${formatWindowMinute(value)}</option>`
+      }).join('')
+      startHourSelect.value = String(startMinute)
+      endHourSelect.value = String(endMinute)
+      document.getElementById('time-slot-count').textContent = `每天开放 ${(endMinute - startMinute) / step} 个时段`
+      document.getElementById('time-window-copy').textContent = `${formatWindowMinute(startMinute)}—${formatWindowMinute(endMinute)}`
+    }
+
+    function updateTimeWindow(changedBoundary) {
+      const step = state.granularity === 'hour' ? 60 : state.granularity === 'halfDay' ? 360 : 120
+      let startMinute = Number(startHourSelect.value)
+      let endMinute = Number(endHourSelect.value)
+      if (startMinute >= endMinute) {
+        if (changedBoundary === 'start') endMinute = Math.min(1440, startMinute + step)
+        else startMinute = Math.max(0, endMinute - step)
+      }
+      state.dailyTimeWindow = { startMinute, endMinute }
+      configureTimeWindow()
+      validateCreate()
+    }
 
     function validateCreate() {
       document.getElementById('name-count').textContent = nameInput.value.length
@@ -575,6 +624,8 @@
     }
 
     ;[nameInput, startInput, endInput].forEach(input => input.addEventListener('input', validateCreate))
+    startHourSelect.addEventListener('change', () => updateTimeWindow('start'))
+    endHourSelect.addEventListener('change', () => updateTimeWindow('end'))
     document.querySelectorAll('[data-granularity]').forEach(button => button.addEventListener('click', () => {
       state.granularity = button.dataset.granularity
       document.querySelectorAll('[data-granularity]').forEach(item => {
@@ -582,6 +633,8 @@
         item.classList.toggle('active', selected)
         item.setAttribute('aria-pressed', String(selected))
       })
+      configureTimeWindow()
+      validateCreate()
     }))
     document.querySelectorAll('[data-expiry]').forEach(button => button.addEventListener('click', () => {
       state.expiry = button.dataset.expiry
@@ -595,7 +648,7 @@
     createForm.addEventListener('submit', event => {
       event.preventDefault()
       if (!validateCreate()) return
-      state.event = { name: nameInput.value.trim(), startDate: startInput.value, endDate: endInput.value, granularity: state.granularity, expiry: state.expiry, note: document.getElementById('event-note').value.trim() }
+      state.event = { name: nameInput.value.trim(), startDate: startInput.value, endDate: endInput.value, granularity: state.granularity, dailyTimeWindow: { ...state.dailyTimeWindow }, expiry: state.expiry, note: document.getElementById('event-note').value.trim() }
       state.responses = []
       state.previewResultName = ''
       state.selected = new Set()
@@ -607,7 +660,7 @@
       const dates = eventDates()
       state.currentDateIndex = Math.min(state.currentDateIndex, dates.length - 1)
       document.getElementById('vote-title').textContent = state.event.name
-      document.getElementById('vote-range').textContent = `${state.event.startDate} 至 ${state.event.endDate} · ${state.responses.length} 人已填写`
+      document.getElementById('vote-range').textContent = `${state.event.startDate} 至 ${state.event.endDate} · 每天 ${formatWindowMinute(state.event.dailyTimeWindow.startMinute)}—${formatWindowMinute(state.event.dailyTimeWindow.endMinute)} · ${state.responses.length} 人已填写`
       document.getElementById('scheduler-range').textContent = `${state.event.startDate.slice(5).replace('-', '/')}—${state.event.endDate.slice(5).replace('-', '/')}`
       const dateTabs = document.getElementById('vote-dates')
       const dateKey = dates.join('|')
@@ -630,11 +683,11 @@
       })
       const currentDate = dates[state.currentDateIndex]
       const parsed = parseDate(currentDate)
-      const config = slotConfig(state.event.granularity)
+      const config = eventSlotConfig()
       const currentCount = config.filter(slot => state.selected.has(`${currentDate}_${slot.index}`)).length
       document.getElementById('current-day-copy').textContent = `${weekdayNames[parsed.getDay()]} · 当天已选 ${currentCount} 个`
       const grid = document.getElementById('slots-grid')
-      const configKey = `${state.event.granularity}:${config.length}`
+      const configKey = `${state.event.granularity}:${state.event.dailyTimeWindow.startMinute}:${state.event.dailyTimeWindow.endMinute}`
       if (grid.dataset.key !== configKey) {
         grid.dataset.key = configKey
         grid.innerHTML = config.map(slot => `<button class="slot" type="button" data-slot-index="${slot.index}"><span class="slot-time">${slot.short}</span><span class="slot-state">OPEN</span></button>`).join('')
@@ -677,12 +730,12 @@
 
     document.getElementById('clear-day').addEventListener('click', () => {
       const date = eventDates()[state.currentDateIndex]
-      slotConfig(state.event.granularity).forEach(slot => state.selected.delete(`${date}_${slot.index}`))
+      eventSlotConfig().forEach(slot => state.selected.delete(`${date}_${slot.index}`))
       renderVote()
     })
     document.getElementById('select-day').addEventListener('click', () => {
       const date = eventDates()[state.currentDateIndex]
-      slotConfig(state.event.granularity).forEach(slot => state.selected.add(`${date}_${slot.index}`))
+      eventSlotConfig().forEach(slot => state.selected.add(`${date}_${slot.index}`))
       renderVote()
     })
 
@@ -703,7 +756,8 @@
     function resultStats() {
       const counts = new Map()
       const users = new Map()
-      state.responses.forEach(response => response.slots.forEach(id => {
+      const allowedIndexes = new Set(eventSlotConfig().map(slot => slot.index))
+      state.responses.forEach(response => response.slots.filter(id => allowedIndexes.has(Number(id.slice(id.lastIndexOf('_') + 1)))).forEach(id => {
         counts.set(id, (counts.get(id) || 0) + 1)
         if (!users.has(id)) users.set(id, [])
         users.get(id).push(response.nickname)
@@ -715,14 +769,14 @@
     function renderResult() {
       const { counts, users, best } = resultStats()
       document.getElementById('result-title').textContent = state.previewResultName || state.event.name
-      document.getElementById('result-range').textContent = `${state.event.startDate} 至 ${state.event.endDate}`
+      document.getElementById('result-range').textContent = `${state.event.startDate} 至 ${state.event.endDate} · 每天 ${formatWindowMinute(state.event.dailyTimeWindow.startMinute)}—${formatWindowMinute(state.event.dailyTimeWindow.endMinute)}`
       let bestText = '等待第一个回应'
       if (best[0]) {
         const separator = best[0].lastIndexOf('_')
         const date = best[0].slice(0, separator)
         const index = Number(best[0].slice(separator + 1))
         const parsed = parseDate(date)
-        const range = slotConfig(state.event.granularity)[index].label.replace('-', '–')
+        const range = slotConfig(state.event.granularity).find(slot => slot.index === index).label.replace('-', '–')
         bestText = `<span class="best-date-line">${parsed.getMonth() + 1}月${parsed.getDate()}日 ${weekdayNames[parsed.getDay()]}</span><span class="best-range-line">${range}</span>`
       }
       document.getElementById('best-time').innerHTML = best[0] ? bestText : '等待第一个回应'
@@ -732,7 +786,7 @@
       document.getElementById('highest-count').textContent = best[1]
       document.getElementById('heatmap').innerHTML = eventDates().map(date => {
         const parsed = parseDate(date)
-        const cells = slotConfig(state.event.granularity).map(slot => {
+        const cells = eventSlotConfig().map(slot => {
           const id = `${date}_${slot.index}`
           const count = counts.get(id) || 0
           const level = state.responses.length ? Math.min(4, Math.ceil(count / state.responses.length * 4)) : 0
@@ -752,7 +806,7 @@
       const parsed = parseDate(date)
       const names = users.get(slotId) || []
       document.getElementById('detail-title').textContent = `${parsed.getMonth()+1}月${parsed.getDate()}日 ${weekdayNames[parsed.getDay()]}`
-      document.getElementById('detail-copy').textContent = `${slotConfig(state.event.granularity)[index].label} · ${names.length} 人有空`
+      document.getElementById('detail-copy').textContent = `${slotConfig(state.event.granularity).find(slot => slot.index === index).label} · ${names.length} 人有空`
       document.getElementById('detail-users').innerHTML = names.length ? names.map(name => `<span class="detail-user">${escapeHTML(name)}</span>`).join('') : '<span class="page-copy">暂时没有人选择</span>'
       detailDialog.showModal()
     }
@@ -800,6 +854,7 @@
     })
 
     renderHomeCalendar()
+    configureTimeWindow()
     validateCreate()
     renderVote()
   </script>

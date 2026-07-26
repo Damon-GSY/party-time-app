@@ -9,7 +9,11 @@ cloud.init({
 const db = cloud.database()
 const DATE_PATTERN = /^(\d{4}-\d{2}-\d{2})_(\d+)$/
 const VALID_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/
-const SLOT_COUNTS = { hour: 24, twoHours: 12, halfDay: 4 }
+const SLOT_RULES = {
+  hour: { count: 24, durationMinutes: 60 },
+  twoHours: { count: 12, durationMinutes: 120 },
+  halfDay: { count: 4, durationMinutes: 360 }
+}
 const TEMPLATE_NEW_PARTICIPANT = 'your_template_id_new_participant'
 
 function isValidEventId(value) {
@@ -31,6 +35,28 @@ function normalizeNickname(value) {
 
 function getResponseDocumentId(eventId, openid) {
   return crypto.createHash('sha256').update(`${eventId}\0${openid}`).digest('hex')
+}
+
+function normalizeDailyTimeWindow(eventData) {
+  const rule = SLOT_RULES[eventData?.granularity]
+  if (!rule) return null
+  if (eventData.dailyTimeWindow === undefined) return { startMinute: 0, endMinute: 1440 }
+  const window = eventData.dailyTimeWindow
+  if (
+    !window ||
+    typeof window !== 'object' ||
+    Array.isArray(window) ||
+    !Number.isInteger(window.startMinute) ||
+    !Number.isInteger(window.endMinute) ||
+    window.startMinute < 0 ||
+    window.endMinute > 1440 ||
+    window.startMinute >= window.endMinute ||
+    window.startMinute % rule.durationMinutes !== 0 ||
+    window.endMinute % rule.durationMinutes !== 0
+  ) {
+    return null
+  }
+  return { startMinute: window.startMinute, endMinute: window.endMinute }
 }
 
 async function persistResponse({
@@ -109,8 +135,10 @@ function validateSubmission(eventData, submittedSlots, now = new Date()) {
     return { ok: false, error: '活动日期配置无效' }
   }
 
-  const slotCount = SLOT_COUNTS[eventData.granularity]
-  if (!slotCount) return { ok: false, error: '活动时段粒度无效' }
+  const rule = SLOT_RULES[eventData.granularity]
+  if (!rule) return { ok: false, error: '活动时段粒度无效' }
+  const dailyTimeWindow = normalizeDailyTimeWindow(eventData)
+  if (!dailyTimeWindow) return { ok: false, error: '活动每日可选时段配置无效' }
   if (eventData.expireAt) {
     const expireAt = new Date(eventData.expireAt)
     if (Number.isNaN(expireAt.getTime())) return { ok: false, error: '活动过期时间无效' }
@@ -124,7 +152,8 @@ function validateSubmission(eventData, submittedSlots, now = new Date()) {
   const uniqueSlots = [...new Set(submittedSlots)]
   const startTimestamp = Date.parse(`${eventData.startDate}T00:00:00Z`)
   const endTimestamp = Date.parse(`${eventData.endDate}T00:00:00Z`)
-  const maxSlots = ((endTimestamp - startTimestamp) / 86400000 + 1) * slotCount
+  const dailySlotCount = (dailyTimeWindow.endMinute - dailyTimeWindow.startMinute) / rule.durationMinutes
+  const maxSlots = ((endTimestamp - startTimestamp) / 86400000 + 1) * dailySlotCount
   if (uniqueSlots.length > maxSlots) return { ok: false, error: '选择的时段数量超出活动范围' }
 
   for (const slotId of uniqueSlots) {
@@ -136,8 +165,13 @@ function validateSubmission(eventData, submittedSlots, now = new Date()) {
     if (slotDate < eventData.startDate || slotDate > eventData.endDate) {
       return { ok: false, error: `时段日期超出活动范围：${slotId}` }
     }
-    if (!Number.isInteger(slotIndex) || slotIndex < 0 || slotIndex >= slotCount) {
+    if (!Number.isInteger(slotIndex) || slotIndex < 0 || slotIndex >= rule.count) {
       return { ok: false, error: `时段索引超出范围：${slotId}` }
+    }
+    const slotStartMinute = slotIndex * rule.durationMinutes
+    const slotEndMinute = slotStartMinute + rule.durationMinutes
+    if (slotStartMinute < dailyTimeWindow.startMinute || slotEndMinute > dailyTimeWindow.endMinute) {
+      return { ok: false, error: `时段超出每日可选范围：${slotId}` }
     }
   }
 
@@ -204,5 +238,6 @@ exports._test = {
   getResponseDocumentId,
   persistResponse,
   truncate,
+  normalizeDailyTimeWindow,
   validateSubmission
 }

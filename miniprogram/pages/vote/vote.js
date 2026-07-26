@@ -98,6 +98,7 @@ Page({
       startDate: util.formatDate(today),
       endDate: util.formatDate(tomorrow),
       granularity: 'twoHours',
+      dailyTimeWindow: { startMinute: 600, endMinute: 1320 },
       note: '地点待定，选好时间后一起确认。'
     }, 3, '', {}, false)
   },
@@ -109,7 +110,15 @@ Page({
     }
 
     const granularity = event.granularity || 'twoHours'
-    const slotConfig = util.getTimeSlotConfig(granularity)
+    const normalizedWindow = util.normalizeEventTimeWindow(event)
+    const normalizedEvent = {
+      ...event,
+      dailyTimeWindow: {
+        startMinute: normalizedWindow.startMinute,
+        endMinute: normalizedWindow.endMinute
+      }
+    }
+    const slotConfig = util.getEventTimeSlotConfig(normalizedEvent)
     const dates = util.generateDateRange(event.startDate, event.endDate).map(date => {
       const parsed = new Date(date)
       return {
@@ -120,18 +129,21 @@ Page({
     })
     const startText = util.formatDateShort(event.startDate)
     const endText = util.formatDateShort(event.endDate)
-    const selectedCount = Object.values(existingSlots).filter(Boolean).length
+    const allowedIndexes = new Set(slotConfig.map(slot => slot.index))
+    const normalizedExistingSlots = Object.fromEntries(Object.entries(existingSlots)
+      .filter(([slotId, selected]) => selected && allowedIndexes.has(util.parseSlotId(slotId).hour)))
+    const selectedCount = Object.values(normalizedExistingSlots).filter(Boolean).length
     const cachedNickname = userUtil.getNickname()
 
     this.setData({
       event: {
-        ...event,
-        dateRangeText: startText === endText ? startText : `${startText} ~ ${endText}`
+        ...normalizedEvent,
+        dateRangeText: `${startText === endText ? startText : `${startText} ~ ${endText}`} · 每天 ${util.formatEventTimeWindow(normalizedEvent)}`
       },
       dates,
       granularity,
       slotsPerDay: slotConfig.length,
-      slots: existingSlots,
+      slots: normalizedExistingSlots,
       selectedCount,
       participantCount,
       nickname: nickname || (cachedNickname === '匿名用户' ? '' : cachedNickname),
@@ -149,7 +161,7 @@ Page({
   applySelectionState(index, slots) {
     const date = this.data.dates[index]
     if (!date) return
-    const currentSlots = util.getTimeSlotConfig(this.data.granularity).map(slot => {
+    const currentSlots = util.getEventTimeSlotConfig(this.data.event).map(slot => {
       const id = util.generateSlotId(date.date, slot.index)
       return {
         id,

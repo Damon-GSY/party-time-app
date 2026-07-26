@@ -41,6 +41,7 @@ test('createEvent validates and normalizes the persisted event contract', () => 
     startDate: '2026-07-26',
     endDate: '2026-07-28',
     granularity: 'twoHours',
+    dailyTimeWindow: { startMinute: 0, endMinute: 1440 },
     expireType: 'never',
     note: '  靠窗座位  '
   }, now)
@@ -52,6 +53,7 @@ test('createEvent validates and normalizes the persisted event contract', () => 
     startDate: '2026-07-26',
     endDate: '2026-07-28',
     granularity: 'twoHours',
+    dailyTimeWindow: { startMinute: 0, endMinute: 1440 },
     expireType: 'never',
     dayCount: 3
   })
@@ -66,6 +68,7 @@ test('createEvent validates and normalizes the persisted event contract', () => 
   assert.equal(document._openid, 'creator-openid')
   assert.equal(document.expireAt, null)
   assert.equal(document.createdAt, 'server-date')
+  assert.deepEqual(document.dailyTimeWindow, { startMinute: 0, endMinute: 1440 })
 })
 
 test('createEvent rejects invalid dates, ranges and enums', () => {
@@ -84,6 +87,10 @@ test('createEvent rejects invalid dates, ranges and enums', () => {
   assert.equal(validate({ ...base, granularity: 'quarterHour' }, now).ok, false)
   assert.equal(validate({ ...base, expireType: 'forever-ish' }, now).ok, false)
   assert.equal(validate({ ...base, name: '   ' }, now).ok, false)
+  assert.equal(validate({ ...base, dailyTimeWindow: { startMinute: 600, endMinute: 1320 } }, now).ok, true)
+  assert.equal(validate({ ...base, dailyTimeWindow: { startMinute: 540, endMinute: 1320 } }, now).ok, false)
+  assert.equal(validate({ ...base, dailyTimeWindow: { startMinute: 1320, endMinute: 600 } }, now).ok, false)
+  assert.equal(validate({ ...base, dailyTimeWindow: { startMinute: '600', endMinute: 1320 } }, now).ok, false)
 })
 
 test('submitResponse accepts canonical slot indexes and removes duplicates', () => {
@@ -117,6 +124,23 @@ test('submitResponse rejects out-of-range, malformed and expired submissions', (
   assert.equal(validate(activeEvent, ['not-a-slot']).ok, false)
   assert.equal(validate(activeEvent, []).ok, false)
   assert.equal(validate({ ...activeEvent, expireAt: '2026-07-25T00:00:00Z' }, ['2026-07-26_0'], new Date('2026-07-26T00:00:00Z')).ok, false)
+})
+
+test('submitResponse enforces the daily time window while legacy events remain full-day', () => {
+  const validate = submitResponse.exports._test.validateSubmission
+  const windowedEvent = {
+    startDate: '2026-07-26',
+    endDate: '2026-07-26',
+    granularity: 'twoHours',
+    dailyTimeWindow: { startMinute: 600, endMinute: 1320 },
+    expireAt: null
+  }
+
+  assert.equal(validate(windowedEvent, ['2026-07-26_5', '2026-07-26_10']).ok, true)
+  assert.equal(validate(windowedEvent, ['2026-07-26_4']).ok, false)
+  assert.equal(validate(windowedEvent, ['2026-07-26_11']).ok, false)
+  assert.equal(validate({ ...windowedEvent, dailyTimeWindow: { startMinute: 610, endMinute: 1320 } }, ['2026-07-26_5']).ok, false)
+  assert.equal(validate({ ...windowedEvent, dailyTimeWindow: undefined }, ['2026-07-26_0', '2026-07-26_11']).ok, true)
 })
 
 test('submitResponse validates identifiers and nicknames', () => {
@@ -249,6 +273,25 @@ test('getEventResult deduplicates legacy responses by participant identity', () 
   assert.equal(deduped.find(item => item._openid === 'same-user').nickname, '新昵称')
 })
 
+test('getEventResult filters slots outside the event window before aggregation', () => {
+  const helpers = getEventResult.exports._test
+  const event = {
+    startDate: '2026-07-26',
+    endDate: '2026-07-26',
+    granularity: 'twoHours',
+    dailyTimeWindow: { startMinute: 600, endMinute: 1320 }
+  }
+  const response = helpers.sanitizeResponse({
+    _id: 'response',
+    nickname: '小明',
+    slots: ['2026-07-26_4', '2026-07-26_5', '2026-07-26_10', '2026-07-26_11', '2026-07-27_5']
+  }, event)
+  const aggregate = helpers.aggregateResponses([response], event)
+
+  assert.deepEqual(response.slots, ['2026-07-26_5', '2026-07-26_10'])
+  assert.deepEqual(Object.keys(aggregate.slotStats), ['2026-07-26_5', '2026-07-26_10'])
+})
+
 test('result notifications derive the best time from server-side responses', () => {
   const calculate = sendNotification.exports._test.calculateBestTime
   const bestTime = calculate({ granularity: 'twoHours' }, [
@@ -258,6 +301,16 @@ test('result notifications derive the best time from server-side responses', () 
   ])
 
   assert.equal(bestTime, '7月31日 周五 · 08:00-10:00')
+  const windowedBestTime = calculate({
+    granularity: 'twoHours',
+    startDate: '2026-07-31',
+    endDate: '2026-07-31',
+    dailyTimeWindow: { startMinute: 600, endMinute: 1320 }
+  }, [
+    { _openid: 'a', slots: ['2026-07-31_4', '2026-07-31_5'] },
+    { _openid: 'b', slots: ['2026-07-31_4', '2026-07-31_5'] }
+  ])
+  assert.equal(windowedBestTime, '7月31日 周五 · 10:00-12:00')
   assert.equal(sendNotification.exports._test.isEventCreator({ createdBy: 'creator' }, 'creator'), true)
   assert.equal(sendNotification.exports._test.isEventCreator({ createdBy: 'creator' }, 'attacker'), false)
 })

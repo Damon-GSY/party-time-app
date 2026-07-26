@@ -58,7 +58,7 @@ test('core pages do not bring back decorative animation clutter', () => {
 test('preview contains the complete acceptance path and valid script syntax', () => {
   const preview = read('preview.html')
   for (const testId of [
-    'home-screen', 'home-create', 'create-screen', 'event-name', 'create-submit',
+    'home-screen', 'home-create', 'create-screen', 'event-name', 'start-hour', 'end-hour', 'create-submit',
     'vote-screen', 'slots-grid', 'nickname', 'vote-submit', 'success-dialog',
     'view-result', 'result-screen', 'heatmap', 'detail-dialog', 'edit-vote'
   ]) {
@@ -84,6 +84,8 @@ test('native core flow exposes accessible control names and state', () => {
   assert.match(index, /aria-label="\{\{item\.name\}\}/)
   assert.match(create, /aria-label="聚会名称，必填"/)
   assert.match(create, /aria-label="开始日期，必填"/)
+  assert.match(create, /aria-label="每天开始时间，必填"/)
+  assert.match(create, /aria-label="每天结束时间，必填"/)
   assert.match(create, /aria-pressed=/)
   assert.match(vote, /aria-label="你的昵称，选填"/)
   assert.match(vote, /aria-selected=/)
@@ -102,10 +104,19 @@ test('unconfigured notification templates do not expose broken actions', () => {
 })
 
 test('vote and result consume the shared slot contract', () => {
-  assert.match(read('miniprogram/pages/vote/vote.js'), /util\.getTimeSlotConfig/)
-  assert.match(read('miniprogram/pages/result/result.js'), /util\.getTimeSlotConfig/)
+  assert.match(read('miniprogram/pages/vote/vote.js'), /util\.getEventTimeSlotConfig/)
+  assert.match(read('miniprogram/pages/result/result.js'), /util\.getEventTimeSlotConfig/)
   assert.match(read('miniprogram/pages/vote/vote.js'), /util\.generateSlotId/)
   assert.match(read('miniprogram/pages/result/result.js'), /util\.generateSlotId/)
+})
+
+test('create flow persists a daily time window and preview applies it end-to-end', () => {
+  const createScript = read('miniprogram/pages/create/create.js')
+  const preview = read('preview.html')
+  assert.match(createScript, /dailyTimeWindow:\s*\{[\s\S]*startMinute:\s*startHour \* 60[\s\S]*endMinute:\s*endHour \* 60/)
+  assert.match(preview, /function configureTimeWindow\(\)/)
+  assert.match(preview, /const eventSlotConfig = \(\) => slotConfig\(state\.event\.granularity, state\.event\.dailyTimeWindow\)/)
+  assert.match(preview, /dailyTimeWindow:\s*\{ \.\.\.state\.dailyTimeWindow \}/)
 })
 
 test('the primary mobile navigation has exactly three stable destinations', () => {

@@ -46,13 +46,49 @@ function dedupeResponses(responses) {
   return [...byOpenId.values()]
 }
 
+function normalizeDailyTimeWindow(eventData, rule) {
+  if (eventData.dailyTimeWindow === undefined) return { startMinute: 0, endMinute: 1440 }
+  const window = eventData.dailyTimeWindow
+  if (
+    !window ||
+    typeof window !== 'object' ||
+    !Number.isInteger(window.startMinute) ||
+    !Number.isInteger(window.endMinute) ||
+    window.startMinute < 0 ||
+    window.endMinute > 1440 ||
+    window.startMinute >= window.endMinute ||
+    window.startMinute % (rule.hoursPerSlot * 60) !== 0 ||
+    window.endMinute % (rule.hoursPerSlot * 60) !== 0
+  ) {
+    return null
+  }
+  return window
+}
+
 function calculateBestTime(eventData, responses) {
   const rule = SLOT_RULES[eventData?.granularity]
   if (!rule) return ''
+  const dailyTimeWindow = normalizeDailyTimeWindow(eventData, rule)
+  if (!dailyTimeWindow) return ''
 
   const counts = new Map()
   for (const response of dedupeResponses(responses)) {
     for (const slotId of new Set(Array.isArray(response.slots) ? response.slots : [])) {
+      const match = /^(\d{4}-\d{2}-\d{2})_(\d+)$/.exec(slotId)
+      if (
+        !match ||
+        (eventData.startDate && match[1] < eventData.startDate) ||
+        (eventData.endDate && match[1] > eventData.endDate)
+      ) continue
+      const slotIndex = Number(match[2])
+      const slotStartMinute = slotIndex * rule.hoursPerSlot * 60
+      if (
+        !Number.isInteger(slotIndex) ||
+        slotIndex < 0 ||
+        slotIndex >= rule.count ||
+        slotStartMinute < dailyTimeWindow.startMinute ||
+        slotStartMinute + rule.hoursPerSlot * 60 > dailyTimeWindow.endMinute
+      ) continue
       counts.set(slotId, (counts.get(slotId) || 0) + 1)
     }
   }
@@ -162,5 +198,6 @@ exports._test = {
   truncate,
   isEventCreator,
   dedupeResponses,
+  normalizeDailyTimeWindow,
   calculateBestTime
 }

@@ -42,6 +42,7 @@ function toListEvent(event, participantCount) {
     startDate: event.startDate,
     endDate: event.endDate,
     granularity: event.granularity,
+    dailyTimeWindow: event.dailyTimeWindow || { startMinute: 0, endMinute: 1440 },
     expireType: event.expireType,
     expireAt: event.expireAt || null,
     note: event.note || '',
