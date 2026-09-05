@@ -4,6 +4,7 @@
     <view class="history-header">
       <text class="eyebrow">历史</text>
       <text class="page-title">全部聚会</text>
+      <text class="page-subtitle">从一次邀约，到下一次见面。</text>
     </view>
 
     <view class="history-tabs">
@@ -16,7 +17,7 @@
 
     <view class="event-list" wx:else>
       <button class="history-row" wx:for="{{events}}" wx:key="_id" bindtap="goToResult" data-id="{{item._id}}">
-        <view class="history-date"><text>{{item.startMonth}}月</text><strong>{{item.startDay}}</strong></view>
+        <view class="history-date"><text>{{item.startMonth}}月</text><text class="history-day">{{item.startDay}}</text></view>
         <view class="history-body"><text class="history-title">{{item.name}}</text><text class="history-meta">{{item.dateRangeText}}</text><text class="history-meta">{{item.participantCount || 0}} 人参与</text></view>
         <text class="history-status {{item.expired ? 'is-expired' : ''}}">{{item.statusText}}</text>
       </button>

@@ -3,11 +3,13 @@
   <view class="home-content">
     <view class="home-header enter">
       <view>
+        <text class="home-eyebrow">给相聚留一点时间</text>
         <text class="brand-title">聚会时间</text>
+        <text class="brand-subtitle">找到大家都有空的那一天。</text>
       </view>
       <button class="new-event-button" bindtap="goToCreate">
         <image class="new-event-icon" src="/assets/icons/plus-dark.png" mode="aspectFit" aria-hidden="true"></image>
-        <text>新建</text>
+        <text>新建聚会</text>
       </button>
     </view>
 
@@ -20,7 +22,7 @@
         aria-label="{{calendarExpanded ? '收起完整月历' : '展开完整月历'}}"
       >
         <view class="calendar-header">
-          <text class="calendar-month" aria-live="polite">{{currentMonth}}</text>
+          <view><text class="calendar-caption">相聚日历</text><text class="calendar-month" aria-live="polite">{{currentMonth}}</text></view>
           <view class="calendar-expand-control" aria-hidden="true">
             <text>{{calendarExpanded ? '收起月历' : '查看整月'}}</text>
             <image class="calendar-expand-icon" src="/assets/icons/chevron-right-dark.png" mode="aspectFit"></image>
@@ -78,7 +80,7 @@
 
     <block wx:else>
       <view class="section-heading" wx:if="{{pendingEvents.length > 0}}">
-        <text class="section-heading-text">进行中</text>
+        <text class="section-heading-text">等你选时间</text>
       </view>
 
       <view class="focus-list" wx:if="{{pendingEvents.length > 0}}">
@@ -111,7 +113,7 @@
       </view>
 
       <view class="section-heading">
-        <text class="section-heading-text">最近聚会</text>
+        <text class="section-heading-text">我的聚会</text>
       </view>
 
       <view class="event-list" wx:if="{{recentEvents.length > 0}}">

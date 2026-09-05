@@ -5,15 +5,15 @@
       <button class="core-back-button" bindtap="goBack" aria-label="返回聚会首页"><image class="core-back-icon" src="/assets/icons/arrow-left-primary.png" mode="aspectFit" aria-hidden="true"></image></button>
       <view class="core-flow-body">
         <text class="eyebrow">新聚会</text>
-        <text class="page-title">先定范围，再让大家选时间</text>
-        <text class="page-subtitle">只需要基本信息，创建后就能把投票分享出去。</text>
+        <text class="page-title">约一次见面</text>
+        <text class="page-subtitle">给相聚起个名字，把有空的日子交给大家。</text>
       </view>
     </view>
 
     <form bindsubmit="handleSubmit">
       <view class="form-field enter">
         <view class="field-label">
-          <text>聚会名称</text><text class="field-required">必填</text>
+          <text class="field-step">01</text><text>这次为什么相聚</text><text class="field-required">必填</text>
         </view>
         <input
           class="field-input {{focusedField === 'name' ? 'is-focused' : ''}}"
@@ -34,7 +34,7 @@
 
       <view class="form-field enter">
         <view class="field-label">
-          <text>日期范围</text><text class="field-required">必填</text>
+          <text class="field-step">02</text><text>哪几天都可以</text><text class="field-required">必填</text>
         </view>
         <view class="date-picker-row">
           <picker class="date-picker-control" mode="date" value="{{startDate}}" start="{{today}}" bindchange="onStartDateChange" aria-label="开始日期，必填">
@@ -50,7 +50,7 @@
       </view>
 
       <view class="form-field enter">
-        <view class="field-label"><text>每日可选时段</text><text class="field-required">必填</text></view>
+        <view class="field-label"><text class="field-step">03</text><text>每天的时间范围</text><text class="field-required">必填</text></view>
         <view class="time-window">
           <picker class="time-picker-control" mode="selector" range="{{startHourOptions}}" range-key="label" value="{{startHourIndex}}" bindchange="onStartHourChange" aria-label="每天开始时间，必填">
             <view class="time-picker-card">
@@ -73,7 +73,7 @@
       </view>
 
       <view class="form-field enter">
-        <view class="field-label"><text>投票有效期</text></view>
+        <view class="field-label"><text>等大家回复多久</text></view>
         <view class="choice-grid">
           <button class="choice {{expireType === '24h' ? 'is-active' : ''}}" data-value="24h" bindtap="selectExpire" aria-pressed="{{expireType === '24h'}}">24 小时</button>
           <button class="choice {{expireType === '3days' ? 'is-active' : ''}}" data-value="3days" bindtap="selectExpire" aria-pressed="{{expireType === '3days'}}">3 天</button>
@@ -83,7 +83,7 @@
       </view>
 
       <view class="form-field enter">
-        <view class="field-label"><text>备注</text><text class="field-optional">选填</text></view>
+        <view class="field-label"><text>再说两句</text><text class="field-optional">选填</text></view>
         <textarea
           class="field-textarea"
           name="note"

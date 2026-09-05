@@ -18,6 +18,7 @@
       <view class="result-header core-flow-header enter">
         <button class="core-back-button" bindtap="goBack" aria-label="返回聚会首页"><image class="core-back-icon" src="/assets/icons/arrow-left-primary.png" mode="aspectFit" aria-hidden="true"></image></button>
         <view class="core-flow-body">
+          <text class="eyebrow">看看大家的时间</text>
           <view class="result-title-row">
             <text class="page-title">{{event.name}}</text>
             <text class="status-pill {{event.expired ? 'is-expired' : ''}}">{{event.expired ? '已结束' : event.expireText}}</text>
@@ -33,11 +34,11 @@
       </view>
 
       <view class="section-heading">
-        <text class="section-heading-text">最佳时间</text>
+        <text class="section-heading-text">最适合相聚的时间</text>
       </view>
 
       <view class="best-card" wx:if="{{bestSlot.timeText}}">
-        <text class="best-label">当前重合最多</text>
+        <text class="best-label">这段时间，最多人有空</text>
         <text class="best-time"><text class="best-date">{{bestSlot.dateText}}</text><text class="best-range">{{bestSlot.rangeText}}</text></text>
         <view class="best-meta">
           <text class="best-count">{{bestSlot.count}} 人有空</text>
@@ -47,7 +48,7 @@
 
       <view class="best-card is-empty" wx:else>
         <text class="best-label">还没有投票</text>
-        <text class="best-time">等待第一个回应</text>
+        <text class="best-time">好时光，等你开启</text>
         <text class="best-empty-copy">分享活动后，结果会自动出现在这里。</text>
       </view>
 
@@ -65,7 +66,7 @@
 
       <block wx:if="{{participantCount > 0}}">
         <view class="section-heading">
-          <text class="section-heading-text">时段分布</text>
+          <text class="section-heading-text">大家的空闲时间</text>
         </view>
         <text class="heatmap-help">横向查看其他日期，点击格子查看参与者。</text>
 

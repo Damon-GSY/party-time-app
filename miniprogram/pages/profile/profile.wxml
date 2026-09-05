@@ -4,6 +4,7 @@
     <view class="profile-heading enter">
       <text class="eyebrow">我的</text>
       <text class="page-title">你的聚会档案</text>
+      <text class="page-subtitle">把见面的约定，好好收藏。</text>
     </view>
 
     <view class="identity-section">
@@ -30,7 +31,7 @@
       </button>
     </view>
 
-    <view class="section-heading"><text class="section-heading-text">管理</text></view>
+    <view class="section-heading"><text class="section-heading-text">我的记录</text></view>
     <view class="menu-list">
       <button class="menu-row" bindtap="goToHistory" data-type="created"><image class="menu-icon" src="/assets/icons/history-coral.png" mode="aspectFit" aria-hidden="true"></image><text class="menu-label">我的创建</text><text class="menu-detail">查看全部</text><image class="menu-chevron" src="/assets/icons/chevron-right-muted.png" mode="aspectFit" aria-hidden="true"></image></button>
       <button class="menu-row" bindtap="goToHistory" data-type="joined"><image class="menu-icon" src="/assets/icons/send-coral.png" mode="aspectFit" aria-hidden="true"></image><text class="menu-label">我的参与</text><text class="menu-detail">查看全部</text><image class="menu-chevron" src="/assets/icons/chevron-right-muted.png" mode="aspectFit" aria-hidden="true"></image></button>

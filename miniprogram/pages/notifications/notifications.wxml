@@ -3,7 +3,7 @@
   <view class="notifications-content">
     <view class="notifications-header enter">
       <text class="eyebrow">消息</text>
-      <text class="page-title">本机动态</text>
+      <text class="page-title">聚会的近况</text>
       <text class="page-subtitle">这里只保存你在这台设备上的操作；订阅消息由微信服务通知送达。</text>
     </view>
 
@@ -22,7 +22,8 @@
     </view>
 
     <view class="empty-state" wx:else>
-      <text class="state-title">暂无通知</text>
+      <view class="empty-mark" aria-hidden="true"><image src="/assets/icons/bell-coral.png" mode="aspectFit"></image></view>
+      <text class="state-title">还没有新动态</text>
       <text class="state-copy">提交时间、订阅提醒或发送结果通知后，操作记录会出现在这里。</text>
     </view>
   </view>

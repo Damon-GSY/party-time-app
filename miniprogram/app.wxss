@@ -1,26 +1,26 @@
 page {
-  --color-bg: #171817;
-  --color-surface: #222320;
-  --color-surface-raised: #2b2b27;
+  --color-bg: #f5f0e7;
+  --color-surface: #fffcf6;
+  --color-surface-raised: #efeadf;
   --color-paper: #dcc9a9;
-  --color-paper-raised: #ead9bb;
-  --color-ink: #171817;
+  --color-paper-raised: #f4ead8;
+  --color-ink: #26382e;
   --color-coral: #b83a2d;
   --color-coral-strong: #a82f25;
-  --color-coral-soft: rgba(184, 58, 45, 0.18);
-  --color-text: #dcc9a9;
-  --color-text-secondary: #b9a98f;
-  --color-text-muted: #8b806f;
-  --color-on-accent: #f4e9d8;
-  --color-border: rgba(220, 201, 169, 0.28);
+  --color-coral-soft: #f5e3da;
+  --color-text: #26382e;
+  --color-text-secondary: #626b60;
+  --color-text-muted: #656e62;
+  --color-on-accent: #fffcf6;
+  --color-border: #d9d9cc;
   --color-success: #4e6851;
   --color-success-ink: #405944;
-  --color-success-soft: rgba(78, 104, 81, 0.22);
-  --color-warning: #b69057;
-  --color-danger: #c44a3d;
+  --color-success-soft: #e8ecdf;
+  --color-warning: #89642d;
+  --color-danger: #a82f25;
   --radius-sm: 12rpx;
   --radius-md: 20rpx;
-  --radius-lg: 30rpx;
+  --radius-lg: 24rpx;
   --radius-pill: 999rpx;
   --space-1: 8rpx;
   --space-2: 16rpx;
@@ -62,12 +62,7 @@ button::after {
 }
 
 .grain-layer {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  width: 100vw;
-  height: 100vh;
-  pointer-events: none;
+  display: none;
 }
 
 .home-content,
@@ -113,12 +108,13 @@ button::after {
   justify-content: center;
   background: var(--color-surface);
   border: 2rpx solid var(--color-border);
-  border-radius: 50%;
+  border-radius: var(--radius-md);
 }
 
 .core-back-icon {
   width: 44rpx;
   height: 44rpx;
+  filter: brightness(0) opacity(.75);
 }
 
 .state-back-button {
@@ -137,6 +133,7 @@ button::after {
 }
 
 .eyebrow {
+  display: block;
   color: var(--color-coral);
   font-size: 22rpx;
   font-weight: 600;
@@ -144,14 +141,17 @@ button::after {
 }
 
 .page-title {
+  display: block;
+  margin-top: 14rpx;
   color: var(--color-text);
-  font-size: 58rpx;
+  font-size: 56rpx;
   font-weight: 700;
   line-height: 1.2;
   letter-spacing: -1rpx;
 }
 
 .page-subtitle {
+  display: block;
   margin-top: 12rpx;
   color: var(--color-text-secondary);
   font-size: 26rpx;
@@ -167,9 +167,9 @@ button::after {
 
 .section-heading::before {
   content: "";
-  width: 8rpx;
-  height: 38rpx;
-  border-radius: var(--radius-pill);
+  width: 10rpx;
+  height: 10rpx;
+  border-radius: 50%;
   background: var(--color-coral);
 }
 
@@ -182,7 +182,7 @@ button::after {
 
 .section-heading-text {
   flex-shrink: 0;
-  font-size: 42rpx;
+  font-size: 34rpx;
   font-weight: 700;
   line-height: 1.2;
 }
@@ -192,7 +192,7 @@ button::after {
 .text-button {
   min-height: 96rpx;
   box-sizing: border-box;
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -228,10 +228,11 @@ button::after {
   opacity: 0.86;
 }
 
-.primary-button[disabled] {
-  background: #30312e;
-  color: var(--color-text-muted);
-  border-color: #30312e;
+.primary-button[disabled],
+.secondary-button[disabled] {
+  background: #e7e4da;
+  color: #74776d;
+  border-color: #d9d9cc;
   opacity: 1;
 }
 
@@ -263,9 +264,9 @@ button::after {
   min-height: 96rpx;
   box-sizing: border-box;
   padding: 24rpx 28rpx;
-  background: var(--color-paper);
+  background: var(--color-surface);
   color: var(--color-ink);
-  border: 2rpx solid rgba(23, 24, 23, 0.28);
+  border: 2rpx solid var(--color-border);
   border-radius: var(--radius-md);
   font-size: 28rpx;
   transition: border-color var(--duration-fast) ease, background-color var(--duration-fast) ease;
@@ -280,11 +281,11 @@ button::after {
 .field-textarea:focus,
 .field-picker:active {
   border-color: var(--color-coral);
-  background: var(--color-paper-raised);
+  background: var(--color-surface);
 }
 
 .placeholder {
-  color: #6e6557;
+  color: #656e62;
 }
 
 .enter {
@@ -330,6 +331,7 @@ button::after {
   margin-top: 12rpx;
   color: var(--color-text-secondary);
   font-size: 25rpx;
+  line-height: 1.7;
 }
 
 .loading-dot {

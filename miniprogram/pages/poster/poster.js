@@ -9,9 +9,15 @@ Page({
   data: {
     eventId: '',
     loading: true,
+    posterError: false,
     event: null,
     participantCount: 0,
     bestSlot: null
+  },
+
+  onReady() {
+    this._canvasReady = true
+    if (this.data.event) this.drawPoster()
   },
 
   onLoad(options) {
@@ -71,100 +77,107 @@ Page({
       }
     } catch (err) {
       wx.showToast({ title: '加载失败', icon: 'none' })
-      this.setData({ loading: false })
+      this.setData({ loading: false, posterError: true })
     }
   },
 
   // 绘制海报
-  async drawPoster() {
+  drawPoster() {
+    if (!this._canvasReady) return
     try {
       const query = wx.createSelectorQuery()
       query.select('#posterCanvas')
         .fields({ node: true, size: true })
-        .exec(async (res) => {
-          if (!res[0] || !res[0].node) {
-            console.error('Canvas node not found')
-            this.setData({ loading: false })
-            return
+        .exec((res) => {
+          try {
+            if (!res[0] || !res[0].node) {
+              console.error('Canvas node not found')
+              this.setData({ loading: false, posterError: true })
+              return
+            }
+
+            const canvas = res[0].node
+            const ctx = canvas.getContext('2d')
+            const dpr = wx.getWindowInfo().pixelRatio || 2
+
+            // 设置 canvas 实际大小
+            canvas.width = POSTER_WIDTH * dpr
+            canvas.height = POSTER_HEIGHT * dpr
+            ctx.scale(dpr, dpr)
+
+            const { event, participantCount, bestSlot } = this.data
+
+            // 1. 绘制背景
+            this.drawBackground(ctx)
+
+            // 2. 绘制结构线
+            this.drawDecorations(ctx)
+
+            // 3. 右上角小程序名称
+            this.drawSingleText(ctx, '聚会时间', POSTER_WIDTH - 20, 36, 14, '#6e756c', 'right')
+
+            // 4. 顶部装饰线条
+            ctx.strokeStyle = 'rgba(184, 58, 45, 0.48)'
+            ctx.lineWidth = 2
+            ctx.beginPath()
+            ctx.moveTo(32, 70)
+            ctx.lineTo(120, 70)
+            ctx.stroke()
+
+            // 5. 活动名称
+            this.drawEventName(ctx, event.name)
+
+            // 6. 日期范围
+            this.drawSingleText(ctx, event.dateRangeText, 32, 240, 16, '#6e756c', 'left')
+
+            // 7. 分隔线
+            ctx.strokeStyle = 'rgba(184, 58, 45, 0.36)'
+            ctx.lineWidth = 1
+            ctx.beginPath()
+            ctx.moveTo(32, 270)
+            ctx.lineTo(POSTER_WIDTH - 32, 270)
+            ctx.stroke()
+
+            // 8. 统计信息
+            this.drawStats(ctx, participantCount)
+
+            // 9. 最佳时段推荐
+            if (bestSlot) {
+              this.drawBestSlot(ctx, bestSlot, participantCount)
+            }
+
+            // 10. 备注
+            if (event.note) {
+              this.drawNote(ctx, event.note)
+            }
+
+            // 11. 底部提示
+            this.drawBottomText(ctx)
+
+            this.setData({ loading: false, posterError: false })
+          } catch (err) {
+            console.error('drawPoster error:', err)
+            wx.showToast({ title: '海报生成失败', icon: 'none' })
+            this.setData({ loading: false, posterError: true })
           }
-
-          const canvas = res[0].node
-          const ctx = canvas.getContext('2d')
-          const dpr = wx.getWindowInfo().pixelRatio || 2
-
-          // 设置 canvas 实际大小
-          canvas.width = POSTER_WIDTH * dpr
-          canvas.height = POSTER_HEIGHT * dpr
-          ctx.scale(dpr, dpr)
-
-          const { event, participantCount, bestSlot } = this.data
-
-          // 1. 绘制背景
-          this.drawBackground(ctx)
-
-          // 2. 绘制结构线
-          this.drawDecorations(ctx)
-
-          // 3. 右上角小程序名称
-          this.drawSingleText(ctx, '聚会时间', POSTER_WIDTH - 20, 36, 14, 'rgba(220,201,169,0.72)', 'right')
-
-          // 4. 顶部装饰线条
-          ctx.strokeStyle = 'rgba(184, 58, 45, 0.48)'
-          ctx.lineWidth = 2
-          ctx.beginPath()
-          ctx.moveTo(32, 70)
-          ctx.lineTo(120, 70)
-          ctx.stroke()
-
-          // 5. 活动名称
-          this.drawEventName(ctx, event.name)
-
-          // 6. 日期范围
-          this.drawSingleText(ctx, event.dateRangeText, 32, 240, 16, '#b9a98f', 'left')
-
-          // 7. 分隔线
-          ctx.strokeStyle = 'rgba(184, 58, 45, 0.36)'
-          ctx.lineWidth = 1
-          ctx.beginPath()
-          ctx.moveTo(32, 270)
-          ctx.lineTo(POSTER_WIDTH - 32, 270)
-          ctx.stroke()
-
-          // 8. 统计信息
-          this.drawStats(ctx, participantCount)
-
-          // 9. 最佳时段推荐
-          if (bestSlot) {
-            this.drawBestSlot(ctx, bestSlot, participantCount)
-          }
-
-          // 10. 备注
-          if (event.note) {
-            this.drawNote(ctx, event.note)
-          }
-
-          // 11. 底部提示
-          this.drawBottomText(ctx)
-
-          this.setData({ loading: false })
         })
     } catch (err) {
       console.error('drawPoster error:', err)
       wx.showToast({ title: '海报生成失败', icon: 'none' })
-      this.setData({ loading: false })
+      this.setData({ loading: false, posterError: true })
     }
   },
 
   // 绘制背景
   drawBackground(ctx) {
     this.roundRect(ctx, 0, 0, POSTER_WIDTH, POSTER_HEIGHT, 0)
-    ctx.fillStyle = '#171817'
+    ctx.fillStyle = '#fffcf6'
     ctx.fill()
   },
 
   // 绘制装饰元素
   drawDecorations(ctx) {
-    ctx.strokeStyle = '#3a342f'
+    ctx.strokeStyle = '#d9d9cc'
     ctx.lineWidth = 1
     ctx.beginPath()
     ctx.moveTo(32, 72)
@@ -175,7 +188,7 @@ Page({
   // 绘制活动名称
   drawEventName(ctx, name) {
     ctx.font = 'bold 28px -apple-system, BlinkMacSystemFont, sans-serif'
-    ctx.fillStyle = '#dcc9a9'
+    ctx.fillStyle = '#26382e'
     ctx.textAlign = 'left'
     ctx.textBaseline = 'top'
 
@@ -197,7 +210,7 @@ Page({
 
     // 参与人数卡片
     this.roundRect(ctx, 32, y, cardWidth, cardHeight, 12)
-    ctx.fillStyle = 'rgba(184, 58, 45, 0.18)'
+    ctx.fillStyle = '#f5e3da'
     ctx.fill()
     ctx.strokeStyle = 'rgba(184, 58, 45, 0.36)'
     ctx.lineWidth = 1
@@ -210,13 +223,13 @@ Page({
     ctx.fillText(String(participantCount), 32 + cardWidth / 2, y + 36)
 
     ctx.font = '12px -apple-system, BlinkMacSystemFont, sans-serif'
-    ctx.fillStyle = '#b9a98f'
+    ctx.fillStyle = '#6e756c'
     ctx.fillText('参与人数', 32 + cardWidth / 2, y + 62)
 
     // 投票状态卡片
     const card2X = 32 + cardWidth + 12
     this.roundRect(ctx, card2X, y, cardWidth, cardHeight, 12)
-    ctx.fillStyle = 'rgba(78, 104, 81, 0.22)'
+    ctx.fillStyle = '#e8ecdf'
     ctx.fill()
     ctx.strokeStyle = 'rgba(78, 104, 81, 0.44)'
     ctx.lineWidth = 1
@@ -235,7 +248,7 @@ Page({
 
     // 推荐卡片背景
     this.roundRect(ctx, 32, y, cardWidth, cardHeight, 16)
-    ctx.fillStyle = 'rgba(184, 58, 45, 0.18)'
+    ctx.fillStyle = '#f5e3da'
     ctx.fill()
     ctx.strokeStyle = 'rgba(184, 58, 45, 0.5)'
     ctx.lineWidth = 1
@@ -249,12 +262,12 @@ Page({
 
     // 时段文字
     ctx.font = 'bold 18px -apple-system, BlinkMacSystemFont, sans-serif'
-    ctx.fillStyle = '#dcc9a9'
+    ctx.fillStyle = '#26382e'
     ctx.fillText(bestSlot, 52, y + 42)
 
     // 人数
     ctx.font = '14px -apple-system, BlinkMacSystemFont, sans-serif'
-    ctx.fillStyle = '#b9a98f'
+    ctx.fillStyle = '#6e756c'
     ctx.fillText(`${participantCount}人参与`, 52, y + 70)
   },
 
@@ -264,7 +277,7 @@ Page({
     const maxWidth = POSTER_WIDTH - 100
 
     ctx.font = '13px -apple-system, BlinkMacSystemFont, sans-serif'
-    ctx.fillStyle = '#8b806f'
+    ctx.fillStyle = '#6e756c'
     ctx.textAlign = 'center'
     ctx.textBaseline = 'top'
 
@@ -279,7 +292,7 @@ Page({
   // 绘制底部提示文字
   drawBottomText(ctx) {
     // 分隔线
-    ctx.strokeStyle = 'rgba(220, 201, 169, 0.12)'
+    ctx.strokeStyle = '#d9d9cc'
     ctx.lineWidth = 1
     ctx.beginPath()
     ctx.moveTo(60, POSTER_HEIGHT - 48)
@@ -287,7 +300,7 @@ Page({
     ctx.stroke()
 
     ctx.font = '13px -apple-system, BlinkMacSystemFont, sans-serif'
-    ctx.fillStyle = '#8b806f'
+    ctx.fillStyle = '#6e756c'
     ctx.textAlign = 'center'
     ctx.textBaseline = 'bottom'
     ctx.fillText('在聚会时间小程序中参与投票', POSTER_WIDTH / 2, POSTER_HEIGHT - 24)

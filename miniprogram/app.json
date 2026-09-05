@@ -11,16 +11,16 @@
   ],
   "window": {
     "backgroundTextStyle": "dark",
-    "navigationBarBackgroundColor": "#171817",
+    "navigationBarBackgroundColor": "#f5f0e7",
     "navigationBarTitleText": "聚会时间",
-    "navigationBarTextStyle": "white",
-    "backgroundColor": "#171817"
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#f5f0e7"
   },
   "tabBar": {
-    "color": "#8b806f",
+    "color": "#6e756c",
     "selectedColor": "#b83a2d",
-    "backgroundColor": "#171817",
-    "borderStyle": "black",
+    "backgroundColor": "#fffcf6",
+    "borderStyle": "white",
     "list": [
       {
         "pagePath": "pages/index/index",
