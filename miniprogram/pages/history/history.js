@@ -1,4 +1,5 @@
 const util = require('../../utils/util')
+const { getAllMyEvents } = require('../../utils/events')
 
 Page({
   data: {
@@ -27,12 +28,8 @@ Page({
   async loadEvents() {
     this.setData({ loading: true, loadError: false })
     try {
-      const response = await wx.cloud.callFunction({
-        name: 'getMyEvents',
-        data: { limit: 50 }
-      })
-      if (!response.result?.success) throw new Error(response.result?.error || '加载失败')
-      const events = this.processEvents((response.result.data || [])
+      const allEvents = await getAllMyEvents()
+      const events = this.processEvents(allEvents
         .filter(event => event.type === this.data.activeTab))
       this.setData({ events, loading: false })
     } catch (err) {

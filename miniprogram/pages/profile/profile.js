@@ -28,8 +28,7 @@ Page({
 
   // 加载用户信息
   loadUserInfo() {
-    const cached = app.globalData.userInfo || user.getUserInfo()
-    this.setData({ userInfo: cached || {} })
+    this.setData({ userInfo: user.getUserInfo() })
   },
 
   // 加载统计数据
@@ -57,7 +56,6 @@ Page({
     const { customNickname } = this.data.userInfo
     if (customNickname) {
       app.updateUserInfo({ customNickname })
-      user.updateUserInfo({ customNickname })
     }
   },
 
@@ -69,10 +67,6 @@ Page({
       success: (res) => {
         const userInfo = res.userInfo
         const updated = app.updateUserInfo({
-          avatarUrl: userInfo.avatarUrl,
-          nickName: userInfo.nickName
-        })
-        user.updateUserInfo({
           avatarUrl: userInfo.avatarUrl,
           nickName: userInfo.nickName
         })

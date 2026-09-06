@@ -299,16 +299,18 @@
         <div class="section-heading"><h2>等待你的回应</h2></div>
         <article class="focus-event" data-testid="pending-event">
           <div class="date-mark"><img class="icon" src="./miniprogram/assets/icons/utensils-coral.png?v=2" alt=""></div>
-          <div class="event-body"><span class="event-title">周末聚餐</span><span class="event-meta"><strong>3 人</strong> 已填写</span><span class="event-meta" id="pending-date-copy"></span></div>
+          <div class="event-body"><span class="event-title">周末聚餐</span><span class="event-meta"><strong id="pending-count">3 人</strong> 已填写</span><span class="event-meta" id="pending-date-copy"></span></div>
           <button class="event-cta" id="pending-vote" type="button" data-testid="pending-vote">填写时间<img class="button-icon" src="./miniprogram/assets/icons/chevron-right-dark.png?v=2" alt=""></button>
         </article>
         <div class="section-heading"><h2>最近聚会</h2></div>
-        <button class="event-row-button" type="button" data-open-result="生日派对">
+        <div id="recent-events">
+        <button class="event-row-button" type="button" data-open-result="birthday">
           <span class="event-row"><span class="date-mark small"><img class="icon" src="./miniprogram/assets/icons/cake-slice-coral.png?v=2" alt=""></span><span class="event-body"><span class="event-title">生日派对</span><span class="event-meta">等待 2 人回应</span></span><img class="event-state" src="./miniprogram/assets/icons/chevron-right-muted.png?v=2" alt=""></span>
         </button>
-        <button class="event-row-button" type="button" data-open-result="团建活动">
+        <button class="event-row-button" type="button" data-open-result="team">
           <span class="event-row"><span class="date-mark small"><img class="icon" src="./miniprogram/assets/icons/party-popper-coral.png?v=2" alt=""></span><span class="event-body"><span class="event-title">团建活动</span><span class="event-meta">已确定时间</span></span><img class="event-state" src="./miniprogram/assets/icons/check-coral.png?v=2" alt=""></span>
         </button>
+        </div>
         </div>
         </div>
       </div>
@@ -386,9 +388,13 @@
       calendarYear: 0,
       calendarMonthIndex: 0,
       selected: new Set(),
-      event: null,
-      previewResultName: '',
-      responses: []
+      // Preview data is session-local. Nicknames are labels, never identity keys.
+      participantId: 'preview-self',
+      nickname: '',
+      currentEventId: 'weekend',
+      events: new Map(),
+      get event() { return this.events.get(this.currentEventId).event },
+      get responses() { return this.events.get(this.currentEventId).responses }
     }
 
     const today = new Date()
@@ -396,13 +402,43 @@
     state.calendarMonthIndex = today.getMonth()
     const defaultStart = addDays(today, 5)
     const defaultEnd = addDays(today, 6)
-    state.event = { name: '周末聚餐', startDate: formatDate(defaultStart), endDate: formatDate(defaultEnd), granularity: 'twoHours', dailyTimeWindow: { startMinute: 600, endMinute: 1320 }, note: '地点待定，选好时间后一起确认。' }
+    state.events.set('weekend', {
+      event: { name: '周末聚餐', startDate: formatDate(defaultStart), endDate: formatDate(defaultEnd), granularity: 'twoHours', dailyTimeWindow: { startMinute: 600, endMinute: 1320 }, note: '地点待定，选好时间后一起确认。' },
+      responses: [
+        { participantId: 'demo-ming', nickname: '小明', slots: [`${formatDate(defaultStart)}_5`, `${formatDate(defaultStart)}_6`, `${formatDate(defaultEnd)}_5`] },
+        { participantId: 'demo-hong', nickname: '小红', slots: [`${formatDate(defaultStart)}_5`, `${formatDate(defaultStart)}_7`, `${formatDate(defaultEnd)}_5`] },
+        { participantId: 'demo-li', nickname: '小李', slots: [`${formatDate(defaultStart)}_5`, `${formatDate(defaultEnd)}_6`] }
+      ]
+    })
+    for (const [id, name, offset] of [['birthday', '生日派对', 8], ['team', '团建活动', 10]]) {
+      state.events.set(id, {
+        event: { name, startDate: formatDate(addDays(today, offset)), endDate: formatDate(addDays(today, offset + 1)), granularity: 'hour', dailyTimeWindow: { startMinute: 600, endMinute: 1320 }, note: '' },
+        responses: []
+      })
+    }
     document.getElementById('pending-date-copy').textContent = `${formatDate(defaultStart).slice(5).replace('-', '月')}日—${formatDate(defaultEnd).slice(5).replace('-', '月')}日 · 时间待定`
-    state.responses = [
-      { nickname: '小明', slots: [`${state.event.startDate}_5`, `${state.event.startDate}_6`, `${state.event.endDate}_5`] },
-      { nickname: '小红', slots: [`${state.event.startDate}_5`, `${state.event.startDate}_7`, `${state.event.endDate}_5`] },
-      { nickname: '小李', slots: [`${state.event.startDate}_5`, `${state.event.endDate}_6`] }
-    ]
+
+    function openEvent(id, page) {
+      if (!state.events.has(id)) return
+      state.currentEventId = id
+      state.currentDateIndex = 0
+      const mine = state.responses.find(response => response.participantId === state.participantId)
+      state.selected = new Set(mine?.slots || [])
+      document.getElementById('nickname').value = mine?.nickname || state.nickname
+      document.getElementById('share-result').textContent = '复制分享提示'
+      showPage(page)
+    }
+
+    function renderHomeEvents() {
+      document.getElementById('pending-count').textContent = `${state.events.get('weekend').responses.length} 人`
+      document.getElementById('recent-events').innerHTML = [...state.events.entries()]
+        .filter(([id]) => id !== 'weekend').reverse().map(([id, record]) => {
+          const icon = id === 'birthday' ? 'cake-slice' : 'party-popper'
+          const status = record.responses.length ? `${record.responses.length} 人已填写` : '等待第一个回应'
+          return `<button class="event-row-button" type="button" data-open-result="${id}"><span class="event-row"><span class="date-mark small"><img class="icon" src="./miniprogram/assets/icons/${icon}-coral.png?v=2" alt=""></span><span class="event-body"><span class="event-title">${escapeHTML(record.event.name)}</span><span class="event-meta">${status}</span></span><img class="event-state" src="./miniprogram/assets/icons/chevron-right-muted.png?v=2" alt=""></span></button>`
+        }).join('')
+      document.querySelectorAll('[data-open-result]').forEach(button => button.addEventListener('click', () => openEvent(button.dataset.openResult, 'result')))
+    }
 
     function slotConfig(granularity, dailyTimeWindow = { startMinute: 0, endMinute: 1440 }) {
       const config = granularity === 'hour' ? { count: 24, step: 1 } : granularity === 'halfDay' ? { count: 4, step: 6, periods: ['深夜','上午','下午','晚上'] } : { count: 12, step: 2 }
@@ -448,6 +484,7 @@
       document.body.dataset.page = page
       const active = document.querySelector(`.screen[data-page="${page}"]`)
       if (active) active.scrollTop = 0
+      if (page === 'home') renderHomeEvents()
       if (page === 'vote') renderVote()
       if (page === 'result') renderResult()
       requestAnimationFrame(() => {
@@ -623,12 +660,12 @@
     createForm.addEventListener('submit', event => {
       event.preventDefault()
       if (!validateCreate()) return
-      state.event = { name: nameInput.value.trim(), startDate: startInput.value, endDate: endInput.value, granularity: 'hour', dailyTimeWindow: { ...state.dailyTimeWindow }, expiry: state.expiry, note: document.getElementById('event-note').value.trim() }
-      state.responses = []
-      state.previewResultName = ''
-      state.selected = new Set()
-      state.currentDateIndex = 0
-      showPage('vote')
+      const id = `created-${state.events.size}`
+      state.events.set(id, {
+        event: { name: nameInput.value.trim(), startDate: startInput.value, endDate: endInput.value, granularity: 'hour', dailyTimeWindow: { ...state.dailyTimeWindow }, expiry: state.expiry, note: document.getElementById('event-note').value.trim() },
+        responses: []
+      })
+      openEvent(id, 'vote')
     })
 
     function renderVote() {
@@ -718,8 +755,9 @@
     document.getElementById('vote-submit').addEventListener('click', () => {
       if (state.selected.size === 0) return
       const nickname = document.getElementById('nickname').value.trim() || '匿名用户'
-      const response = { nickname, slots: [...state.selected] }
-      const existingIndex = state.responses.findIndex(item => item.nickname === nickname)
+      state.nickname = nickname
+      const response = { participantId: state.participantId, nickname, slots: [...state.selected] }
+      const existingIndex = state.responses.findIndex(item => item.participantId === state.participantId)
       if (existingIndex >= 0) state.responses[existingIndex] = response
       else state.responses.push(response)
       document.getElementById('success-copy').textContent = `已保存 ${state.selected.size} 个时段。`
@@ -743,7 +781,7 @@
 
     function renderResult() {
       const { counts, users, best } = resultStats()
-      document.getElementById('result-title').textContent = state.previewResultName || state.event.name
+      document.getElementById('result-title').textContent = state.event.name
       document.getElementById('result-range').textContent = `${state.event.startDate} 至 ${state.event.endDate} · 每天 ${formatWindowMinute(state.event.dailyTimeWindow.startMinute)}—${formatWindowMinute(state.event.dailyTimeWindow.endMinute)}`
       let bestText = '等待第一个回应'
       if (best[0]) {
@@ -786,13 +824,7 @@
       detailDialog.showModal()
     }
     document.getElementById('close-detail').addEventListener('click', () => detailDialog.close())
-    document.getElementById('edit-vote').addEventListener('click', () => {
-      if (state.previewResultName) {
-        state.event = { ...state.event, name: state.previewResultName }
-        state.previewResultName = ''
-      }
-      showPage('vote')
-    })
+    document.getElementById('edit-vote').addEventListener('click', () => openEvent(state.currentEventId, 'vote'))
     document.getElementById('share-result').addEventListener('click', async () => {
       const message = `来帮我选「${state.event.name}」的时间`
       try { await navigator.clipboard.writeText(message); document.getElementById('share-result').textContent = '已复制' } catch (error) { document.getElementById('share-result').textContent = message }
@@ -800,7 +832,7 @@
 
     document.querySelectorAll('[data-open]').forEach(button => button.addEventListener('click', () => showPage(button.dataset.open)))
     document.querySelectorAll('[data-nav]').forEach(button => button.addEventListener('click', () => showPage(button.dataset.nav)))
-    document.getElementById('pending-vote').addEventListener('click', () => { state.previewResultName = ''; state.currentDateIndex = 0; state.selected = new Set(); showPage('vote') })
+    document.getElementById('pending-vote').addEventListener('click', () => openEvent('weekend', 'vote'))
     document.getElementById('home-calendar-toggle').addEventListener('click', toggleHomeCalendar)
     document.getElementById('home-calendar-toggle').addEventListener('keydown', event => {
       if (!['Enter', ' '].includes(event.key)) return
@@ -811,7 +843,6 @@
     document.getElementById('home-calendar-previous').addEventListener('click', () => changeHomeCalendarMonth(-1))
     document.getElementById('home-calendar-next').addEventListener('click', () => changeHomeCalendarMonth(1))
     document.getElementById('home-calendar-today').addEventListener('click', showCurrentHomeMonth)
-    document.querySelectorAll('[data-open-result]').forEach(button => button.addEventListener('click', () => { state.previewResultName = button.dataset.openResult; showPage('result') }))
 
     // Keep the primary action reachable while typing, including desktop keyboard use.
     ;[successDialog, detailDialog, timePickerDialog].forEach(dialog => dialog.addEventListener('click', event => {
@@ -825,6 +856,7 @@
     })
 
     renderHomeCalendar()
+    renderHomeEvents()
     configureTimeWindow()
     validateCreate()
     renderVote()

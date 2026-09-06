@@ -237,7 +237,8 @@ Page({
 
     ctx.font = 'bold 18px -apple-system, BlinkMacSystemFont, sans-serif'
     ctx.fillStyle = '#4e6851'
-    ctx.fillText('进行中', card2X + cardWidth / 2, y + cardHeight / 2)
+    const statusText = util.isExpired(this.data.event?.expireAt) ? '已结束' : '进行中'
+    ctx.fillText(statusText, card2X + cardWidth / 2, y + cardHeight / 2)
   },
 
   // 绘制最佳时段推荐

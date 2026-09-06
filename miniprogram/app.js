@@ -1,3 +1,5 @@
+const user = require('./utils/user')
+
 App({
   onLaunch() {
     if (wx.cloud) {
@@ -30,15 +32,7 @@ App({
 
   // 更新用户信息（供其他页面调用）
   updateUserInfo(data) {
-    const existing = this.globalData.userInfo || {}
-    const updated = { ...existing, ...data }
-    this.globalData.userInfo = updated
-    try {
-      wx.setStorageSync('userInfo', updated)
-    } catch (e) {
-      console.error('updateUserInfo failed:', e)
-    }
-    return updated
+    return user.updateUserInfo(data)
   },
 
   async getOpenId() {

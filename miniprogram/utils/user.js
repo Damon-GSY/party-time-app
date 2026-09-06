@@ -3,13 +3,15 @@
  */
 
 const STORAGE_KEY = 'userInfo'
+const { getAllMyEvents } = require('./events')
 
 /**
- * 获取用户信息（先读缓存，没有则返回默认值）
+ * 获取用户信息（先读内存，再读缓存，没有则返回默认值）
  */
 const getUserInfo = () => {
   try {
-    const info = wx.getStorageSync(STORAGE_KEY)
+    const app = typeof getApp === 'function' ? getApp() : null
+    const info = app?.globalData?.userInfo || wx.getStorageSync(STORAGE_KEY)
     if (info && typeof info === 'object') {
       return {
         nickName: '',
@@ -29,18 +31,18 @@ const getUserInfo = () => {
 }
 
 /**
- * 更新用户信息到缓存
+ * 统一更新内存和缓存，投票页与个人页始终读取同一份用户信息。
  */
 const updateUserInfo = (data) => {
+  const updated = { ...getUserInfo(), ...data }
+  const app = typeof getApp === 'function' ? getApp() : null
+  if (app?.globalData) app.globalData.userInfo = updated
   try {
-    const existing = getUserInfo()
-    const updated = { ...existing, ...data }
     wx.setStorageSync(STORAGE_KEY, updated)
-    return updated
   } catch (e) {
     console.error('updateUserInfo failed:', e)
-    return getUserInfo()
   }
+  return updated
 }
 
 /**
@@ -70,12 +72,7 @@ const getUserStats = async () => {
   }
 
   try {
-    const response = await wx.cloud.callFunction({
-      name: 'getMyEvents',
-      data: { limit: 50 }
-    })
-    if (!response.result?.success) throw new Error(response.result?.error || '统计加载失败')
-    const events = response.result.data || []
+    const events = await getAllMyEvents()
     return {
       createdCount: events.filter(event => event.type === 'created').length,
       joinedCount: events.filter(event => event.type === 'joined').length

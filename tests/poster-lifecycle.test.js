@@ -8,16 +8,16 @@ const vm = require('node:vm')
 const pagePath = path.join(__dirname, '..', 'miniprogram', 'pages', 'poster', 'poster.js')
 const source = fs.readFileSync(pagePath, 'utf8')
 
-function createPosterHarness({ missingCanvas = false, drawError = false } = {}) {
+function createPosterHarness({ missingCanvas = false, drawError = false, expireAt = null } = {}) {
   let definition
   let resolveEvent
   const pendingQueries = []
-  const calls = { queries: 0, draws: 0, toasts: [], errors: [] }
+  const calls = { queries: 0, draws: 0, toasts: [], errors: [], texts: [] }
   const eventResponse = new Promise(resolve => { resolveEvent = resolve })
   const context = {
     scale() { if (drawError) throw new Error('Canvas drawing failed') },
     beginPath() {}, moveTo() {}, lineTo() {}, quadraticCurveTo() {},
-    closePath() {}, fill() {}, stroke() {}, fillText() {},
+    closePath() {}, fill() {}, stroke() {}, fillText(text) { calls.texts.push(text) },
     measureText(text) { return { width: text.length * 8 } }
   }
   const canvas = {
@@ -60,7 +60,7 @@ function createPosterHarness({ missingCanvas = false, drawError = false } = {}) 
     calls,
     resolveEvent() {
       resolveEvent({ result: { success: true, data: {
-        event: { name: '周末聚餐', startDate: '2026-09-05', endDate: '2026-09-06', note: '一起见面' },
+        event: { name: '周末聚餐', startDate: '2026-09-05', endDate: '2026-09-06', note: '一起见面', expireAt },
         participantCount: 3,
         bestSlots: []
       } } })
@@ -140,3 +140,21 @@ test('poster handles exceptions from the asynchronous drawing callback', async (
   assert.equal(harness.calls.toasts.length, 1)
   assert.equal(harness.calls.toasts[0].title, '海报生成失败')
 })
+
+for (const [label, expireAt, expectedStatus] of [
+  ['expired', '2000-01-01T00:00:00.000Z', '已结束'],
+  ['future expiry', '2999-01-01T00:00:00.000Z', '进行中'],
+  ['permanent', null, '进行中']
+]) {
+  test(`poster renders the correct status for ${label} events`, async () => {
+    const harness = createPosterHarness({ expireAt })
+    harness.page.onReady()
+    const loading = harness.page.loadEventData('event-1')
+    harness.resolveEvent()
+    await loading
+    harness.deliverCanvas()
+    const statusTexts = harness.calls.texts.filter(text => ['进行中', '已结束'].includes(text))
+    assert.deepEqual(statusTexts, [expectedStatus])
+    assert.equal(harness.page.data.posterError, false)
+  })
+}
